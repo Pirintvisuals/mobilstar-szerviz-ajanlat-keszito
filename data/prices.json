@@ -1,0 +1,5 @@
+{
+  "_leiras": "Unix nettó beszerzési árak István számláiból. oils: Fuchs termékkód -> { cikkszam (Unix), netPerLiter, source }. filters: cikkszám (szóköz/pont nélkül, nagybetűvel) -> { brand, net, source }. Amíg üres, az ajánlat MINTA árral számol és ezt jelzi.",
+  "oils": {},
+  "filters": {}
+}

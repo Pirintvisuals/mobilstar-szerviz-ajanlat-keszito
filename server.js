@@ -2,7 +2,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-import handler from './api/faq-agent.js';
+import handler from './api/olajcsere.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,10 +27,10 @@ function loadEnvFile(name) {
     return true;
 }
 if (!loadEnvFile('.env.local') && !loadEnvFile('.env')) {
-    console.log('No .env or .env.local file found - running without AI and e-mail (buttons still work).');
+    console.log('No .env.local found - set OLY_SUBSCRIPTION there for the live Fuchs lookup.');
 }
 
-const PORT = process.env.PORT || 8896;
+const PORT = process.env.PORT || 8897;
 
 const mimeTypes = {
     '.html': 'text/html; charset=utf-8',
@@ -56,7 +56,7 @@ function vercelize(res) {
 }
 
 const server = http.createServer(async (req, res) => {
-    if (req.url.startsWith('/api/faq-agent')) {
+    if (req.url.startsWith('/api/olajcsere')) {
         const u = new URL(req.url, `http://${req.headers.host}`);
         req.query = Object.fromEntries(u.searchParams.entries());
         vercelize(res);
@@ -117,5 +117,5 @@ const server = http.createServer(async (req, res) => {
 });
 
 server.listen(PORT, () => {
-    console.log(`\nAutószerviz árajánlatkészítő fut: http://localhost:${PORT}/\n`);
+    console.log(`\nOlajcsere-ajánlat fut: http://localhost:${PORT}/\n`);
 });

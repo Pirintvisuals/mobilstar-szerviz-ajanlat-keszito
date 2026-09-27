@@ -1,112 +1,80 @@
-# Árajánlat-készítő szerelőknek - működő prototípus
+# Olajcsere-ajánlat - Mobil Star Szerviz, prototípus
 
-**A szerelőnek készült, nem az ügyfélnek.** Az használja, aki már látta az
-autót, tudja mi a munka, és most az ajánlat összerakása van hátra: normaidő,
-alkatrész, apróanyag, ÁFA, és egy papír, amit az ügyfél megkap.
+A munkafelvevőnek készült: **autó → Fuchs olaj → cikkszám → ár → kész
+ajánlat**, fél perc alatt, minden sor mellett a forrás linkjével.
 
-## Miért fordult meg
+## Mit csinál
 
-Az első változat az autós ügyfélnek adott hozzávetőleges, „X Ft-tól" árat a
-szerviz weboldalán. A szerelői csoportokból egyöntetűen az jött vissza, hogy
-ennek nincs értéke: árat akkor lehet mondani, ha valaki megnézte a kocsit, és
-egy előre kiadott becslést az ügyfél később számon kér. Ez a változat ezért ott
-kezdi, ahol a szerelő tudása kezdődik - az autó már a hídon volt.
+1. **Autó.** Alvázszám (nem kötelező; a gyártót és - ahol megbízható - az
+   évjáratot kiolvassa belőle), és keresés típusra, motorra vagy motorkódra,
+   pont úgy, mint a Fuchs keresője.
+2. **Olaj - élőben a Fuchs olajválasztóból.** Melyik Fuchs olaj (gyári
+   jóváhagyású előre), a Fuchs termékkódja, a feltöltési mennyiség, a
+   csereciklus. Link: *„Megnézem ugyanezt a Fuchs oldalán"* - ugyanaz az autó
+   a Fuchs saját oldalán.
+3. **Olajszűrő - motorkód szerint.** A tábla a MANN-FILTER nyilvános
+   katalógusából előre fel van töltve (~1000 motorkód, a 2005 utáni Fuchs
+   típusok ~83%-ánál magától jön). Ha nincs találat, a szerelő egyszer megadja
+   a cikkszámot, és onnantól minden ugyanilyen motorú autónál magától jön; a
+   szerelő bejegyzése erősebb, mint a MANN-é.
+4. **Ajánlat.** Olaj, szűrő, alátét, fáradtolaj, munkadíj, árrés, 27% ÁFA.
+   Minden szám átírható. Kimásolható szöveg az ügyfélnek. Mutatja, hány
+   másodperc alatt állt össze.
+5. **Ellenőrzés fül.** A műhely korábbi olajcsere-ajánlatait újraszámolja, és
+   soronként összeveti: ugyanaz az olaj, liter, szűrő, végösszeg?
 
-## Hogyan működik
+**Az árat mindig a kód számolja (`public/quote.js`), sosem az AI.**
 
-**A szerviznek semmit nem kell beállítania.** Minden ügyfélnek én építem meg a
-saját változatát: óradíjak, ÁFA-státusz, szervizneve (`SHOP` a
-`lib/flow.js`-ben), árlista és normaidők (`A`, `N`), munkák listája. Ez a
-build egy **minta szerviz**, piaci átlagárakkal.
+## Adat-slotok - ugyanaz az app a prototípusban és élesben
 
-1. **Munka és autó.** Márka / típus / motor gépelve kiegészül, alvázszám
-   opcionális (ráírja az ajánlatra).
-2. **A munka részletei, egy képernyőn.** Szíj vagy lánc, kettőstömegű,
-   start-stop... **„Nem tudom" válasz sehol nincs**, mert a szerelő látta az
-   autót - egy tipp az ő saját számlájára kerülne.
-3. **A tételek.** Minden sorra ott a szerviz saját normaideje és ára, és ha
-   ennél az autónál más kell, a szerelő **bármelyiket átírja**, vagy **saját
-   sort vesz fel** (beszorult csavar, vizsgadíj, gumi ára). Ez használat, nem
-   beállítás: egyetlen ajánlatra vonatkozik. Csak az átírt szám számít; a le
-   nem nyúlt sorok követik a számolást (pl. az apróanyag a megemelt
-   óraszámmal együtt nő).
-4. **Kész ajánlat.** Tételes, nettó + ÁFA = bruttó (alanyi adómentes buildnél
-   ÁFA nélkül). Nem „-tól", nem tájékoztató - ez a végleges szám. Alatta egy
-   **kimásolható, sima szöveges ajánlat** az ügyfélnek, másolás gombbal.
+| slot | most | élesben |
+|---|---|---|
+| autó → olaj + liter | Fuchs olajválasztó (Olyslager), élő | ugyanez, írásos engedéllyel |
+| motorkód → szűrő cikkszám | `data/filters.json` (MANN katalógus + szerelő) | Unix / Inter Cars / TecDoc |
+| cikkszám → ár | `data/prices.json` (Unix-számlákból) | Unix / Inter Cars adatkapcsolat |
+| árrés, munkadíj, kerekítés | `lib/shop.js` | ugyanez |
 
-Utána: „Tételek módosítása" vagy „Új ajánlat másik autóra".
+Élesítéskor csak a `lib/store.js` függvényei kapnak új forrást; a képernyők
+és a számolás nem változnak.
 
-**Az árat mindig a kód számolja, sosem az AI.** Az AI csak akkor kap szót, ha a
-szerelő olyat ír, amit a backend nem tud gombhoz rendelni.
+## Olajszűrő-tábla: honnan jön, mire figyelj
 
-## Egy szerviznek építeni
+`tools/mann-to-filters.mjs` a MANN-FILTER online katalógusból
+(catalog.mann-filter.com) végigjárt autókból építi a `byEngine` táblát.
+A MANN-cikkszám szabványos hivatkozás, a Unix és az Inter Cars is tartja.
 
-`lib/flow.js`: a `SHOP` blokkba a szerviz neve, óradíjai és ÁFA-kulcsa
-(alanyi adómentesnél `vat: 0`), az `A`-ba az árlistája, az `N`-be a
-normaidők, amikkel dolgozik, a `JOBS`-ba a munkái. Ha van beszállítói
-hozzáférése (cikkszám szerinti ár), az alkatrészár onnan jöhet. A tételek
-szerkesztése minden buildben megmarad, mert a szerelő a saját autójánál többet
-tud, mint bármelyik táblázat.
+- **A motorkód nem mindig elég.** Ugyanaz a kód autónként más szűrőt kaphat
+  (pl. 1.9 TDI ATD: Golf IV/Octavia I HU 726/2 x, Polo IV HU 719/7 x), vagy
+  szűrőház / évjárat / motorszám szerint válik ketté (Z13DT: UFI vagy
+  Purflux ház). Ezek a forrásban **ELLENŐRIZD** / **vagy …** jelzést kapnak,
+  a többi lehetőséggel együtt.
+- **Motorcsalád-találat** (pl. a Fuchs `K9K 638`, a táblában `K9K`) a forrásban
+  jelölve van: „motorcsalád alapján, ellenőrizd”.
+- **Nem talál:** ahol a Fuchs csak családnevet ad kód helyett (Ford
+  „Duratec”, Hyundai „Gamma”), vagy a MANN nem ír motorkódot (Suzuki SX4
+  dízelek). Ott a szerelő adja meg egyszer.
 
-## Az árak
+## Ami még István válaszára vár
 
-`lib/flow.js`: `DEFAULT_RATES` (óradíjak), `N` (normaidők, középkategóriás
-autóra, a `lib/cars.js` kategória-szorzójával), `A` (alkatrészárak
-kategóriánként, 2026-os magyar webshop-listákhoz igazítva). Minden érték nettó.
-A `TEST_SCENARIOS` laza piaci sávokkal ellenőrzi, hogy egy átírt szám ne
-szaladjon el nagyságrendekkel.
+`lib/shop.js`-ben minden **MINTA** jelölésű érték: árrés, munkadíj, alátét,
+fáradtolaj-díj, literkerekítés, a műhely saját olajai. A `data/prices.json`
+üres, amíg meg nem jönnek a korábbi ajánlatok és Unix-számlák. Addig az
+ajánlat MINTA olajárral számol, és ezt az ajánlaton jelzi.
 
-## E-mail
-
-`EMAIL_QUOTES=on` esetén minden kiadott ajánlat másolata a `LEAD_EMAIL_TO`
-címre megy (alapból ki van kapcsolva). A szerelői visszajelzés és a „kérek egy
-sajátot" jelentkezés mindig megy; utóbbi IP-nként naponta egyszer
-(`RL_LEAD_PER_DAY`).
-
-## Futtatás és telepítés
+## Futtatás
 
 ```bash
-npm install
-node server.js      # http://localhost:8896
-npm test            # a folyamat- és ártesztek
+node server.js      # http://localhost:8897
+npm test            # számolás, Fuchs-válasz feldolgozás, alvázszám
 ```
 
-Kulcsok: másold a `.env.example`-t `.env.local`-ra. **Ez a projekt a saját
-kulcsait használja, nem oszt meg semmit a többi bottal.**
+`.env.local`: `OLY_SUBSCRIPTION` (Fuchs olajválasztó hozzáférés). Nélküle a
+keresés hibát ad, a többi működik.
 
-- `GEMINI_API_KEY` - csak a beírt szöveg értelmezéséhez kell. Nélküle a
-  gombokkal végig lehet menni; a beírt mondatokra "válassz a gombok közül"
-  választ ad. Ingyenes kulcs: <https://aistudio.google.com/apikey>
-- `RESEND_API_KEY` - ide mennek a kész ajánlatok és a szerelői visszajelzések.
-  Verifikált domain nélkül a Resend teszt-feladója csak a Resend-fiók saját
-  címére tud küldeni, ami itt pont jó. Kulcs: <https://resend.com/api-keys>
-- `LEAD_EMAIL_TO` - ide érkezik minden.
+## Jogi
 
-Vercelre: push, majd ugyanezek a nevek a Project → Settings → Environment
-Variables alatt. Az `api/faq-agent.js` a serverless végpont, a `public/` a
-statikus rész.
-
-### Működik egyáltalán az e-mail?
-
-```
-https://<app>.vercel.app/api/faq-agent?selftest=1
-```
-
-Kiküld egy minta ajánlatot a `LEAD_EMAIL_TO` címre, és visszaadja JSON-ban,
-hogy mely környezeti változók vannak beállítva és mit válaszolt a Resend.
-A URL-ből SOHA nem tud más címre küldeni.
-
----
-
-## Fájlok
-
-| fájl | mi ez |
-|---|---|
-| `lib/flow.js` | kérdések, gombok, alapértelmezett normaidők és alkatrészárak, felülírások |
-| `lib/cars.js` | autókatalógus (márka → típus → motor), kategória-szorzó, alvázszám-dekóder |
-| `api/faq-agent.js` | a motor: beszélgetés, tételek-szerkesztő, ÁFA, ügyfél-ajánlat, e-mail |
-| `public/index.html` | a landoló oldal |
-| `public/widget.js` | a chat, ami magától kinyílik |
-| `test-flow.mjs` | véletlen végigjárás + rögzített forgatókönyvek + őrök |
+A Fuchs olajválasztó adatai az Olyslager tulajdonát képezik. A Fuchs
+Hungária 2026-09-23-án telefonon hozzájárult a demóhoz. **Fizetős, éles
+használat előtt írásos engedély kell** (Fuchs Hungária / Olyslager).
 
 Készítette: **Landscale Agency**

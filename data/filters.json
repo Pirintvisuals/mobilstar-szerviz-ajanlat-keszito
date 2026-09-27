@@ -1,0 +1,5235 @@
+{
+  "_leiras": "Motorkód (a Fuchs adja, pl. CAYC) -> olajszűrő cikkszám. István korábbi ajánlataiból töltjük fel; ha új motor jön, a szerelő egyszer megadja, és a rendszer megjegyzi.",
+  "byEngine": {
+    "696": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "713": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "714": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "718": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "720": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 04/2003-tól · vagy W 68 (05/2000-ig) · vagy HU 611 x (06/2000 03/2003)"
+    },
+    "722": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 04/2003-tól · vagy W 68 (05/2000-ig) · vagy HU 611 x (06/2000 03/2003)"
+    },
+    "726": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 04/2003-tól · vagy W 68 (05/2000-ig) · vagy HU 611 x (06/2000 03/2003)"
+    },
+    "732": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "734": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "740": {
+      "cikkszam": "HU 618 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "750": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "761": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "764": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 04/2003-tól · vagy W 68 (05/2000-ig) · vagy HU 611 x (06/2000 03/2003)"
+    },
+    "766": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 04/2003-tól · vagy W 68 (05/2000-ig) · vagy HU 611 x (06/2000 03/2003)"
+    },
+    "792": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "794": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "813": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "818": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "850": {
+      "cikkszam": "HU 7025 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "884": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · indítórendszerrel nem rendelkező járművek esetében · vagy W 7032 (indítórendszerrel rendelkező járművekhez)"
+    },
+    "916": {
+      "cikkszam": "HU 7010 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "953": {
+      "cikkszam": "HU 718/5 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "10FDOX": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "16V": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "176B9": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (176B9000)"
+    },
+    "176B9000": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "183A1": {
+      "cikkszam": "W 712/16",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (183A1000)"
+    },
+    "183A1000": {
+      "cikkszam": "W 712/16",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "188A4": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (188A4000)"
+    },
+    "188A4000": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 07/2003-tól · vagy W 713/16 (09/2000 Emissziós norma: Euro 2 (D2) Magasság: 100 mm Motorszámig: 266044) · vagy W 712/16 (10/2000 06/2003 Emissziós norma: Euro 2 (D2) Magasság: 74 mm Motorszámtól: 266045) | vagy W 712/16 (12/2003 Szűrőátmérő: 76 mm)"
+    },
+    "188A7": {
+      "cikkszam": "W 714/4",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (188A7000)"
+    },
+    "188A7000": {
+      "cikkszam": "W 714/4",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "188A9000": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Ház: Purflux · vagy HU 712/7 x (szűrőrendszer: UFI)"
+    },
+    "188B2000": {
+      "cikkszam": "W 7003",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "198A4": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (198A4000)"
+    },
+    "198A4000": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "199A2": {
+      "cikkszam": "HU 712/11 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (199A2000)"
+    },
+    "199A2000": {
+      "cikkszam": "HU 712/11 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Emissziós norma: Euro 5 Magasság: 105 mm szűrőrendszer: UFI · vagy HU 712/7 x (Emissziós norma: Euro 4 Magasság: 101 mm szűrőrendszer: UFI) · vagy HU 713/1 x (Emissziós norma: Euro 4 Ház: Purflux)"
+    },
+    "199A3000": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · szűrő a következőhöz:: Purflux OES-Supplier · vagy HU 712/7 x (szűrőrendszer: UFI)"
+    },
+    "199A4": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (199A4000)"
+    },
+    "199A4000": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "199A6": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (199A6000)"
+    },
+    "199A6000": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "199A8000": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "199B1000": {
+      "cikkszam": "HU 712/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Magasság: 101 mm szűrőrendszer: UFI · vagy HU 713/1 x (Ház: Purflux) · vagy HU 712/11 x (szűrőrendszer: UFI)"
+    },
+    "199B4000": {
+      "cikkszam": "HU 712/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Magasság: 101 mm szűrőrendszer: UFI · vagy HU 713/1 x (Ház: Purflux) · vagy HU 712/11 x (szűrőrendszer: UFI)"
+    },
+    "199B6000": {
+      "cikkszam": "HU 7006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "199B7000": {
+      "cikkszam": "HU 7006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "199BXL1A": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1AD": {
+      "cikkszam": "HU 7009 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1ADFTV)"
+    },
+    "1ADFTV": {
+      "cikkszam": "HU 7009 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1CD": {
+      "cikkszam": "WP 1026",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1CDFTV)"
+    },
+    "1CDFTV": {
+      "cikkszam": "WP 1026",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1KR": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1KRFE)"
+    },
+    "1KRFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1ND": {
+      "cikkszam": "HU 7019 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1NDTV)"
+    },
+    "1NDTV": {
+      "cikkszam": "HU 7019 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 01/2009-tól · vagy W 712/83 (12/2008-ig)"
+    },
+    "1NR": {
+      "cikkszam": "HU 6006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1NRFE)"
+    },
+    "1NRFE": {
+      "cikkszam": "HU 6006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1NZ": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1NZFE, 1NZFXE)"
+    },
+    "1NZFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1NZFXE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1SZ": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1SZFE)"
+    },
+    "1SZFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1WW": {
+      "cikkszam": "HU 6004 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1ZR": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1ZRFE, 1ZRFAE)"
+    },
+    "1ZRFAE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1ZRFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "1ZZ": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (1ZZFE)"
+    },
+    "1ZZFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "223A9000": {
+      "cikkszam": "HU 712/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Magasság: 101 mm szűrőrendszer: UFI · vagy HU 713/1 x (Ház: Purflux) · vagy HU 712/11 x (szűrőrendszer: UFI)"
+    },
+    "2AD": {
+      "cikkszam": "HU 7009 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (2ADFTV, 2ADFHV)"
+    },
+    "2ADFHV": {
+      "cikkszam": "HU 7009 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2ADFTV": {
+      "cikkszam": "HU 7009 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2NR": {
+      "cikkszam": "HU 6006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (2NRFKE)"
+    },
+    "2NRFKE": {
+      "cikkszam": "HU 6006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2NZ": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (2NZFE)"
+    },
+    "2NZFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2SZ": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (2SZFE)"
+    },
+    "2SZFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2ZRFAE": {
+      "cikkszam": "HU 6006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2ZRFE": {
+      "cikkszam": "HU 6006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2ZRFXB": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2ZRFXE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "2ZZ": {
+      "cikkszam": "W 610/9",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (2ZZGE)"
+    },
+    "2ZZGE": {
+      "cikkszam": "W 610/9",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "312A2000": {
+      "cikkszam": "HU 7006 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "350A1": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (350A1000)"
+    },
+    "350A1000": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "3ZZ": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (3ZZFE)"
+    },
+    "3ZZFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "46B19": {
+      "cikkszam": "HU 815/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "4EE": {
+      "cikkszam": "HU 820 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (4EE2)"
+    },
+    "4EE2": {
+      "cikkszam": "HU 820 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "4ZZ": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (4ZZFE)"
+    },
+    "4ZZFE": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "5FX": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "843A1000": {
+      "cikkszam": "W 610/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "8NR": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (8NRFTS)"
+    },
+    "8NRFTS": {
+      "cikkszam": "W 68/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "939A1": {
+      "cikkszam": "HU 711/4 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (939A1000)"
+    },
+    "939A1000": {
+      "cikkszam": "HU 711/4 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · szűrőrendszer: MANN+HUMMEL · vagy HU 712/11 x (03/2008 szűrőrendszer: UFI)"
+    },
+    "955A2000": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "955A6000": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "955A8000": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "955B2000": {
+      "cikkszam": "H 7042 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Ház: UFI · vagy HU 7041 z (Ház: Purflux)"
+    },
+    "9HX": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "9HY": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "9HZ": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A12XEL": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A12XER": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A13DTC": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A13DTE": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A13DTR": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A14NEL": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A14NET": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A14XEL": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A14XER": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A16LET": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A16SHT": {
+      "cikkszam": "HU 6018 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A16XER": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A16XHT": {
+      "cikkszam": "HU 6018 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A16XNT": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A17DTJ": {
+      "cikkszam": "HU 820/1 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A17DTR": {
+      "cikkszam": "HU 820/1 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A17DTS": {
+      "cikkszam": "HU 820/1 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A18XEL": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A18XER": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A20DT": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A20DTC": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A20DTE": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A20DTH": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A20DTL": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A20DTR": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A20NFT": {
+      "cikkszam": "HU 6007 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A20NHT": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Felcsavarható szűrő (LTG) · vagy HU 6007 x ((LDK) Szűrőbetét) | Felcsavarható szűrő · vagy HU 6007 x (Szűrőbetét)"
+    },
+    "A28NER": {
+      "cikkszam": "HU 69/3 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A28NET": {
+      "cikkszam": "HU 69/3 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A9JA": {
+      "cikkszam": "W 719/27",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "A9JB": {
+      "cikkszam": "W 719/27",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AEB": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AEH": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AGN": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AGP": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AGR": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AGU": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AHF": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AHW": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AKE": {
+      "cikkszam": "HU 842 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AKL": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AKN": {
+      "cikkszam": "HU 842 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AKQ": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ALH": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ALT": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ALZ": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AMB": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AMF": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AMK": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AMX": {
+      "cikkszam": "W 930/21",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AOBC": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "APE": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "APF": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "APG": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "APK": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "APP": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "APT": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AQM": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AQN": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AQP": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AQY": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ARL": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ARX": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ARZ": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ASN": {
+      "cikkszam": "W 930/21",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ASV": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ASY": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ASZ": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · ELLENŐRIZD, autótól függ: HU 719/7 x (Polo IV (9N) 1.9 TDI (2003-2009))"
+    },
+    "ATD": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · ELLENŐRIZD, autótól függ: HU 719/7 x (Polo IV (9N) 1.9 TDI (2002-2009))"
+    },
+    "ATN": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ATQ": {
+      "cikkszam": "W 930/21",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AUA": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AUB": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AUE": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AUK": {
+      "cikkszam": "HU 7029 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AUM": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AUQ": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AUS": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AVB": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AVF": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AVK": {
+      "cikkszam": "W 930/21",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AVU": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AWA": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AWM": {
+      "cikkszam": "W 940/66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AWT": {
+      "cikkszam": "W 940/66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AWX": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AWY": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AXP": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AXR": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · ELLENŐRIZD, autótól függ: HU 719/7 x (Polo IV (9N) 1.9 TDI (2002-2009))"
+    },
+    "AXU": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AXW": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AXX": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AYM": {
+      "cikkszam": "HU 842 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AZD": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AZG": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AZJ": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AZL": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AZM": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AZQ": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AZV": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "AZX": {
+      "cikkszam": "HU 932/6 n",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B10XFL": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B10XFT": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B12XEL": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B13DTC": {
+      "cikkszam": "H 7042 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · szűrőrendszer: Ufi · vagy HU 7041 z (szűrőrendszer: Sogefi)"
+    },
+    "B13DTE": {
+      "cikkszam": "H 7042 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · szűrőrendszer: Ufi · vagy HU 7041 z (szűrőrendszer: Sogefi)"
+    },
+    "B13DTR": {
+      "cikkszam": "H 7042 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · szűrőrendszer: Ufi · vagy HU 7041 z (szűrőrendszer: Sogefi)"
+    },
+    "B15SFL": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B15SFT": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B16DTE": {
+      "cikkszam": "HU 6019 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B16DTH": {
+      "cikkszam": "HU 6019 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B16DTJ": {
+      "cikkszam": "HU 6019 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B16SHL": {
+      "cikkszam": "HU 6018 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B16XNT": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B20DTH": {
+      "cikkszam": "HU 6023 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B20DTJ": {
+      "cikkszam": "HU 6023 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B20NFT": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B38B15A": {
+      "cikkszam": "HU 6014/1 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B47C20B": {
+      "cikkszam": "HU 6015 z KIT",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B47D20": {
+      "cikkszam": "HU 6014/1 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B47D20A": {
+      "cikkszam": "HU 6014/1 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B47D20B": {
+      "cikkszam": "HU 6014/1 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B48": {
+      "cikkszam": "HU 6015 z KIT",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (B48A20P)"
+    },
+    "B48A20P": {
+      "cikkszam": "HU 6015 z KIT",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B48B20A": {
+      "cikkszam": "HU 6014/1 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B4D": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B4D401": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B7JA": {
+      "cikkszam": "W 7057",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B7JB": {
+      "cikkszam": "W 7057",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "B7JC": {
+      "cikkszam": "W 7057",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BAD": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BAG": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BAH": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BAJA": {
+      "cikkszam": "W 719/27",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BAM": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BAU": {
+      "cikkszam": "HU 842 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BAY": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BBG": {
+      "cikkszam": "W 930/21",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BBJ": {
+      "cikkszam": "W 930/21",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BBM": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BBU": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BBX": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BBY": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BBZ": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BCA": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BCB": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BCDA": {
+      "cikkszam": "W 7054",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BCZ": {
+      "cikkszam": "HU 842 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BDE": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BDG": {
+      "cikkszam": "HU 842 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BDH": {
+      "cikkszam": "HU 842 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BDK": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BDN": {
+      "cikkszam": "HU 932/6 n",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BDV": {
+      "cikkszam": "W 930/21",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BEH": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BFB": {
+      "cikkszam": "W 940/25",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · alvázszámtól: 8H_4_013 004 Modell exportálása · vagy W 940/66 · vagy W 719/30 (alvázszámig: 8H_4_013 003 Modell exportálása)"
+    },
+    "BFC": {
+      "cikkszam": "HU 842 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BFF": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BFQ": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BGB": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BGU": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BGW": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BHW": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BHX": {
+      "cikkszam": "HU 7033 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BJB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BJX": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BKC": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BKD": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BKE": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BKG": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BKN": {
+      "cikkszam": "HU 8001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · alvázszámtól: 8H_8_012 495 · vagy HU 831 x (alvázszámig: 8H_8_012 494)"
+    },
+    "BKV": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BKY": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLF": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLG": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLM": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLN": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLP": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLR": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLS": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLT": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLZ": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BLY": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BMD": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BME": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BMM": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BMP": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BMS": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BMT": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BNA": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BNM": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BNV": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BPA": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BPJ": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BPP": {
+      "cikkszam": "HU 8001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · alvázszámtól: 8H_8_012 495 · vagy HU 831 x (alvázszámig: 8H_8_012 494)"
+    },
+    "BPW": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BPX": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2005 alvázszámtól: 6L_6_000001 · vagy HU 719/7 x (05/2005 alvázszámig: 6L_5_999999)"
+    },
+    "BPY": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BPZ": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BRB": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BRC": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BRD": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BRE": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BRF": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BSE": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BSF": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BSG": {
+      "cikkszam": "HU 831 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · alvázszámig: 8E_8_144 749 · vagy HU 8001 x (alvázszámtól: 8E_8_144 750)"
+    },
+    "BSS": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BSV": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BSW": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BTS": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BUB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BUD": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BUK": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2005 alvázszámtól: 6L_6_000001 · vagy HU 719/7 x (05/2005 alvázszámig: 6L_5_999999)"
+    },
+    "BUL": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BUY": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BVA": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BVF": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BVG": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BVY": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BVZ": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BWA": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BWB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BWE": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BWJ": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BWS": {
+      "cikkszam": "HU 8009 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 01/2011 alvázszámtól: 3C_B_200 001 · vagy HU 719/7 x (12/2010 alvázszámig: 3C_B_200 000)"
+    },
+    "BWW": {
+      "cikkszam": "HU 726/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BXE": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BXF": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BXJ": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BXV": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BXW": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BYT": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BZB": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BZG": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "BZJA": {
+      "cikkszam": "W 7057",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAEB": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAED": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAGA": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAGB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAHA": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAHB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CALA": {
+      "cikkszam": "HU 7029 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAPA": {
+      "cikkszam": "HU 831 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAVE": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010-tól · vagy W 712/93 (05/2010-ig)"
+    },
+    "CAVF": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010-tól · vagy W 712/93 (05/2010-ig)"
+    },
+    "CAWB": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAXA": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 07/2010-tól · vagy W 712/93 (06/2010-ig)"
+    },
+    "CAXC": {
+      "cikkszam": "HU 712/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · ELLENŐRIZD, autótól függ: W 712/94 (A3 + Cabriolet (8P) 1.4 TFSI (2007-2013), 06/2010 Felcsavarható szűrő · vagy HU 712/6 x (06/2008 Szűrőbetét) · vagy W 712/93 (07/2008 05/2010 Felcsavarható szűrő))"
+    },
+    "CAYA": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAYB": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CAYC": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBAA": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBAB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBBB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBDB": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBFA": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBRA": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBTA": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBUA": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBZA": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CBZB": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CCCA": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CCLA": {
+      "cikkszam": "HU 8001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CCTA": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CCWA": {
+      "cikkszam": "HU 8001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CCZA": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CCZB": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDAA": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDAB": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDGA": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDLA": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDLC": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDLD": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDLF": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDNC": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDUC": {
+      "cikkszam": "HU 8005 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CDVA": {
+      "cikkszam": "HU 8009 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 08/2011-tól · vagy HU 719/7 x (07/2011-ig)"
+    },
+    "CEGA": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CEKA": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CEVA": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFBA": {
+      "cikkszam": "HU 711 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Szűrőbetét · vagy W 7015"
+    },
+    "CFEA": {
+      "cikkszam": "W 719/5",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFFA": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFFB": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFGB": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFGC": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFHC": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFHD": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFHF": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFJA": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFNA": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CFWA": {
+      "cikkszam": "HU 7017 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CGBA": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 11/2002-tól · vagy HU 711 x (10/2002-ig)"
+    },
+    "CGGA": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CGGB": {
+      "cikkszam": "W 712/52",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CGLD": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CGPA": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CGPB": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHBA": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 11/2002-tól · vagy HU 711 x (10/2002-ig)"
+    },
+    "CHFA": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHGA": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHHB": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHPA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHPB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHTA": {
+      "cikkszam": "HU 710 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHYA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHYB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHZB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHZC": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHZD": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHZJ": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHZK": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CHZL": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJAA": {
+      "cikkszam": "HU 719/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJBA": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 11/2002-tól · vagy HU 711 x (10/2002-ig)"
+    },
+    "CJCA": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJCB": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJSA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJSB": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJSC": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJXA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJZA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJZB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJZC": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CJZD": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CKFB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CKFC": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CKMA": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CKVB": {
+      "cikkszam": "HU 8005 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CKVC": {
+      "cikkszam": "HU 8005 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CLCA": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CLCB": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CLHA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CLHB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CLJA": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CLNA": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CMBA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CMFA": {
+      "cikkszam": "HU 7008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CMSA": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010 Felcsavarható szűrő · vagy HU 712/6 x (06/2008 Szűrőbetét) · vagy W 712/93 (07/2008 05/2010 Felcsavarható szűrő)"
+    },
+    "CMXA": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CNCD": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CNHC": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CNKA": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CNSB": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CNUB": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010-tól · vagy W 712/93 (05/2010-ig)"
+    },
+    "CPKA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CPMA": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CPMB": {
+      "cikkszam": "W 719/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CPRA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CPTA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CPVB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CPWA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRBC": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRGA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRKA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRKB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRLB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRLD": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRMB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRTC": {
+      "cikkszam": "HU 7012 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRVA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRVC": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CRZA": {
+      "cikkszam": "HU 719/6 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CTHE": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010-tól · vagy W 712/93 (05/2010-ig)"
+    },
+    "CTHF": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010-tól · vagy W 712/93 (05/2010-ig)"
+    },
+    "CTJB": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010-tól · vagy W 712/93 (05/2010-ig)"
+    },
+    "CTJC": {
+      "cikkszam": "W 712/94",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010-tól · vagy W 712/93 (05/2010-ig)"
+    },
+    "CUKB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CUSA": {
+      "cikkszam": "W 7062",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CUSB": {
+      "cikkszam": "W 7062",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CUTA": {
+      "cikkszam": "W 7062",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CVCA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CVKB": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CWVA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CWVB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CXSA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CXSB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CXUA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CXXA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CXXB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CYFB": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CYKA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CYMC": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CYRB": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CYVA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CYVB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CZCA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CZCC": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CZDA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CZEA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CZHA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CZPB": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CCSA": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "CSUB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D10XFL": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D10XFT": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D13A": {
+      "cikkszam": "HU 712/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · ELLENŐRIZD, autótól függ: HU 712/11 x (Swift IV (AZG/AZH) 1.3 DDis (2010-9999))"
+    },
+    "D13B": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D14Z5": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D14Z6": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D15DT": {
+      "cikkszam": "HU 7032 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D15SFL": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D15SFT": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D16DTE": {
+      "cikkszam": "HU 6019 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D16DTH": {
+      "cikkszam": "HU 6019 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D16DTN": {
+      "cikkszam": "HU 6019 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D16SHJ": {
+      "cikkszam": "HU 6018 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D16SHT": {
+      "cikkszam": "HU 6018 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D16V1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D16W7": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D17A5": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D17A6": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D17A8": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D17A9": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D17Z2": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D20DTH": {
+      "cikkszam": "HU 6023 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D20DTR": {
+      "cikkszam": "HU 6023 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D20NFT": {
+      "cikkszam": "W 7056",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D3FA": {
+      "cikkszam": "HU 7001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4D": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (D4D760)"
+    },
+    "D4D760": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4EA": {
+      "cikkszam": "W 8011",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Jobb oldali kormány · vagy HU 822/5 x"
+    },
+    "D4F": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4F712": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 12/2002-tól · vagy HU 611 x (11/2002-ig)"
+    },
+    "D4F722": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4F732": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4F734": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4F740": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4F742": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4F784": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4FB": {
+      "cikkszam": "HU 7001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2009 A gépjárműgyártó országa: Cseh Köztársaság Vázszám: TMA... · vagy HU 712/10 x (02/2008 A gépjárműgyártó országa: Dél-Korea Vázszám: KMH...) · vagy HU 712/10 x (05/2009 A gépjárműgyártó országa: Cseh Köztársaság Vázszám: TMA...)"
+    },
+    "D4FBL": {
+      "cikkszam": "HU 7001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 08/2009-tól · vagy HU 712/10 x (07/2009-ig)"
+    },
+    "D4FC": {
+      "cikkszam": "HU 7001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4FD": {
+      "cikkszam": "HU 7001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4FDL": {
+      "cikkszam": "HU 7001 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4FE": {
+      "cikkszam": "HU 7048 z Új",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D4HA": {
+      "cikkszam": "HU 7027 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D6BA": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "D7F710": {
+      "cikkszam": "W 66",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 04/2003-tól · vagy W 68 (05/2000-ig) · vagy HU 611 x (06/2000 03/2003)"
+    },
+    "DACA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DADA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DAJA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DBGA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DBKA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DBPA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DBYA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DC6C": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (DC6CM)"
+    },
+    "DC6CM": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DCPC": {
+      "cikkszam": "HU 7012 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DCPE": {
+      "cikkszam": "HU 7012 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DCXA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DCYA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DCYP": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DDAA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DDYA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DDYB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DEJA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DEKA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DESA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DETA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DETB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DEUA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DEUB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DFCA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DFEA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DFFA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DFGA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DFNA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DFVA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DGEB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DGTA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DGTB": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DGTE": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DGX": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DGY": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DHFA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DID5BA": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DITCDV5": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DJGA": {
+      "cikkszam": "HU 7020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DJJA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DJKA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DKLA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DKLB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DKLD": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DKRA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DKRF": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DKYA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DKZA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DLAA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DLAC": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DLBA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DMGA": {
+      "cikkszam": "HU 7012 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DMSA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DNNA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DNNE": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DNPD": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DNUA": {
+      "cikkszam": "HU 6013 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DPBA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DPCA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSGA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSGB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSGD": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSRA": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSRB": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSTA": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSTB": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSUB": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DSUD": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTJ": {
+      "cikkszam": "HU 711/4 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTL": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTPA": {
+      "cikkszam": "HU 7046 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTRA": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTRB": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTRD": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTSB": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTTA": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTTC": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DTUA": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DUCB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DUSB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV4C": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV4TD": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV4TED4": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV5RC": {
+      "cikkszam": "HU 7032 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV5RD": {
+      "cikkszam": "HU 7032 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV5RUCD": {
+      "cikkszam": "HU 7032 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV6": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV6ATED4": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV6C": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV6CTED": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV6DTED": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV6FC": {
+      "cikkszam": "HU 7033 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV6FD": {
+      "cikkszam": "HU 7033 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DV6TED4": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DW10": {
+      "cikkszam": "W 7053",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (DW10ATED)"
+    },
+    "DW10ATED": {
+      "cikkszam": "W 7053",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DW10BTED4": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DW10CTED4": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DW10FD": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DW10TD": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DWYA": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DXDB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DXNB": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "DXPA": {
+      "cikkszam": "HU 5003 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EA113": {
+      "cikkszam": "W 719/5",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EANB": {
+      "cikkszam": "W 712/95",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2ADT": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2ADTD": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2ADTS": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2ADTX": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2DT": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2DTS": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2LTDH2": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EB2LTEDH2": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP2DT": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP2DTS": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP3": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP3C": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6C": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6CDT": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6CDTMD": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6CDTX": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6CG": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6DT": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6DTS": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6FADTXHPD": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6FADTXHPE": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6FDT": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6FDTM": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6FDTMD": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6FDTR": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EP6FDTX": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "ET3J4": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EW10A": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EW10J4": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EW10J4S": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "EW7A": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F15DVH": {
+      "cikkszam": "HU 8016",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F20DVH": {
+      "cikkszam": "HU 8016",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F4R": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F4R770M": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F5R": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F6JA": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F6JB": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F6JD": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F8Q": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F9DA": {
+      "cikkszam": "W 9050",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "F9Q": {
+      "cikkszam": "W 8013",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · alvázszámtól: 00610001 · vagy W 79 (alvázszámig: 00610000)"
+    },
+    "F9Q800": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "FMBA": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "FUJA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "FUJB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "FXJA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "FXJB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "FYJA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 02/2006 Magasság: 74 mm · vagy W 719/27 (01/2006 Magasság: 123 mm)"
+    },
+    "G10A": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G13B": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G16B": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · ELLENŐRIZD, autótól függ: W 610/1 (Grand Vitara (XL7) 1.6 (1998-2005))"
+    },
+    "G16E": {
+      "cikkszam": "W 6031",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (G16EGTS)"
+    },
+    "G16EGTS": {
+      "cikkszam": "W 6031",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G3LC": {
+      "cikkszam": "W 7023",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G3LE": {
+      "cikkszam": "W 7023",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G3LF": {
+      "cikkszam": "W 7023",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G3LH": {
+      "cikkszam": "W 7023",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4AG": {
+      "cikkszam": "W 610/7",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4FA": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4FC": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4FD": {
+      "cikkszam": "W 8017",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4FG": {
+      "cikkszam": "W 8017",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4FJ": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4GC": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4GCG": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4KD": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · A gépjárműgyártó országa: Oroszország · vagy W 8017 (A gépjárműgyártó országa: Szlovákia)"
+    },
+    "G4KH": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4KJ": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4LA": {
+      "cikkszam": "W 7023",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · OE-számhoz: 26300 02502 · vagy W 610/7 (OE-számhoz: 26300 02752)"
+    },
+    "G4LC": {
+      "cikkszam": "W 7023",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4LD": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4LE": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4LF": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4LG": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4LH": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4LK": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4NA": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G4NC": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · A gépjárműgyártó országa: Dél-Korea · vagy W 8017 (A gépjárműgyártó országa: Szlovákia)"
+    },
+    "G6BA": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G6DA": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G6DB": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G6DD": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G6DG": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "G8DC": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "GLF": {
+      "cikkszam": "W 7023",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H25A": {
+      "cikkszam": "W 610/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H27A": {
+      "cikkszam": "W 610/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H4B": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H4D": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H4M": {
+      "cikkszam": "W 6025",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H5F": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H5F650": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H5FT": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H5H": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "H5P": {
+      "cikkszam": "W 6018",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (H5P260)"
+    },
+    "H5P260": {
+      "cikkszam": "W 6018",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HFX": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 07/2000 Motorszámtól: 441 3115 · vagy W 7053 (06/1999-ig) · vagy W 7053 (06/1999-ig) · vagy W 7058 (07/1999 06/2000) · vagy HU 612 x (07/2000 Motorszámig: 441 3114)"
+    },
+    "HFZ": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 07/2000 Motorszámtól: 441 3115 · vagy W 7053 (06/1999-ig) · vagy W 7053 (06/1999-ig) · vagy W 7058 (07/1999 06/2000) · vagy HU 612 x (07/2000 Motorszámig: 441 3114)"
+    },
+    "HHJC": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HHJD": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HHJE": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HJBA": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HNK": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HNP": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HNS": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HPX": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HR13": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HR13DDT": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HR16DE": {
+      "cikkszam": "W 67/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HRA2DDT": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HUBA": {
+      "cikkszam": "HU 719/8 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "HYDA": {
+      "cikkszam": "HU 719/8 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "IQDB": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "IQDC": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "IXDA": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "J20A": {
+      "cikkszam": "W 610/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "JTBA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "JTBB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K10C": {
+      "cikkszam": "W 6026",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K12B": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K12C": {
+      "cikkszam": "W 6026",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K12D": {
+      "cikkszam": "W 6026",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K12M": {
+      "cikkszam": "W 6026",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K14B": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K14C": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K14D": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K15B": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K15C": {
+      "cikkszam": "W 67/2",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K20A2": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K20A3": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K20C1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4J": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4J712": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4J730": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4J780": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M606": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M616": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M690": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M696": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M748": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M760": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M762": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M788": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K4M812": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K7J": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (K7J710)"
+    },
+    "K7J710": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K7M": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K7M710": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K7M800": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K": {
+      "cikkszam": "HU 618 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K700": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K704": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K712": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K714": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K716": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K718": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K722": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K724": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 10/2007-tól · vagy W 75/3 (09/2007-ig)"
+    },
+    "K9K728": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K732": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 10/2007-tól · vagy W 75/3 (09/2007-ig)"
+    },
+    "K9K740": {
+      "cikkszam": "W 75/3",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K790": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K796": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K830": {
+      "cikkszam": "W 7032",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K856": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · indítórendszerrel nem rendelkező járművek esetében · vagy W 7032 (indítórendszerrel rendelkező járművekhez)"
+    },
+    "K9K858": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · indítórendszerrel nem rendelkező járművek esetében · vagy W 7032 (indítórendszerrel rendelkező járművekhez)"
+    },
+    "K9K872": {
+      "cikkszam": "HU 618 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · ELLENŐRIZD, autótól függ: W 7032 (Qashqai II 1.5 dCi (2018-9999), Felcsavarható szűrő · vagy HU 618 y (Szűrőbetét))"
+    },
+    "K9K892": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "K9K894": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · indítórendszerrel nem rendelkező járművek esetében · vagy W 7032 (indítórendszerrel rendelkező járművekhez)"
+    },
+    "K9K896": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · indítórendszerrel nem rendelkező járművek esetében · vagy W 7032 (indítórendszerrel rendelkező járművekhez)"
+    },
+    "K9K898": {
+      "cikkszam": "W 79",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · indítórendszerrel nem rendelkező járművek esetében · vagy W 7032 (indítórendszerrel rendelkező járművekhez)"
+    },
+    "KFU": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "KFW": {
+      "cikkszam": "HU 612 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "KGBA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "KR15DDT": {
+      "cikkszam": "W 67/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "KVJA": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L12A": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L12B1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L12B2": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L13A": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L13A1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L13A7": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L13B": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L13B2": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L13Z1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L13Z4": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L15A": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "L15B3": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "LCBD": {
+      "cikkszam": "W 920/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "LDA1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "LDA2": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "LDA3": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "LEB8": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "LFC1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "LPG": {
+      "cikkszam": "W 719/30",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M0JA": {
+      "cikkszam": "W 7057",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M112945": {
+      "cikkszam": "HU 718/5 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M112946": {
+      "cikkszam": "HU 718/5 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M13A": {
+      "cikkszam": "W 610/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M15A": {
+      "cikkszam": "W 610/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M15AFKS": {
+      "cikkszam": "W 6031",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M15AFXE": {
+      "cikkszam": "W 6031",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M16A": {
+      "cikkszam": "W 610/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M178980": {
+      "cikkszam": "HU 6008 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M1D": {
+      "cikkszam": "HU 618 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M1DA": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M1DC": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M1DD": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M1DH": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M20A": {
+      "cikkszam": "W 6031",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (M20AFXS)"
+    },
+    "M20AFXS": {
+      "cikkszam": "W 6031",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M254915": {
+      "cikkszam": "HU 6033 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M254920": {
+      "cikkszam": "HU 6033 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M260920": {
+      "cikkszam": "HU 711/6 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M264": {
+      "cikkszam": "HU 711/6 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (M264915, M264920)"
+    },
+    "M264915": {
+      "cikkszam": "HU 711/6 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M264920": {
+      "cikkszam": "HU 711/6 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M266": {
+      "cikkszam": "HU 612/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M266980": {
+      "cikkszam": "HU 612/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M270910": {
+      "cikkszam": "HU 711/6 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M270920": {
+      "cikkszam": "HU 711/6 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M271820": {
+      "cikkszam": "HU 514 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M271860": {
+      "cikkszam": "HU 514 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M271942": {
+      "cikkszam": "HU 514 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M271950": {
+      "cikkszam": "HU 514 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M274": {
+      "cikkszam": "HU 711/6 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (M274920)"
+    },
+    "M274920": {
+      "cikkszam": "HU 711/6 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M276820": {
+      "cikkszam": "HU 7025 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M282814": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M282914": {
+      "cikkszam": "HU 10 002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M47D": {
+      "cikkszam": "HU 722 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 04/2003-tól · vagy HU 718/1 z (03/2003-ig)"
+    },
+    "M5M": {
+      "cikkszam": "W 6025",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M5M450": {
+      "cikkszam": "W 6025",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M7JA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M7JB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M8DA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M8DB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M9DA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M9DB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M9R": {
+      "cikkszam": "HU 618 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "M9R700": {
+      "cikkszam": "HU 618 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "MEBA": {
+      "cikkszam": "W 920/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "MPI": {
+      "cikkszam": "W 811/80",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "MR16DDT": {
+      "cikkszam": "W 67/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "MR20DD": {
+      "cikkszam": "W 67/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "MR20DE": {
+      "cikkszam": "W 67/1",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N16A1": {
+      "cikkszam": "W 7069",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N20": {
+      "cikkszam": "HU 722 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 04/2003-tól · vagy HU 718/1 z (03/2003-ig)"
+    },
+    "N20B20A": {
+      "cikkszam": "HU 816 z KIT",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N22A2": {
+      "cikkszam": "HU 712/9 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N22B4": {
+      "cikkszam": "HU 712/9 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N3DA": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N3DB": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N40B16A": {
+      "cikkszam": "HU 815/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N42": {
+      "cikkszam": "HU 815/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N47": {
+      "cikkszam": "HU 721/5 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (N47D20B)"
+    },
+    "N47D20B": {
+      "cikkszam": "HU 721/5 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N47D20C": {
+      "cikkszam": "HU 6004 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N47D20D": {
+      "cikkszam": "HU 6004 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N4JB": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "N7BA": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "NFU": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 07/2004 a következő szervezeti számtól: 10073 · vagy HU 612 x (06/2004 a következő szervezeti számig: 10072)"
+    },
+    "OM607951": {
+      "cikkszam": "W 7032",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM608915": {
+      "cikkszam": "HU 618 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM626951": {
+      "cikkszam": "HU 618 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM640": {
+      "cikkszam": "HU 615/3 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM646811": {
+      "cikkszam": "HU 718/1 k",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM646812": {
+      "cikkszam": "HU 718/1 k",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM651901": {
+      "cikkszam": "HU 7010 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM651913": {
+      "cikkszam": "HU 7010 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM651921": {
+      "cikkszam": "HU 7010 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM651930": {
+      "cikkszam": "HU 7010 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM654": {
+      "cikkszam": "HU 6020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · a család tagjai szerint (OM654916)"
+    },
+    "OM654820": {
+      "cikkszam": "HU 6028 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · szűrőrendszer: HENGST · vagy HU 6020 z (szűrőrendszer: MAHLE)"
+    },
+    "OM654916": {
+      "cikkszam": "HU 6020 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "OM654920": {
+      "cikkszam": "HU 6028 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · szűrőrendszer: HENGST · vagy HU 6020 z (szűrőrendszer: MAHLE)"
+    },
+    "P10A2": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "P4JA": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "P4JB": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "P4JC": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "P4JD": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "PD20FMCR": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "PNBA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Q4BA": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "QJBA": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "QJBB": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R16A1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R16B1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R16B2": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R18A1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R18A2": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R18Z1": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R18Z4": {
+      "cikkszam": "W 610/6",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R9M": {
+      "cikkszam": "HU 618 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "R9N": {
+      "cikkszam": "HU 6011 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "REBA": {
+      "cikkszam": "W 920/45",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "RFJ": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "RHBA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "RHR": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "RHY": {
+      "cikkszam": "W 7058",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "RHZ": {
+      "cikkszam": "W 7053",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "RTJA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "RTJB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "RTJD": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "SDBA": {
+      "cikkszam": "HU 920 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "SEBA": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Felcsavarható szűrő · vagy HU 711 x (Szűrőbetét)"
+    },
+    "SNJA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "SNJB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "SNJC": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "SNJD": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "SPJA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "SPJC": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "SPJE": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "STJA": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "STJB": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "TED": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "TED4": {
+      "cikkszam": "HU 716/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "TU1A": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "TU1JP": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 07/2000 Motorszámtól: 441 3115 · vagy W 7053 (06/1999-ig) · vagy W 7053 (06/1999-ig) · vagy W 7058 (07/1999 06/2000) · vagy HU 612 x (07/2000 Motorszámig: 441 3114)"
+    },
+    "TU3A": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 07/2000 Motorszámtól: 471 7578 · vagy W 7053 (06/1999-ig) · vagy W 7053 (06/1999-ig) · vagy W 7058 (07/1999 06/2000) · vagy HU 612 x (07/2000 Motorszámig: 471 7577)"
+    },
+    "TU3AE5": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "TU3JP": {
+      "cikkszam": "HU 612 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · ELLENŐRIZD, autótól függ: HU 711/51 x (206 1.4i (1998-2007), 07/2000 Motorszámtól: 471 7578 · vagy W 7053 (06/1999-ig) · vagy W 7053 (06/1999-ig) · vagy W 7058 (07/1999 06/2000) · vagy HU 612 x (07/2000 Motorszámig: 471 7577))"
+    },
+    "TU3JP4": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "TU5JP4": {
+      "cikkszam": "HU 711/51 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 07/2004 a következő szervezeti számtól: 10073 · vagy HU 612 x (06/2004 a következő szervezeti számig: 10072)"
+    },
+    "UNCN": {
+      "cikkszam": "W 7008",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "X14XE": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "X16SZR": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "X16XEL": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "X20DTH": {
+      "cikkszam": "HU 718/1 n",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "X20DTL": {
+      "cikkszam": "HU 718/1 n",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "XEP": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 19MA9235 · vagy HU 712/8 x (Motorszámig: 19MA9234)"
+    },
+    "XMJA": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "XMJB": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "XMJC": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "XMJD": {
+      "cikkszam": "W 7015",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Y16YNG": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Y17DIT": {
+      "cikkszam": "HU 820 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Y17DT": {
+      "cikkszam": "HU 820 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Y17DTL": {
+      "cikkszam": "HU 820 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Y20DTH": {
+      "cikkszam": "HU 718/1 n",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Y20DTL": {
+      "cikkszam": "HU 718/1 n",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Y22DTR": {
+      "cikkszam": "HU 718/1 n",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Y30DT": {
+      "cikkszam": "HU 9002 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z10EP": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 19MA9235 · vagy HU 712/8 x (Motorszámig: 19MA9234)"
+    },
+    "Z10XE": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 19MA9235 · vagy HU 712/8 x (Motorszámig: 19MA9234)"
+    },
+    "Z10XEP": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 19MA9235 · vagy HU 712/8 x (Motorszámig: 19MA9234)"
+    },
+    "Z12E": {
+      "cikkszam": "W 6026",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z12XE": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 19MA9235 · vagy HU 712/8 x (Motorszámig: 19MA9234)"
+    },
+    "Z12XEP": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 19MA9235 · vagy HU 712/8 x (Motorszámig: 19MA9234)"
+    },
+    "Z13DT": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Ház: Purflux · vagy HU 712/7 x (szűrőrendszer: UFI)"
+    },
+    "Z13DTE": {
+      "cikkszam": "HU 7004/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z13DTH": {
+      "cikkszam": "HU 713/1 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Ház: Purflux · vagy HU 712/7 x (szűrőrendszer: UFI)"
+    },
+    "Z13DTJ": {
+      "cikkszam": "HU 712/7 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · 06/2010 szűrőrendszer: UFI · vagy HU 713/1 x (06/2010 Ház: Purflux)"
+    },
+    "Z14XE": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z14XEP": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 19MA9235 · vagy HU 712/8 x (Motorszámig: 19MA9234)"
+    },
+    "Z16LEL": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16LER": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16LES": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16LET": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16SE": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16XE": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16XE1": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16XEP": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16XER": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16XNT": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z16YNG": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z17DTH": {
+      "cikkszam": "HU 820 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z17DTJ": {
+      "cikkszam": "HU 820/1 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z17DTL": {
+      "cikkszam": "HU 820 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z17DTR": {
+      "cikkszam": "HU 820/1 y",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z18XE": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 20V00605 · vagy HU 611/1 x (Motorszámig: 20V00604)"
+    },
+    "Z18XEL": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Motorszámtól: 20V00605 · vagy HU 611/1 x (Motorszámig: 20V00604)"
+    },
+    "Z18XER": {
+      "cikkszam": "HU 612/2 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z19DT": {
+      "cikkszam": "HU 711/4 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z19DTH": {
+      "cikkszam": "HU 711/4 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z19DTL": {
+      "cikkszam": "HU 711/4 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z20LEH": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z20LER": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z20LET": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z20ZET": {
+      "cikkszam": "W 712/75",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z22SE": {
+      "cikkszam": "HU 6007 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z22YH": {
+      "cikkszam": "HU 6007 x",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus"
+    },
+    "Z2DA": {
+      "cikkszam": "HU 7032 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Kézi váltó · vagy HU 5001 z (Automata váltó)"
+    },
+    "ZTDA": {
+      "cikkszam": "HU 7032 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Kézi váltó · vagy HU 5001 z (Automata váltó)"
+    },
+    "ZTDB": {
+      "cikkszam": "HU 7032 z",
+      "brand": "MANN-FILTER",
+      "source": "MANN katalógus · Kézi váltó · vagy HU 5001 z (Automata váltó)"
+    }
+  }
+}

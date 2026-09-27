@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "autoszerviz-agent",
+      "name": "olajcsere",
       "runtimeExecutable": "node",
       "runtimeArgs": ["server.js"],
-      "port": 8896
+      "port": 8897
     }
   ]
 }
