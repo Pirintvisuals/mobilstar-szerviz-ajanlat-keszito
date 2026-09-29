@@ -4,9 +4,15 @@
 //    GET  ?action=vehicle&typeId=65998       -> olaj, mennyiség, szűrő, árak
 //    POST {action:'filter', engineCode, cikkszam, brand, net} -> megjegyzi
 //    GET  ?action=proof                      -> korábbi ajánlatok ellenőrzése
+//  Alvázszámos alkatrész-ajánlat (TecDoc-teszt):
+//    GET  ?action=td-status                  -> be van-e állítva, maradék keret
+//    GET  ?action=td-vin&vin=...             -> autó(k) az alvázszámból
+//    GET  ?action=td-job&vehicleId=..&job=.. -> illő alkatrészek, márkák
+//    GET  ?action=td-oem&oem=...             -> gyári szám -> utángyártott
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
+import { JOBS, tecdocStatus, vinLookup, partsForJob, oemLookup } from '../lib/tecdoc.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode } from '../lib/store.js';
 import { SHOP } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
@@ -61,6 +67,18 @@ export default async function handler(req, res) {
         }
         if (action === 'filter' && req.method === 'POST') {
             return res.status(200).json(rememberFilter(body.engineCode, body));
+        }
+        if (action === 'td-status') {
+            return res.status(200).json({ ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, parts }) => ({ key, label, hours, parts: parts.map((p) => p.label) })) });
+        }
+        if (action === 'td-vin') {
+            return res.status(200).json({ ...(await vinLookup(q.vin)), status: tecdocStatus() });
+        }
+        if (action === 'td-job') {
+            return res.status(200).json({ ...(await partsForJob(q.vehicleId, q.job, SHOP.preferredBrands)), status: tecdocStatus() });
+        }
+        if (action === 'td-oem') {
+            return res.status(200).json({ ...(await oemLookup(q.oem, SHOP.preferredBrands)), status: tecdocStatus() });
         }
         if (action === 'proof') {
             const cases = proofCases();

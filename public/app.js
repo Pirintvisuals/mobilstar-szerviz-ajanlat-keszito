@@ -268,8 +268,7 @@ $('reset').addEventListener('click', () => {
 // ---------- Fülek ----------
 document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach((x) => { x.classList.toggle('is-on', x === t); x.setAttribute('aria-selected', x === t); });
-    $('view-quote').hidden = t.dataset.tab !== 'quote';
-    $('view-proof').hidden = t.dataset.tab !== 'proof';
+    ['quote', 'parts', 'proof'].forEach((k) => { $('view-' + k).hidden = t.dataset.tab !== k; });
 }));
 
 // ---------- Ellenőrzés ----------

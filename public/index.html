@@ -7,6 +7,7 @@
 <meta name="description" content="Autó → Fuchs olaj → cikkszám → ár → kész ajánlat, fél perc alatt.">
 <link rel="stylesheet" href="/app.css">
 <script type="module" src="/app.js"></script>
+<script type="module" src="/parts.js"></script>
 </head>
 <body>
 <header class="top">
@@ -14,6 +15,7 @@
     <div class="brand"><span class="dot"></span><span id="shop-name">Olajcsere-ajánlat</span></div>
     <nav class="tabs" role="tablist">
       <button class="tab is-on" data-tab="quote" role="tab" aria-selected="true">Új ajánlat</button>
+      <button class="tab" data-tab="parts" role="tab" aria-selected="false">Alvázszám → alkatrész</button>
       <button class="tab" data-tab="proof" role="tab" aria-selected="false">Ellenőrzés</button>
     </nav>
   </div>
@@ -83,6 +85,63 @@
           <button id="reset" class="btn ghost">Új autó</button>
         </div>
         <details class="plain"><summary>Az ügyfélnek küldött szöveg</summary><pre id="plain"></pre></details>
+      </div>
+    </div>
+  </aside>
+</main>
+
+<main id="view-parts" class="wrap grid" hidden>
+  <section class="col">
+    <div class="card">
+      <h2><span class="n">1</span> Autó alvázszámból <span class="src" id="td-left"></span></h2>
+      <form id="td-vin-form" class="inline-form">
+        <input id="td-vin" class="inp mono" maxlength="20" autocomplete="off" spellcheck="false" placeholder="17 karakteres alvázszám" aria-label="Alvázszám">
+        <button class="btn" type="submit">Autó keresése</button>
+      </form>
+      <div id="td-vin-hint" class="hint"></div>
+      <div id="td-cars" class="results" aria-live="polite"></div>
+    </div>
+
+    <div id="td-card-job" class="card" hidden>
+      <h2><span class="n">2</span> Mi a munka?</h2>
+      <div id="td-car" class="vehicle"></div>
+      <div id="td-jobs" class="chips"></div>
+      <p class="hint">Minden alkatrész-csoport egy kérés a tesztkeretből. Egy munka kétszer nem fogy: a válasz el van mentve.</p>
+    </div>
+
+    <div id="td-parts" class="col"></div>
+
+    <div class="card">
+      <h2>Gyári cikkszámból <span class="src">utángyártott megfelelők</span></h2>
+      <p class="hint">Ha a gyári számot már kikerested (pl. Ford Ecat), írd be: a rendszer kiadja az utángyártott párjait, a te márkáid elöl.</p>
+      <form id="td-oem-form" class="inline-form">
+        <input id="td-oem" class="inp mono" maxlength="30" autocomplete="off" spellcheck="false" placeholder="pl. 1714387" aria-label="Gyári cikkszám">
+        <button class="btn" type="submit">Keresés</button>
+      </form>
+      <div id="td-oem-out"></div>
+    </div>
+  </section>
+
+  <aside class="col">
+    <div class="card quote">
+      <h2>Ajánlat</h2>
+      <div id="td-quote-empty" class="empty">Add meg az alvázszámot, válaszd ki a munkát, és az alkatrészek a műhely márkáival itt összeállnak.</div>
+      <div id="td-quote" hidden>
+        <table class="lines">
+          <thead><tr><th>Tétel</th><th class="r">Menny.</th><th class="r">Egységár</th><th class="r">Nettó</th></tr></thead>
+          <tbody id="td-lines"></tbody>
+        </table>
+        <div class="totals">
+          <div><span>Nettó</span><b id="td-net"></b></div>
+          <div><span id="td-vat-l">ÁFA</span><b id="td-vat"></b></div>
+          <div class="grand"><span>Fizetendő</span><b id="td-gross"></b></div>
+        </div>
+        <div id="td-warn" class="warn" hidden></div>
+        <div class="actions">
+          <button id="td-copy" class="btn">Ajánlat másolása</button>
+          <button id="td-reset" class="btn ghost">Új autó</button>
+        </div>
+        <details class="plain"><summary>Az ügyfélnek küldött szöveg</summary><pre id="td-plain"></pre></details>
       </div>
     </div>
   </aside>

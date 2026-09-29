@@ -5,6 +5,7 @@ import { chargedLiters, pickOil, buildQuote, quoteText } from './public/quote.js
 import { normalizeRecommendation } from './lib/olyslager.js';
 import { vinMake, vinYear, vinLooksValid } from './public/vin.js';
 import { engineCodes } from './lib/store.js';
+import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem } from './lib/tecdoc.js';
 
 let passed = 0;
 const t = (name, fn) => { fn(); passed++; console.log('  ✓ ' + name); };
@@ -105,6 +106,47 @@ t('a Fuchs több kódos mezője kódonként', () => {
     assert.deepEqual(engineCodes('G13BB (SOHC)'), ['G13BB']);
     assert.deepEqual(engineCodes('Z 14 XEP'), ['Z14XEP']);
     assert.deepEqual(engineCodes(''), []);
+});
+
+console.log('TecDoc-teszt');
+t('alvázszám-válasz -> autó', () => {
+    const r = vehiclesFromVin({ data: {
+        matchingModels: { array: [{ manuId: 74, modelId: 39, modelName: 'SL (R129)' }] },
+        matchingVehicles: { array: [{ carName: 'MERCEDES-BENZ SL (R129) 500 (129.068)', modelId: 39, vehicleId: 9433 }] },
+        matchingManufacturers: { array: [{ manuName: 'MERCEDES-BENZ' }] },
+    } });
+    assert.deepEqual(r.vehicles, [{ vehicleId: 9433, modelId: 39, name: 'MERCEDES-BENZ SL (R129) 500 (129.068)' }]);
+    assert.equal(r.make, 'MERCEDES-BENZ');
+    assert.deepEqual(vehiclesFromVin({}).vehicles, []);
+});
+const cats = flattenCategories({ categories: [
+    { level: 3, categoryName1: 'Engine', categoryId3: 100470, categoryName3: 'Oil Filter' },
+    { level: 2, categoryName1: 'Filters', categoryId2: 100259, categoryName2: 'Oil Filter' },
+    { level: 2, categoryName1: 'Filters', categoryId2: 100901, categoryName2: 'Oil Filter Housing' },
+] });
+t('kategória: a kért ág nyer, különben az első pontos', () => {
+    assert.equal(findCategory(cats, { name: 'Oil Filter', parent: 'Filters' }).id, 100259);
+    assert.equal(findCategory(cats, { name: 'Oil Filter', parent: 'Nincs' }).id, 100470);
+    assert.equal(findCategory(cats, { name: 'housing', parent: 'x' }).id, 100901);
+    assert.equal(findCategory(cats, { name: 'Brake Pad', parent: 'x' }), null);
+});
+t('cikkek: egyedi, a műhely márkái sorrendben elöl', () => {
+    const list = tidyArticles([
+        { supplierName: 'FILTRON', articleNo: 'OP 629/1' },
+        { supplierName: 'MAHLE', articleNo: 'OC 1051' },
+        { supplierName: 'MANN-FILTER', articleNo: 'W 7008' },
+        { supplierName: 'MANN-FILTER', articleNo: 'W 7008' },
+    ], ['MANN-FILTER', 'MAHLE']);
+    assert.deepEqual(list.map((a) => a.articleNo), ['W 7008', 'OC 1051', 'OP 629/1']);
+    assert.deepEqual(list.map((a) => a.preferred), [true, true, false]);
+});
+t('gyári szám: csak az erre hivatkozó sorok maradnak', () => {
+    const r = tidyOem({ articles: [
+        { supplierName: 'MANN-FILTER', articleNo: 'W 7008', crossManufacturerName: 'FORD', crossNumber: '1714 387' },
+        { supplierName: 'EUROREPAR', articleNo: '1611660080', crossManufacturerName: 'PEUGEOT', crossNumber: '1109 AY' },
+    ] }, '1714387', []);
+    assert.equal(r.oemMaker, 'FORD');
+    assert.deepEqual(r.articles.map((a) => a.articleNo), ['W 7008']);
 });
 
 console.log(`\n${passed} teszt rendben.`);

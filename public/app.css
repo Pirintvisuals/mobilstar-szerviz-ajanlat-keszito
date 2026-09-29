@@ -139,6 +139,20 @@ aside.col { position: sticky; top: 12px; }
 .plain summary { cursor: pointer; font-size: 13px; color: var(--muted); }
 .plain pre { white-space: pre-wrap; background: var(--soft); border: 1px solid var(--border); border-radius: 9px; padding: 10px; font-size: 13px; }
 
+/* ---------- Alvázszám -> alkatrész ---------- */
+.inline-form { display: flex; gap: 8px; align-items: center; }
+.inline-form .btn { margin-top: 0; white-space: nowrap; }
+@media (max-width: 520px) { .inline-form { flex-direction: column; align-items: stretch; } }
+.chips { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px; }
+.chip { text-align: left; border: 1px solid var(--border); background: var(--card); border-radius: 10px; padding: 9px 12px; cursor: pointer; font-weight: 600; display: flex; flex-direction: column; gap: 2px; }
+.chip .m { font-size: 12px; font-weight: 400; color: var(--muted); }
+.chip:hover, .chip:focus-visible { border-color: var(--accent-strong); outline: none; }
+.chip.on { border-color: var(--accent-strong); background: var(--warn-bg); }
+.chip.busy { opacity: .6; cursor: progress; }
+.oils.all { max-height: 320px; overflow: auto; margin-top: 8px; }
+.oemrow { padding: 6px 0; border-bottom: 1px solid var(--border); }
+.oemrow .badge { margin-left: 8px; }
+
 /* ---------- Proof ---------- */
 .proof { margin-top: 14px; display: flex; flex-direction: column; gap: 10px; }
 .pcase { border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
