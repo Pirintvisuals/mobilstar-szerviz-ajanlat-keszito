@@ -5,7 +5,7 @@ import { chargedLiters, pickOil, buildQuote, quoteText } from './public/quote.js
 import { normalizeRecommendation } from './lib/olyslager.js';
 import { vinMake, vinYear, vinLooksValid } from './public/vin.js';
 import { engineCodes } from './lib/store.js';
-import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem } from './lib/tecdoc.js';
+import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs } from './lib/tecdoc.js';
 
 let passed = 0;
 const t = (name, fn) => { fn(); passed++; console.log('  ✓ ' + name); };
@@ -139,6 +139,17 @@ t('cikkek: egyedi, a műhely márkái sorrendben elöl', () => {
     ], ['MANN-FILTER', 'MAHLE']);
     assert.deepEqual(list.map((a) => a.articleNo), ['W 7008', 'OC 1051', 'OP 629/1']);
     assert.deepEqual(list.map((a) => a.preferred), [true, true, false]);
+});
+t('műszaki adat: ráírva, első/hátsó tengely kiolvasva', () => {
+    const arts = [{ articleId: 1 }, { articleId: 2 }, { articleId: 3 }];
+    attachSpecs(arts, { articles: [
+        { articleId: 1, allSpecifications: [{ criteriaName: 'Fitting Position', criteriaValue: 'Front Axle' }, { criteriaName: 'Diameter [mm]', criteriaValue: '300' }] },
+        { articleId: 2, allSpecifications: [{ criteriaName: 'Fitting Position', criteriaValue: 'Rear Axle' }] },
+    ] });
+    assert.equal(arts[0].position, 'front');
+    assert.equal(arts[0].specs[1].value, '300');
+    assert.equal(arts[1].position, 'rear');
+    assert.equal(arts[2].specs, undefined);
 });
 t('gyári szám: csak az erre hivatkozó sorok maradnak', () => {
     const r = tidyOem({ articles: [

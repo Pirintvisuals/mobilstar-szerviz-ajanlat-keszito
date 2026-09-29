@@ -36,7 +36,13 @@ $('vin').addEventListener('input', () => {
     if (!v) { hint.textContent = ''; return; }
     if (!vinLooksValid(v)) { hint.textContent = `${v.length}/17 karakter`; return; }
     const make = vinMake(v), year = vinYear(v);
-    hint.innerHTML = [make && `<b>${esc(make)}</b>`, year && `${year}-es évjárat`].filter(Boolean).join(' · ') || 'Érvényes alvázszám';
+    hint.innerHTML = ([make && `<b>${esc(make)}</b>`, year && `${year}-es évjárat`].filter(Boolean).join(' · ') || 'Érvényes alvázszám')
+        + ' · <button class="linkbtn" type="button" id="to-parts">Pontos típus és alkatrészek ehhez az alvázszámhoz →</button>';
+    $('to-parts').onclick = () => {
+        document.querySelector('.tab[data-tab="parts"]').click();
+        $('td-vin').value = v;
+        $('td-vin-form').requestSubmit();
+    };
     if (make && !$('q').value.trim()) { $('q').value = make + ' '; $('q').focus(); }
     if (lastResults.length) renderResults(lastResults);
 });

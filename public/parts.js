@@ -98,8 +98,11 @@ $('td-jobs').addEventListener('click', async (ev) => {
         const r = await api({ action: 'td-job', vehicleId: st.car.vehicleId, job: key });
         st.loaded.push(key);
         r.parts.forEach((p, i) => {
-            const pick = p.articles.findIndex((a) => a.preferred);
-            st.groups.push({ id: `${key}-${i}`, job: key, label: p.label, qty: p.qty || 1, category: p.category, articles: p.articles, sel: pick >= 0 ? pick : null });
+            const g = { id: `${key}-${i}`, job: key, label: p.label, qty: p.qty || 1, category: p.category, articles: p.articles, sel: null, pos: null };
+            g.main = mainName(g);
+            if (hasPos(g)) g.pos = 'front';
+            autoPick(g);
+            st.groups.push(g);
         });
     } catch (e) {
         alertIn($('td-jobs'), e.message);
@@ -109,10 +112,54 @@ $('td-jobs').addEventListener('click', async (ev) => {
 const alertIn = (el, msg) => el.insertAdjacentHTML('afterend', `<div class="hint">${esc(msg)}</div>`);
 
 // ---------- 3. Alkatrészek, márkák ----------
-function option(g, a, i) {
-    return `<label class="oil"><input type="radio" name="g-${g.id}" value="${i}" ${g.sel === i ? 'checked' : ''}>
-        <span class="t">${esc(a.brand)} <span class="mono">${esc(a.articleNo)}</span>${a.preferred ? '<span class="badge">a műhely márkája</span>' : ''}</span>
-        <span class="m">${esc(a.name)}</span></label>`;
+// A TecDoc angolul adja a műszaki adatot; a gyakoriakat magyarul mutatjuk.
+const SPEC_HU = [
+    [/^fitting position/i, 'Beépítés'], [/^brake disc thickness/i, 'Vastagság'], [/^brake disc type/i, 'Típus'],
+    [/^minimum thickness/i, 'Min. vastagság'], [/^outer diameter/i, 'Külső átmérő'], [/^inner diameter/i, 'Belső átmérő'],
+    [/^diameter/i, 'Átmérő'], [/^height/i, 'Magasság'], [/^length/i, 'Hossz'], [/^width/i, 'Szélesség'], [/^thickness/i, 'Vastagság'],
+    [/^filter type/i, 'Kivitel'], [/^number of teeth/i, 'Fogszám'], [/^number of ribs/i, 'Bordaszám'], [/^wear warning contact/i, 'Kopásjelző'],
+    [/^thread size/i, 'Menet'], [/^supplementary article/i, 'Kiegészítő'], [/^for pulley/i, 'Tárcsához'],
+    [/^brake system/i, 'Fékrendszer'], [/^manufacturer restriction/i, 'Csak ehhez'], [/^material/i, 'Anyag'],
+];
+// Ami a döntéshez kell, az elöl; ami csak zaj, az nem látszik.
+const SPEC_ORDER = ['Beépítés', 'Fékrendszer', 'Csak ehhez', 'Átmérő', 'Külső átmérő', 'Vastagság', 'Típus', 'Kivitel', 'Fogszám', 'Bordaszám', 'Kopásjelző', 'Hossz', 'Szélesség', 'Magasság'];
+const SPEC_NOISE = /^(test mark|brake lining|supplementary article|weight|packing|quantity|ean)/i;
+const specLabel = (s) => SPEC_HU.find(([re]) => re.test(s.name))?.[1] || null;
+const specRank = (s) => { const i = SPEC_ORDER.indexOf(specLabel(s)); return i < 0 ? 99 : i; };
+const VAL_HU = [[/front axle/gi, 'első tengely'], [/rear axle/gi, 'hátsó tengely'], [/\bleft\b/gi, 'bal'], [/\bright\b/gi, 'jobb'],
+    [/internally vented/gi, 'belső hűtésű'], [/\bvented\b/gi, 'hűtött'], [/\bsolid\b/gi, 'tömör'], [/filter insert/gi, 'betét'],
+    [/screw-on filter/gi, 'csavaros'], [/\bprepared for wear indicator\b/gi, 'kopásjelzőre előkészítve'], [/\bexcl\. wear warning contact\b/gi, 'kopásjelző nélkül'],
+    [/\bincl\. wear warning contact\b/gi, 'kopásjelzővel']];
+function specText(s) {
+    const hit = SPEC_HU.find(([re]) => re.test(s.name));
+    const unit = /\[mm\]/.test(s.name) ? ' mm' : '';
+    const val = VAL_HU.reduce((v, [re, hu]) => v.replace(re, hu), String(s.value));
+    return `${hit ? hit[1] : s.name.replace(/\s*\[.*\]/, '')}: ${val}${unit}`;
+}
+// pic=false: a hosszú "Összes márka" listában nincs kép, különben több száz tölt be.
+function option(g, a, i, pic = true) {
+    const specs = (a.specs || []).filter((s) => !SPEC_NOISE.test(s.name))
+        .sort((x, y) => specRank(x) - specRank(y)).slice(0, 6)
+        .map((s) => `<span class="spec${specRank(s) < 3 ? ' key' : ''}">${esc(specText(s))}</span>`).join('');
+    return `<label class="oil part${pic ? '' : ' nopic'}"><input type="radio" name="g-${g.id}" value="${i}" ${g.sel === i ? 'checked' : ''}>
+        ${!pic ? '' : a.img ? `<img class="thumb" src="${esc(a.img)}" alt="" loading="lazy">` : '<span class="thumb"></span>'}
+        <span class="info"><span class="t">${esc(a.brand)} <span class="mono">${esc(a.articleNo)}</span>${a.preferred ? '<span class="badge">a műhely márkája</span>' : ''}</span>
+        <span class="m">${esc(a.name)}</span>${specs ? `<span class="specs">${specs}</span>` : ''}</span></label>`;
+}
+// Első / hátsó: ha a TecDoc megmondja a beépítési helyet, a szerelő választ,
+// és csak az oda illő cikkek látszanak (amelyiknél nincs adat, az mindkettőnél).
+const hasPos = (g) => g.articles.some((a) => a.position);
+const fitsPos = (g, a) => !g.pos || !a.position || a.position === g.pos;
+// Egy TecDoc-csoportban mellékes cikk is lehet (a fékbetétek közt a kopásjelző):
+// a leggyakoribb terméknév a fő termék, az áll elöl és abból választunk.
+function mainName(g) {
+    const n = {};
+    for (const a of g.articles) n[a.name] = (n[a.name] || 0) + 1;
+    return Object.entries(n).sort((x, y) => y[1] - x[1])[0]?.[0] ?? '';
+}
+function autoPick(g) {
+    const i = g.articles.findIndex((a) => a.preferred && fitsPos(g, a) && a.name === g.main);
+    g.sel = i >= 0 ? i : null;
 }
 // A kiválasztott márkából több cikkszám is illik? Akkor a szerelőnek kell döntenie.
 function twins(g) {
@@ -124,18 +171,32 @@ function renderGroups() {
     $('td-parts').innerHTML = st.groups.map((g) => {
         if (!g.category) return `<div class="card"><h2>${esc(g.label)}</h2><div class="hint">Ehhez az autóhoz a TecDoc nem ad ilyen csoportot.</div></div>`;
         const brands = new Set(g.articles.map((a) => a.brand)).size;
-        const top = g.articles.map((a, i) => [a, i]).filter(([a]) => a.preferred).slice(0, 8);
-        const shown = top.length ? top : g.articles.slice(0, 6).map((a, i) => [a, i]);
+        const fit = g.articles.map((a, i) => [a, i]).filter(([a]) => fitsPos(g, a))
+            .sort(([a], [b]) => (a.name !== g.main) - (b.name !== g.main));
+        const top = fit.filter(([a]) => a.preferred).slice(0, 8);
+        const shown = top.length ? top : fit.slice(0, 6);
+        const posSwitch = hasPos(g) ? `<div class="seg" role="group" aria-label="Beépítési hely">${[['front', 'Első tengely'], ['rear', 'Hátsó tengely']]
+            .map(([k, l]) => `<button type="button" data-pos="${k}" aria-pressed="${g.pos === k}" class="${g.pos === k ? 'on' : ''}">${l}</button>`).join('')}</div>` : '';
         return `<div class="card" data-g="${g.id}">
             <h2>${esc(g.label)} <span class="src">${esc(g.category.parent)} › ${esc(g.category.name)} · ${g.articles.length} cikk, ${brands} márka</span></h2>
             ${g.articles.length ? '' : '<div class="hint">Nincs illő cikk.</div>'}
+            ${posSwitch}
             ${top.length ? '' : g.articles.length ? '<p class="hint">A műhely márkái közül egyik sincs a listában - válassz kézzel.</p>' : ''}
             ${twins(g) ? `<p class="hint"><b>Ellenőrizd:</b> ${esc(twins(g))} is több cikkszámmal illik erre az autóra (évjárat vagy motorváltozat szerint válik szét).</p>` : ''}
             <div class="oils">${shown.map(([a, i]) => option(g, a, i)).join('')}</div>
-            ${g.articles.length > shown.length ? `<details class="plain"${open.has(g.id) ? ' open' : ''}><summary>Összes márka (${g.articles.length} cikk)</summary><div class="oils all">${g.articles.map((a, i) => option(g, a, i)).join('')}</div></details>` : ''}
+            ${fit.length > shown.length ? `<details class="plain"${open.has(g.id) ? ' open' : ''}><summary>Összes márka (${fit.length} cikk)</summary><div class="oils all">${fit.map(([a, i]) => option(g, a, i, false)).join('')}</div></details>` : ''}
         </div>`;
     }).join('');
 }
+$('td-parts').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-pos]');
+    if (!b) return;
+    const g = st.groups.find((x) => x.id === b.closest('[data-g]').dataset.g);
+    g.pos = b.dataset.pos;
+    autoPick(g);
+    renderGroups();
+    render();
+});
 $('td-parts').addEventListener('change', (ev) => {
     const card = ev.target.closest('[data-g]');
     if (!card || ev.target.type !== 'radio') return;
@@ -181,7 +242,8 @@ function lines() {
     const out = [];
     for (const g of st.groups) {
         const a = g.sel != null ? g.articles[g.sel] : null;
-        if (a) out.push({ key: g.id, label: `${g.label}, ${a.brand}`, cikkszam: a.articleNo, qty: g.qty, unit: 'db', part: true });
+        const side = g.pos === 'front' ? ' (első)' : g.pos === 'rear' ? ' (hátsó)' : '';
+        if (a) out.push({ key: g.id, label: `${g.label}${side}, ${a.brand}`, cikkszam: a.articleNo, qty: g.qty, unit: 'db', part: true });
     }
     for (const o of st.oemLines) out.push({ key: o.id, label: `${o.label}, ${o.brand}`, cikkszam: o.articleNo, qty: o.qty, unit: 'db', part: true, removable: true });
     if (out.length) {

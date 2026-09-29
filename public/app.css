@@ -48,7 +48,7 @@ button, input { font: inherit; color: inherit; }
 .top-in { max-width: 1180px; margin: 0 auto; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; }
 .dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 4px rgba(245,158,11,.25); }
-.tabs { display: flex; gap: 4px; background: rgba(255,255,255,.08); padding: 4px; border-radius: 10px; }
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; background: rgba(255,255,255,.08); padding: 4px; border-radius: 10px; }
 .tab { border: 0; background: none; color: #C9CDD2; padding: 7px 14px; border-radius: 7px; cursor: pointer; font-weight: 600; }
 .tab.is-on { background: var(--accent); color: var(--dark); }
 
@@ -149,6 +149,19 @@ aside.col { position: sticky; top: 12px; }
 .chip:hover, .chip:focus-visible { border-color: var(--accent-strong); outline: none; }
 .chip.on { border-color: var(--accent-strong); background: var(--warn-bg); }
 .chip.busy { opacity: .6; cursor: progress; }
+.oil.part { grid-template-columns: auto 64px 1fr; gap: 10px; align-items: center; }
+.oil.part input { margin-top: 0; }
+.oil.part.nopic { grid-template-columns: auto 1fr; }
+.thumb { width: 64px; height: 64px; object-fit: contain; background: #fff; border: 1px solid var(--border); border-radius: 8px; }
+.oil.part .info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.oil.part .info .m { grid-column: auto; }
+.specs { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.spec { font-size: 12px; background: var(--soft); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; }
+.spec.key { border-color: var(--accent); background: var(--warn-bg); font-weight: 600; }
+.seg { display: inline-flex; border: 1px solid var(--border); border-radius: 9px; overflow: hidden; margin-bottom: 10px; }
+.seg button { border: 0; background: var(--card); padding: 7px 14px; cursor: pointer; font-weight: 600; }
+.seg button + button { border-left: 1px solid var(--border); }
+.seg button.on { background: var(--accent); color: var(--dark); }
 .oils.all { max-height: 320px; overflow: auto; margin-top: 8px; }
 .oemrow { padding: 6px 0; border-bottom: 1px solid var(--border); }
 .oemrow .badge { margin-left: 8px; }
