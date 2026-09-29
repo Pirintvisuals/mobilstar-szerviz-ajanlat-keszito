@@ -5,7 +5,7 @@
 //  (Inter Cars) nettó ára jön ide. Az árat a kód számolja, sosem az AI.
 // ---------------------------------------------------------------------------
 import { huf, pickOil } from './quote.js';
-import { analyze, answerText, isMmLabel, specText, specRank, visibleSpecs, SHARED } from './pick.js';
+import { analyze, answerText, isMmLabel, specLabel, isMm, huValue, specText, specRank, visibleSpecs, SHARED } from './pick.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -76,6 +76,7 @@ $('td-cars').addEventListener('click', (ev) => {
 });
 
 function pickCar(vehicleId, name) {
+    detailOpen.clear();
     $('td-cars').querySelectorAll('.res').forEach((b) => b.setAttribute('aria-pressed', b.dataset.id === String(vehicleId)));
     Object.assign(st, fresh(), { car: { vehicleId, name }, oemLines: st.oemLines });
     $('td-car').innerHTML = `<div class="t">${esc(name)}</div><div class="m">TecDoc jármű: <b class="mono">${esc(vehicleId)}</b></div>`;
@@ -154,12 +155,25 @@ function learn(g) {
 }
 
 // pic=false: a hosszú listában nincs kép, különben több száz tölt be.
+const detailOpen = new Set(); // melyik cikk részletei vannak kinyitva ("csoport:index")
+function detail(a) {
+    const rows = (a.specs || []).filter((s) => s.value !== '' && s.value != null)
+        .map((s) => `<tr><td>${esc(specLabel(s.name) || s.name.replace(/\s*\[.*\]/, ''))}</td><td>${esc(huValue(s.value))}${isMm(s.name) ? ' mm' : ''}</td></tr>`).join('');
+    return `<div class="detail">
+        ${a.img ? `<img class="big" src="${esc(a.img)}" alt="">` : ''}
+        <div class="dbody"><table><tr><td>Gyártó</td><td><b>${esc(a.brand)}</b></td></tr>
+        <tr><td>Cikkszám</td><td class="mono">${esc(a.articleNo)}</td></tr>
+        <tr><td>Megnevezés</td><td>${esc(a.name)}</td></tr>${rows}</table>
+        ${rows ? '' : '<div class="hint">Ehhez a cikkhez nincs több műszaki adat.</div>'}</div></div>`;
+}
 function option(g, a, i, pic = true) {
+    const key = `${g.id}:${i}`, isOpen = detailOpen.has(key);
     const specs = visibleSpecs(a.specs).map((s) => `<span class="spec${specRank(s) < 3 ? ' key' : ''}">${esc(specText(s))}</span>`).join('');
     return `<label class="oil part${pic ? '' : ' nopic'}"><input type="radio" name="g-${g.id}" value="${i}" ${g.sel === i ? 'checked' : ''}>
         ${!pic ? '' : a.img ? `<img class="thumb" src="${esc(a.img)}" alt="" loading="lazy">` : '<span class="thumb"></span>'}
         <span class="info"><span class="t">${esc(a.brand)} <span class="mono">${esc(a.articleNo)}</span>${a.preferred ? '<span class="badge">a műhely márkája</span>' : ''}</span>
-        <span class="m">${esc(a.name)}${a.price != null ? ` · legutóbbi ár: ${esc(huf(a.price))}` : ''}</span>${specs ? `<span class="specs">${specs}</span>` : ''}</span></label>`;
+        <span class="m">${esc(a.name)}${a.price != null ? ` · legutóbbi ár: ${esc(huf(a.price))}` : ''}</span>${specs ? `<span class="specs">${specs}</span>` : ''}
+        <button type="button" class="linkbtn more" data-more="${key}" aria-expanded="${isOpen}">${isOpen ? 'Részletek elrejtése ▴' : 'Részletek ▾'}</button></span>${isOpen ? detail(a) : ''}</label>`;
 }
 
 function renderGroups() {
@@ -174,7 +188,7 @@ function renderGroups() {
                 <div class="qtext">${esc(q.text)}</div>
                 <div class="opts">${q.options.map((o) => `<button type="button" class="btn opt" data-ans="${esc(q.label)}" data-val="${esc(o.value)}">${esc(answerText(q.label, o.value, q.mm))}<span class="m">${o.count} cikk</span></button>`).join('')}
                 <button type="button" class="btn ghost opt" data-ans="${esc(q.label)}" data-skip="1">Nem tudom</button></div>
-                <div class="hint">Ebben különböznek az erre az autóra illő alkatrészek. ${r.candidates.length} jelölt maradt.</div>
+                <div class="hint">A TecDoc <b>${g.articles.length}</b> cikket ad ehhez az autóhoz (${esc(g.label.toLowerCase())}), és nem mind egyforma: ebben különböznek. Még <b>${r.candidates.length}</b> jöhet szóba. Minden válasz szűkít; ha nem tudod, kattints a „Nem tudom”-ra vagy nézd meg a régi alkatrészen.</div>
             </div>` : '';
         const rec = r.recommended != null ? g.articles[r.recommended] : null;
         const chosen = g.sel != null ? g.articles[g.sel] : null;
@@ -193,6 +207,7 @@ function renderGroups() {
             ${ask}
             ${chosen ? `<div class="rec"><div class="rec-h"><span class="tag${soft ? ' soft' : ''}">${tag}</span><span class="hint">${esc(why)}</span></div>
                 <div class="oils">${option(g, chosen, g.sel)}</div></div>` : '<p class="hint">Nincs ajánlható cikk - válassz a listából.</p>'}
+            ${!alts.length && r.candidates.length > 1 ? `<div class="hint">A műhely márkái közül csak ez az egy illik. Más márkából még ${r.candidates.length - 1} cikk jöhet szóba - lent: „Összes illő cikk”.</div>` : ''}
             ${alts.length ? `<div class="lbl">Másik márka a műhely listájáról</div><div class="oils">${alts.map((i) => option(g, g.articles[i], i)).join('')}</div>` : ''}
             <details class="plain"${open.has(g.id) ? ' open' : ''}><summary>Összes illő cikk (${r.candidates.length})</summary><div class="oils all">${r.candidates.map((i) => option(g, g.articles[i], i, false)).join('')}</div></details>
         </div>`;
@@ -200,6 +215,14 @@ function renderGroups() {
 }
 
 $('td-parts').addEventListener('click', (ev) => {
+    const more = ev.target.closest('[data-more]');
+    if (more) {
+        ev.preventDefault(); // ne válassza ki a cikket, csak nyissa ki
+        const k = more.dataset.more;
+        detailOpen.has(k) ? detailOpen.delete(k) : detailOpen.add(k);
+        renderAll();
+        return;
+    }
     const card = ev.target.closest('[data-g]');
     const ans = ev.target.closest('[data-ans]'), undo = ev.target.closest('[data-undo]');
     if (!card || (!ans && !undo)) return;
