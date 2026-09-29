@@ -1,9 +1,32 @@
-# Olajcsere-ajánlat - Mobil Star Szerviz, prototípus
+# Szerviz-árajánlat - Mobil Star Szerviz, prototípus
+
+A munkafelvevőnek készült. Két út:
+
+## Új ajánlat (alvázszámból) - a fő út
+
+1. **Alvázszám → autó** (TecDoc).
+2. **Munka:** olajcsere, kis szerviz, vezérműszíj/-lánc, fék, kuplung,
+   lengéscsillapító (`lib/tecdoc.js` JOBS).
+3. **Kérdések, aztán ajánlás** (`public/pick.js`): csak azt kérdezi, amiben az
+   autóra illő alkatrészek tényleg különböznek (fékrendszer, tárcsaátmérő…),
+   aztán a műhely márkájából ajánl (`lib/shop.js` brandsByPart). Kép és magyar
+   műszaki adat minden cikknél.
+4. **Motorolaj a Fuchs-ból**, ha a munkához kell: a szerelő egyszer rábök a motorra.
+5. **Mellé járó tételek** munkánként (fékfolyadék, fagyálló…), ki-be kapcsolhatók.
+6. **Ajánlat:** ügyfél, rendszám, ajánlatszám, PDF a műhely fejlécével.
+7. **Tanul** (`data/learned.json`): autónként megjegyzi a válaszokat, a választott
+   cikket, a Fuchs-motort és a kézzel beírt árakat - legközelebb nem kérdez.
+
+Adatforrás most: RapidAPI TecDoc-másolat (`RAPIDAPI_KEY`, csak demóra, a
+válaszok a `.tecdoc-cache/`-ben). Élesben: licencelt TecDoc + a műhely Inter
+Cars nettó árai.
+
+## Olajcsere típusból (alvázszám nélkül)
 
 A munkafelvevőnek készült: **autó → Fuchs olaj → cikkszám → ár → kész
 ajánlat**, fél perc alatt, minden sor mellett a forrás linkjével.
 
-## Mit csinál
+### Mit csinál
 
 1. **Autó.** Alvázszám (nem kötelező; a gyártót és - ahol megbízható - az
    évjáratot kiolvassa belőle), és keresés típusra, motorra vagy motorkódra,

@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Olajcsere-ajánlat</title>
-<meta name="description" content="Autó → Fuchs olaj → cikkszám → ár → kész ajánlat, fél perc alatt.">
+<title>Szerviz-árajánlat</title>
+<meta name="description" content="Alvázszám → munka → alkatrész a műhely márkáival, olaj, munkadíj → kész ajánlat.">
 <link rel="stylesheet" href="/app.css">
 <script type="module" src="/app.js"></script>
 <script type="module" src="/parts.js"></script>
@@ -14,14 +14,14 @@
   <div class="top-in">
     <div class="brand"><span class="dot"></span><span id="shop-name">Olajcsere-ajánlat</span></div>
     <nav class="tabs" role="tablist">
-      <button class="tab is-on" data-tab="quote" role="tab" aria-selected="true">Új ajánlat</button>
-      <button class="tab" data-tab="parts" role="tab" aria-selected="false">Alvázszám → alkatrész</button>
+      <button class="tab is-on" data-tab="parts" role="tab" aria-selected="true">Új ajánlat</button>
+      <button class="tab" data-tab="quote" role="tab" aria-selected="false">Olajcsere típusból</button>
       <button class="tab" data-tab="proof" role="tab" aria-selected="false">Ellenőrzés</button>
     </nav>
   </div>
 </header>
 
-<main id="view-quote" class="wrap grid">
+<main id="view-quote" class="wrap grid" hidden>
   <section class="col">
     <div class="card">
       <h2><span class="n">1</span> Autó</h2>
@@ -90,7 +90,7 @@
   </aside>
 </main>
 
-<main id="view-parts" class="wrap grid" hidden>
+<main id="view-parts" class="wrap grid">
   <section class="col">
     <div class="card">
       <h2><span class="n">1</span> Autó alvázszámból <span class="src" id="td-left"></span></h2>
@@ -100,6 +100,7 @@
       </form>
       <div id="td-vin-hint" class="hint"></div>
       <div id="td-cars" class="results" aria-live="polite"></div>
+      <p class="hint">Nincs kéznél az alvázszám? <button class="linkbtn" type="button" id="to-type">Olajcsere típus alapján →</button></p>
     </div>
 
     <div id="td-card-job" class="card" hidden>
@@ -109,7 +110,27 @@
       <p class="hint">Minden alkatrész-csoport egy kérés a tesztkeretből. Egy munka kétszer nem fogy: a válasz el van mentve.</p>
     </div>
 
+    <div id="td-oil" class="card" hidden>
+      <h2>Motorolaj <span class="src">Fuchs olajválasztó</span></h2>
+      <div id="td-oil-hint" class="hint"></div>
+      <div id="td-oil-res" class="results"></div>
+      <div id="td-oil-pick" hidden>
+        <div id="td-oil-car" class="vehicle"></div>
+        <div id="td-oils" class="oils"></div>
+        <div class="row">
+          <div><div class="lbl">Feltöltés a Fuchs szerint</div><div id="td-oil-cap" class="big"></div></div>
+          <div><label class="lbl" for="td-liters">Számlázott mennyiség</label><div class="unit-inp"><input id="td-liters" class="inp num" inputmode="decimal"><span>l</span></div></div>
+        </div>
+        <a id="td-fuchs-link" class="ext" target="_blank" rel="noopener">Megnézem ugyanezt a Fuchs oldalán ↗</a>
+      </div>
+    </div>
+
     <div id="td-parts" class="col"></div>
+
+    <div id="td-extras" class="card" hidden>
+      <h2>Mellé járó tételek <span class="src">a munkához szokásos</span></h2>
+      <div id="td-extras-list" class="oils"></div>
+    </div>
 
     <div class="card">
       <h2>Gyári cikkszámból <span class="src">utángyártott megfelelők</span></h2>
@@ -124,9 +145,15 @@
 
   <aside class="col">
     <div class="card quote">
-      <h2>Ajánlat</h2>
+      <h2>Ajánlat <span id="td-no" class="timer"></span></h2>
       <div id="td-quote-empty" class="empty">Add meg az alvázszámot, válaszd ki a munkát, és az alkatrészek a műhely márkáival itt összeállnak.</div>
       <div id="td-quote" hidden>
+        <div class="cust">
+          <div><label class="lbl" for="td-cust-name">Ügyfél</label><input id="td-cust-name" class="inp" maxlength="60" autocomplete="off" placeholder="név"></div>
+          <div><label class="lbl" for="td-cust-plate">Rendszám</label><input id="td-cust-plate" class="inp mono" maxlength="12" autocomplete="off" placeholder="ABC-123"></div>
+          <div><label class="lbl" for="td-cust-phone">Telefon</label><input id="td-cust-phone" class="inp" maxlength="20" autocomplete="off" placeholder="nem kötelező"></div>
+          <div><label class="lbl" for="td-cust-km">Km-óra</label><input id="td-cust-km" class="inp num" maxlength="8" inputmode="numeric" autocomplete="off" placeholder="nem kötelező"></div>
+        </div>
         <table class="lines">
           <thead><tr><th>Tétel</th><th class="r">Menny.</th><th class="r">Egységár</th><th class="r">Nettó</th></tr></thead>
           <tbody id="td-lines"></tbody>
@@ -138,7 +165,8 @@
         </div>
         <div id="td-warn" class="warn" hidden></div>
         <div class="actions">
-          <button id="td-copy" class="btn">Ajánlat másolása</button>
+          <button id="td-print" class="btn">PDF / nyomtatás</button>
+          <button id="td-copy" class="btn ghost">Szöveg másolása</button>
           <button id="td-reset" class="btn ghost">Új autó</button>
         </div>
         <details class="plain"><summary>Az ügyfélnek küldött szöveg</summary><pre id="td-plain"></pre></details>

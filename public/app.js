@@ -22,7 +22,7 @@ const state = { shop: null, data: null, oilCode: null, liters: 0, filter: null, 
 // ---------- Indulás ----------
 api({ action: 'config' }).then(({ shop, live }) => {
     state.shop = shop;
-    $('shop-name').textContent = `${shop.name} · olajcsere-ajánlat`;
+    $('shop-name').textContent = `${shop.name} · árajánlat`;
     if (!live) $('results').innerHTML = '<div class="note">A Fuchs-kapcsolat nincs beállítva (OLY_SUBSCRIPTION).</div>';
 }).catch((e) => { $('results').innerHTML = `<div class="note">${esc(e.message)}</div>`; });
 

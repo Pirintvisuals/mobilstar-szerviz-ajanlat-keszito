@@ -4,4 +4,5 @@ node_modules
 .env.*.local
 .vercel
 .tecdoc-cache
+data/learned.json
 .DS_Store

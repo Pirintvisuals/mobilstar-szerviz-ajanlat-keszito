@@ -9,20 +9,30 @@
 //    GET  ?action=td-vin&vin=...             -> autó(k) az alvázszámból
 //    GET  ?action=td-job&vehicleId=..&job=.. -> illő alkatrészek, márkák
 //    GET  ?action=td-oem&oem=...             -> gyári szám -> utángyártott
+//    POST {action:'td-learn', vehicleId, part, answers, brand, articleNo}
+//    POST {action:'td-price', brand, articleNo, net}  -> kézzel megadott ár megjegyzése
+//    POST {action:'quote-no'}                -> következő ajánlatszám
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
 import { JOBS, tecdocStatus, vinLookup, partsForJob, oemLookup } from '../lib/tecdoc.js';
-import { oilPrice, filterFor, rememberFilter, proofCases, normCode } from '../lib/store.js';
-import { SHOP } from '../lib/shop.js';
+import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
+    learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber } from '../lib/store.js';
+import { SHOP, brandsFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
 async function vehiclePayload(typeId) {
     const rec = await engineOilFor(typeId);
-    const prices = {};
-    for (const o of rec.oils) prices[o.code] = oilPrice(o.code);
+    const prices = {}, learnedSale = {};
+    for (const o of rec.oils) {
+        prices[o.code] = oilPrice(o.code);
+        // Kézzel megadott eladási literár (alvázszámos ajánlat), amíg nincs árlista.
+        const l = learnedPrice(priceKey('FUCHS', o.code));
+        if (l != null) learnedSale[o.code] = l;
+    }
     return {
         ...rec,
+        learnedSale,
         chosenOil: pickOil(rec.oils, SHOP.preferredOils)?.code || null,
         liters: chargedLiters(rec.capacityL, SHOP.oilRounding),
         oilPrices: prices,
@@ -69,16 +79,36 @@ export default async function handler(req, res) {
             return res.status(200).json(rememberFilter(body.engineCode, body));
         }
         if (action === 'td-status') {
-            return res.status(200).json({ ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, parts }) => ({ key, label, hours, parts: parts.map((p) => p.label) })) });
+            return res.status(200).json({ ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label) })) });
         }
         if (action === 'td-vin') {
             return res.status(200).json({ ...(await vinLookup(q.vin)), status: tecdocStatus() });
         }
         if (action === 'td-job') {
-            return res.status(200).json({ ...(await partsForJob(q.vehicleId, q.job, SHOP.preferredBrands)), status: tecdocStatus() });
+            const r = await partsForJob(q.vehicleId, q.job, brandsFor);
+            // Amit a szerelő erre az autóra már eldöntött, és a kézzel megadott árak.
+            const learned = learnedPicks(q.vehicleId, [...r.parts.map((p) => p.name), 'FUCHS']);
+            r.fuchsTypeId = learned.FUCHS?.articleNo || null; // a Fuchs-motor, amit erre az autóra választottak
+            for (const p of r.parts) {
+                p.learned = learned[p.name] || null;
+                for (const a of p.articles) { const pr = learnedPrice(priceKey(a.brand, a.articleNo)); if (pr != null) a.price = pr; }
+            }
+            return res.status(200).json({ ...r, status: tecdocStatus() });
         }
         if (action === 'td-oem') {
-            return res.status(200).json({ ...(await oemLookup(q.oem, SHOP.preferredBrands)), status: tecdocStatus() });
+            const r = await oemLookup(q.oem, SHOP.preferredBrands);
+            for (const a of r.articles) { const pr = learnedPrice(priceKey(a.brand, a.articleNo)); if (pr != null) a.price = pr; }
+            return res.status(200).json({ ...r, status: tecdocStatus() });
+        }
+        if (action === 'td-learn' && req.method === 'POST') {
+            return res.status(200).json(rememberPick(body.vehicleId, body.part, body));
+        }
+        if (action === 'td-price' && req.method === 'POST') {
+            const net = body.net == null || body.net === '' ? null : Number(body.net);
+            return res.status(200).json(rememberPrice(body.key || priceKey(body.brand, body.articleNo), net));
+        }
+        if (action === 'quote-no' && req.method === 'POST') {
+            return res.status(200).json({ number: nextQuoteNumber() });
         }
         if (action === 'proof') {
             const cases = proofCases();

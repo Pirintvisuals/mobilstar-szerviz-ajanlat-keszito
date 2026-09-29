@@ -5,6 +5,7 @@ import { chargedLiters, pickOil, buildQuote, quoteText } from './public/quote.js
 import { normalizeRecommendation } from './lib/olyslager.js';
 import { vinMake, vinYear, vinLooksValid } from './public/vin.js';
 import { engineCodes } from './lib/store.js';
+import { analyze } from './public/pick.js';
 import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs } from './lib/tecdoc.js';
 
 let passed = 0;
@@ -158,6 +159,32 @@ t('gyári szám: csak az erre hivatkozó sorok maradnak', () => {
     ] }, '1714387', []);
     assert.equal(r.oemMaker, 'FORD');
     assert.deepEqual(r.articles.map((a) => a.articleNo), ['W 7008']);
+});
+
+console.log('Melyik alkatrész');
+const disc = (brand, no, d, th, rank) => ({ brand, articleNo: no, name: 'Brake Disc', preferred: rank < 99, rank,
+    specs: [{ name: 'Outer Diameter [mm]', value: String(d) }, { name: 'Brake Disc Thickness [mm]', value: String(th) }] });
+const discs = [disc('BOSCH', 'B300', 300, 22, 0), disc('BOSCH', 'B334', 334, 32, 0), disc('TRW', 'T300', 300.5, 22, 1), disc('TRW', 'T334', 334, 32, 1), disc('X', 'X1', 300, 22, 99)];
+t('csak a tényleg eltérő adatra kérdez, a méret 3%-on belül egy válasz', () => {
+    const r = analyze(discs, { main: 'Brake Disc' });
+    assert.equal(r.question.label, 'Külső átmérő');
+    assert.deepEqual(r.question.options.map((o) => o.value).sort((a, b) => a - b), [300.3, 334]);
+});
+t('válasz után a műhely első márkáját ajánlja, nincs több kérdés', () => {
+    const r = analyze(discs, { main: 'Brake Disc', answers: { 'Külső átmérő': 334 } });
+    assert.equal(r.question, null);
+    assert.equal(discs[r.recommended].articleNo, 'B334');
+    assert.deepEqual(r.alternatives.map((i) => discs[i].articleNo), ['T334']);
+});
+t('"nem tudom" után nem kérdez újra, de jelzi a bizonytalanságot', () => {
+    const r = analyze(discs, { main: 'Brake Disc', answers: { 'Külső átmérő': null } });
+    assert.equal(r.unsure, true);
+    assert.notEqual(r.question?.label, 'Külső átmérő');
+});
+t('Teves és ATE ugyanaz a fék', () => {
+    const pad = (no, sys) => ({ brand: 'BOSCH', articleNo: no, name: 'Pad', preferred: true, rank: 0, specs: [{ name: 'Brake System', value: sys }] });
+    const r = analyze([pad('1', 'Teves'), pad('2', 'ATE'), pad('3', 'Brembo')], { main: 'Pad' });
+    assert.deepEqual(r.question.options.map((o) => o.value).sort(), ['ATE', 'Brembo']);
 });
 
 console.log(`\n${passed} teszt rendben.`);
