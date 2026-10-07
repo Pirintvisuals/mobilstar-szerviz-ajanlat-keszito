@@ -3,7 +3,7 @@
 import assert from 'assert/strict';
 import { chargedLiters, pickOil, buildQuote, quoteText } from './public/quote.js';
 import { normalizeRecommendation } from './lib/olyslager.js';
-import { vinMake, vinYear, vinLooksValid } from './public/vin.js';
+import { vinMake, vinYear, vinLooksValid, vinConflicts } from './public/vin.js';
 import { engineCodes } from './lib/store.js';
 import { analyze } from './public/pick.js';
 import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs } from './lib/tecdoc.js';
@@ -98,6 +98,17 @@ t('gyártó és évjárat', () => {
     assert.equal(vinMake('TMBJJ21Z8C2012345'), 'Skoda');
     assert.equal(vinYear('TMBJJ21Z8C2012345', new Date('2026-09-23')), 2012);
     assert.equal(vinYear('VF1AAAAAAC0000000'), null); // francia: nem állítunk évet
+});
+t('ütközés a kiválasztott autóval', () => {
+    const now = new Date('2026-10-02');
+    const skoda = 'TMBJJ21Z8C2012345'; // 2012
+    assert.deepEqual(vinConflicts(skoda, { make: 'ŠKODA', yearStart: 2008, yearEnd: 2013 }, now), []);
+    assert.equal(vinConflicts(skoda, { make: 'VW', yearStart: 2008, yearEnd: 2013 }, now).length, 1);
+    assert.equal(vinConflicts(skoda, { make: 'Skoda', yearStart: 2015, yearEnd: 2020 }, now).length, 1);
+    assert.deepEqual(vinConflicts(skoda, { make: 'Skoda', yearStart: 2013, yearEnd: 2018 }, now), []); // modellév: 1 év tűrés
+    assert.deepEqual(vinConflicts('WVWZZZ1KZ9W000000', { make: 'VW' }, now), []);
+    assert.deepEqual(vinConflicts('VF1AAAAAAC0000000', { make: 'Renault', yearStart: 1995, yearEnd: 2000 }, now), []); // nincs megbízható év
+    assert.deepEqual(vinConflicts('', { make: 'Opel' }, now), []);
 });
 
 console.log('Motorkód');

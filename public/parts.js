@@ -4,6 +4,7 @@
 //  Az ár még kézzel megy (és megjegyezzük): élesben a műhely nagykerének
 //  (Inter Cars) nettó ára jön ide. Az árat a kód számolja, sosem az AI.
 // ---------------------------------------------------------------------------
+import { apiFetch } from './auth.js';
 import { huf, pickOil } from './quote.js';
 import { analyze, answerText, isMmLabel, specLabel, isMm, huValue, specText, specRank, visibleSpecs, SHARED } from './pick.js';
 
@@ -11,7 +12,7 @@ const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const api = async (params, body) => {
     const res = body
-        ? await fetch('/api/olajcsere', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        ? await apiFetch('/api/olajcsere', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
         : await fetch('/api/olajcsere?' + new URLSearchParams(params));
     const json = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
@@ -59,13 +60,18 @@ $('td-vin-form').addEventListener('submit', async (ev) => {
                 : 'Erre az alvázszámra a TecDoc nem ad autót.';
             return;
         }
-        $('td-vin-hint').innerHTML = r.vehicles.length === 1 ? 'Megvan az autó.' : `${r.vehicles.length} változat illik rá - válaszd ki a motort.`;
+        // Az alvázszám-szűrés téved néha (rossz motor, rossz típus): magától
+        // soha nem választunk, a munkafelvevő a forgalmival veti össze.
+        $('td-vin-hint').innerHTML = (r.vehicles.length === 1
+            ? 'Az alvázszámból ez az autó jött ki.'
+            : `${r.vehicles.length} változat jöhet szóba.`)
+            + ' <b>Vesd össze a forgalmival</b> (típus, motor, kW), és kattints arra, amelyik az.';
         $('td-cars').innerHTML = r.vehicles.map((v) => `
             <button class="res" type="button" data-id="${v.vehicleId}" data-name="${esc(v.name)}">
               <span class="t">${esc(v.name)}</span><span class="code">${esc(v.vehicleId)}</span>
-              <span class="m">TecDoc jármű-azonosító</span>
-            </button>`).join('');
-        if (r.vehicles.length === 1) pickCar(r.vehicles[0].vehicleId, r.vehicles[0].name);
+              <span class="m">${r.vehicles.length === 1 ? 'Igen, ez az autó →' : 'Ez az →'}</span>
+            </button>`).join('')
+            + '<div class="note">Egyik sem? Az alvázszám-keresés ennél az autónál téved. Az olajcserét az <b>Olajcsere típusból</b> fülön típus vagy motorkód alapján add meg, más alkatrészt lent a gyári cikkszámmal keress.</div>';
     } catch (e) {
         $('td-vin-hint').textContent = e.message;
     }

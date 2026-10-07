@@ -1,11 +1,12 @@
+import { apiFetch } from './auth.js';
 import { buildQuote, quoteText, huf, liters as fmtL } from './quote.js';
-import { cleanVin, vinLooksValid, vinMake, vinYear } from './vin.js';
+import { cleanVin, vinLooksValid, vinMake, vinYear, vinConflicts } from './vin.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const api = async (params, body) => {
     const res = body
-        ? await fetch('/api/olajcsere', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        ? await apiFetch('/api/olajcsere', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
         : await fetch('/api/olajcsere?' + new URLSearchParams(params));
     const json = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
@@ -108,6 +109,10 @@ async function loadVehicle(typeId) {
     const v = data.vehicle;
     $('vehicle').innerHTML = `<div class="t">${esc(v.make)} ${esc(v.type)}</div>
         <div class="m">Motorkód: <b class="mono">${esc(v.engineCode || '—')}</b> · ${esc([years(v.yearStart, v.yearEnd), v.fuel, v.ccm && `${v.ccm} cm³`, v.powerKw && `${v.powerKw} kW`].filter(Boolean).join(' · '))}</div>`;
+    const conflicts = vinConflicts(cleanVin($('vin').value), v);
+    if (conflicts.length) {
+        $('vehicle').insertAdjacentHTML('beforeend', `<div class="warn"><b>Nem biztos, hogy ez az autó.</b> ${conflicts.map(esc).join(' ')} Nézd meg a forgalmit, mielőtt ajánlatot adsz.</div>`);
+    }
     $('cap').textContent = data.capacityL ? fmtL(data.capacityL) : 'nincs adat';
     $('liters').value = String(data.liters || '').replace('.', ',');
     $('fuchs-link').href = v.fuchsUrl;

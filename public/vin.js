@@ -53,3 +53,29 @@ export function vinYear(s, now = new Date()) {
     while (year + 30 <= now.getFullYear() + 1) year += 30;
     return year;
 }
+
+// A kiválasztott autó és az alvázszám ütközik-e? Csak azt mondjuk, amit az
+// alvázszám biztosan tud (gyártó, és ahol megbízható, évjárat). Az évjáratnál
+// egy év tűrés: az alvázszámban modellév áll, nem a gyártás éve.
+const normMake = (s) => {
+    const m = String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z]/g, '');
+    return { vw: 'volkswagen', mercedes: 'mercedesbenz', alfa: 'alfaromeo' }[m] || m;
+};
+
+export function vinConflicts(vin, vehicle, now = new Date()) {
+    if (!vinLooksValid(vin) || !vehicle) return [];
+    const out = [];
+    const make = vinMake(vin);
+    if (make && vehicle.make) {
+        const a = normMake(make), b = normMake(vehicle.make);
+        if (!a.startsWith(b) && !b.startsWith(a)) out.push(`Az alvázszám szerint ${make}, a kiválasztott autó ${vehicle.make}.`);
+    }
+    const year = vinYear(vin, now);
+    if (year && vehicle.yearStart) {
+        const end = vehicle.yearEnd || now.getFullYear() + 1;
+        if (year < vehicle.yearStart - 1 || year > end + 1) {
+            out.push(`Az alvázszám szerint ${year}-es, ez a típus ${vehicle.yearStart}–${vehicle.yearEnd || ''} között készült.`);
+        }
+    }
+    return out;
+}

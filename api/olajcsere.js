@@ -17,7 +17,7 @@
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
 import { JOBS, tecdocStatus, vinLookup, partsForJob, oemLookup } from '../lib/tecdoc.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
-    learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber } from '../lib/store.js';
+    learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush } from '../lib/store.js';
 import { SHOP, brandsFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
@@ -65,24 +65,33 @@ export default async function handler(req, res) {
     if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
     const action = req.method === 'POST' ? body.action : q.action;
 
+    // Egyszerű jelszó (APP_PASSWORD a Vercel beállításai közt). Ha nincs
+    // beállítva - helyi gépen -, nincs jelszó.
+    const password = process.env.APP_PASSWORD;
+    if (password && req.headers?.['x-pass'] !== password) {
+        return res.status(401).json({ error: 'Jelszó kell' });
+    }
+    const send = async (code, payload) => { await flush(); return res.status(code).json(payload); };
+
     try {
+        await hydrate();
         if (action === 'config') {
-            return res.status(200).json({ shop: SHOP, live: olyslagerConfigured() });
+            return send(200, { shop: SHOP, live: olyslagerConfigured() });
         }
         if (action === 'search') {
-            return res.status(200).json({ results: await searchVehicles(q.q) });
+            return send(200, { results: await searchVehicles(q.q) });
         }
         if (action === 'vehicle') {
-            return res.status(200).json(await vehiclePayload(q.typeId));
+            return send(200, await vehiclePayload(q.typeId));
         }
         if (action === 'filter' && req.method === 'POST') {
-            return res.status(200).json(rememberFilter(body.engineCode, body));
+            return send(200, rememberFilter(body.engineCode, body));
         }
         if (action === 'td-status') {
-            return res.status(200).json({ ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label) })) });
+            return send(200, { ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label) })) });
         }
         if (action === 'td-vin') {
-            return res.status(200).json({ ...(await vinLookup(q.vin)), status: tecdocStatus() });
+            return send(200, { ...(await vinLookup(q.vin)), status: tecdocStatus() });
         }
         if (action === 'td-job') {
             const r = await partsForJob(q.vehicleId, q.job, brandsFor);
@@ -93,22 +102,22 @@ export default async function handler(req, res) {
                 p.learned = learned[p.name] || null;
                 for (const a of p.articles) { const pr = learnedPrice(priceKey(a.brand, a.articleNo)); if (pr != null) a.price = pr; }
             }
-            return res.status(200).json({ ...r, status: tecdocStatus() });
+            return send(200, { ...r, status: tecdocStatus() });
         }
         if (action === 'td-oem') {
             const r = await oemLookup(q.oem, SHOP.preferredBrands);
             for (const a of r.articles) { const pr = learnedPrice(priceKey(a.brand, a.articleNo)); if (pr != null) a.price = pr; }
-            return res.status(200).json({ ...r, status: tecdocStatus() });
+            return send(200, { ...r, status: tecdocStatus() });
         }
         if (action === 'td-learn' && req.method === 'POST') {
-            return res.status(200).json(rememberPick(body.vehicleId, body.part, body));
+            return send(200, rememberPick(body.vehicleId, body.part, body));
         }
         if (action === 'td-price' && req.method === 'POST') {
             const net = body.net == null || body.net === '' ? null : Number(body.net);
-            return res.status(200).json(rememberPrice(body.key || priceKey(body.brand, body.articleNo), net));
+            return send(200, rememberPrice(body.key || priceKey(body.brand, body.articleNo), net));
         }
         if (action === 'quote-no' && req.method === 'POST') {
-            return res.status(200).json({ number: nextQuoteNumber() });
+            return send(200, { number: nextQuoteNumber() });
         }
         if (action === 'proof') {
             const cases = proofCases();
@@ -116,10 +125,10 @@ export default async function handler(req, res) {
             for (const c of cases) {
                 try { results.push(await runProofCase(c)); } catch (error) { results.push({ id: c.id, error: error.message, ok: false }); }
             }
-            return res.status(200).json({ results });
+            return send(200, { results });
         }
-        return res.status(400).json({ error: 'Ismeretlen kérés' });
+        return send(400, { error: 'Ismeretlen kérés' });
     } catch (error) {
-        return res.status(502).json({ error: error.message });
+        return send(502, { error: error.message });
     }
 }
