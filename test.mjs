@@ -6,7 +6,9 @@ import { normalizeRecommendation } from './lib/olyslager.js';
 import { vinMake, vinYear, vinLooksValid, vinConflicts } from './public/vin.js';
 import { engineCodes } from './lib/store.js';
 import { analyze } from './public/pick.js';
-import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs } from './lib/tecdoc.js';
+import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs, detailsFrom, JOBS, checkOption } from './lib/tecdoc.js';
+import { codeMatch, matchFuchs, sameOil } from './lib/match.js';
+import { SHOP } from './lib/shop.js';
 
 let passed = 0;
 const t = (name, fn) => { fn(); passed++; console.log('  ✓ ' + name); };
@@ -196,6 +198,54 @@ t('Teves és ATE ugyanaz a fék', () => {
     const pad = (no, sys) => ({ brand: 'BOSCH', articleNo: no, name: 'Pad', preferred: true, rank: 0, specs: [{ name: 'Brake System', value: sys }] });
     const r = analyze([pad('1', 'Teves'), pad('2', 'ATE'), pad('3', 'Brembo')], { main: 'Pad' });
     assert.deepEqual(r.question.options.map((o) => o.value).sort(), ['ATE', 'Brembo']);
+});
+
+// ---------- Alvázszám -> Fuchs-motor, munka-kérdések ----------
+t('TecDoc adatlap: motorkód, kW, évjárat, hengerek', () => {
+    const d = detailsFrom({ vehicleTypeDetails: { manufacturerName: 'SKODA', modelType: 'OCTAVIA II (1Z3)', typeEngineName: '1.6 TDI', engCodes: 'CAYC, CLHA', powerKw: '77.0000', powerPs: '105.0000', capacityTech: '1598.0000', fuelType: 'Diesel', constructionIntervalStart: '2009-06-01', constructionIntervalEnd: '2013-04-01', numberOfCylinders: 4 } });
+    assert.deepEqual(d.engineCodes, ['CAYC', 'CLHA']);
+    assert.equal(d.powerKw, 77);
+    assert.equal(d.from, 2009);
+    assert.equal(d.cylinders, 4);
+    assert.equal(detailsFrom({}), null);
+});
+t('motorkód: pontos, Fuchs-joker (x), család', () => {
+    assert.equal(codeMatch('CAYC', 'CAYC'), 'exact');
+    assert.equal(codeMatch('M 273.963', 'M273.96x'), 'exact');
+    assert.equal(codeMatch('M 113.961', 'M113.963'), 'family');
+    assert.equal(codeMatch('K9K 638', 'K9K'), 'family');
+    assert.equal(codeMatch('CAYC', 'CRKB'), null);
+});
+const octavia = { make: 'SKODA', model: 'OCTAVIA II (1Z3)', type: '1.6 TDI', name: 'SKODA OCTAVIA II (1Z3) 1.6 TDI', engineCodes: ['CAYC'], powerKw: 77, fuel: 'Diesel', from: 2009, to: 2013 };
+const fuchs = (typeId, type, engineCode, powerKw, yearStart, yearEnd, fuel = 'Dízel') => ({ typeId, make: 'Skoda', model: 'Octavia II', type, engineCode, powerKw: String(powerKw), yearStart, yearEnd, fuel });
+t('egyértelmű motorkód + kW: magától választ, a 4x4 hátrébb kerül', () => {
+    const m = matchFuchs(octavia, [fuchs(70989, 'Octavia II 1.6 TDI 4x4', 'CAYC', 77, 2009, 2012), fuchs(95276, 'Octavia III 1.6 TDI', 'CRKB', 81, 2013, 2017), fuchs(65998, 'Octavia II 1.6 TDI', 'CAYC', 77, 2009, 2012)]);
+    assert.deepEqual(m.auto, [65998]);
+    assert.equal(m.ranked.at(-1).typeId, 95276);
+});
+t('más kW vagy csak motorcsalád: nem választ magától, csak sorba rak', () => {
+    assert.deepEqual(matchFuchs(octavia, [fuchs(1, 'Octavia II 1.6 TDI', 'CAYC', 66, 2009, 2012)]).auto, []);
+    assert.deepEqual(matchFuchs({ ...octavia, engineCodes: ['CAYB'] }, [fuchs(1, 'Octavia II 1.6 TDI', 'CAYC', 77, 2009, 2012)]).auto, []);
+});
+t('ugyanaz az olaj és mennyiség = mindegy, melyik jelölt', () => {
+    const rec = (codes, cap) => ({ capacityL: cap, oils: codes.map((code) => ({ code })) });
+    assert.equal(sameOil(rec(['A', 'B'], 4.3), rec(['A', 'B'], 4.3)), true);
+    assert.equal(sameOil(rec(['A'], 4.3), rec(['A'], 5.5)), false);
+});
+t('minden munka-kérdés válasza ismert alkatrészt és létező tételt kapcsol', () => {
+    for (const j of JOBS) for (const c of j.checks) {
+        assert.ok(c.text && c.options.length >= 2, `${j.key}.${c.id}`);
+        for (const o of c.options) {
+            for (const p of o.parts || []) assert.ok(p.label && p.name && p.parent, `${j.key}.${c.id}`);
+            for (const x of Object.keys(o.extras || {})) assert.ok((SHOP.jobExtras[j.key] || []).some((e) => e.key === x), `${j.key}.${c.id}: ${x}`);
+            for (const w of o.without || []) assert.ok(j.parts.some((p) => p.name === w), `${j.key}.${c.id}: ${w}`);
+            if (o.job) assert.ok(JOBS.some((x) => x.key === o.job), `${j.key}.${c.id}: ${o.job}`);
+        }
+        for (const [re, opt] of c.auto?.rules || []) { assert.ok(c.options[opt], `${j.key}.${c.id}`); new RegExp(re); }
+    }
+    assert.equal(new Set(JOBS.flatMap((j) => j.checks.map((c) => j.key + c.id))).size, JOBS.reduce((s, j) => s + j.checks.length, 0));
+    assert.equal(checkOption('clutch', 'dmf', 0).parts[0].name, 'Flywheel');
+    assert.throws(() => checkOption('clutch', 'nincs', 0));
 });
 
 console.log(`\n${passed} teszt rendben.`);

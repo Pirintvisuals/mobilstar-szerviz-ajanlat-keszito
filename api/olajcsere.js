@@ -7,7 +7,10 @@
 //  Alvázszámos alkatrész-ajánlat (TecDoc-teszt):
 //    GET  ?action=td-status                  -> be van-e állítva, maradék keret
 //    GET  ?action=td-vin&vin=...             -> autó(k) az alvázszámból
+//    GET  ?action=td-car&vehicleId=..         -> motorkód, kW, évjárat (adatlap)
+//    GET  ?action=td-oil&vehicleId=..&name=.. -> a Fuchs-motor magától (vagy jelöltek)
 //    GET  ?action=td-job&vehicleId=..&job=.. -> illő alkatrészek, márkák
+//    GET  ?action=td-check&vehicleId=..&job=..&check=..&opt=.. -> egy válasz alkatrészei
 //    GET  ?action=td-oem&oem=...             -> gyári szám -> utángyártott
 //    POST {action:'td-learn', vehicleId, part, answers, brand, articleNo}
 //    POST {action:'td-price', brand, articleNo, net}  -> kézzel megadott ár megjegyzése
@@ -15,7 +18,8 @@
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
-import { JOBS, tecdocStatus, vinLookup, partsForJob, oemLookup } from '../lib/tecdoc.js';
+import { JOBS, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, oemLookup } from '../lib/tecdoc.js';
+import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush } from '../lib/store.js';
 import { SHOP, brandsFor } from '../lib/shop.js';
@@ -38,6 +42,38 @@ async function vehiclePayload(typeId) {
         oilPrices: prices,
         filter: rec.vehicle.engineCode ? filterFor(rec.vehicle.engineCode) : null,
     };
+}
+
+// Alkatrész-csoportok + amit erre az autóra már eldöntöttek, és a kézzel megadott árak.
+function withLearned(vehicleId, parts, extra = []) {
+    const learned = learnedPicks(vehicleId, [...parts.map((p) => p.name), ...extra]);
+    for (const p of parts) {
+        p.learned = learned[p.name] || null;
+        for (const a of p.articles) { const pr = learnedPrice(priceKey(a.brand, a.articleNo)); if (pr != null) a.price = pr; }
+    }
+    return learned;
+}
+
+// Az alvázszámból kiválasztott autó Fuchs-motorja. Keresés a TecDoc-névvel és
+// a motorkóddal is, aztán pontozás (lib/match.js). Ha több jelölt egyformán
+// jó, és mind ugyanazt az olajat adja, mindegy, melyik: választunk.
+async function fuchsForCar(vehicleId, name) {
+    let details = null;
+    try { details = await vehicleDetails(vehicleId); } catch (error) { /* adatlap nélkül csak a név */ }
+    const make = (details?.make || String(name || '')).split(/[\s-]/)[0];
+    const queries = [String(name || '').replace(/\([^)]*\)/g, ' ').replace(/\s+/g, ' ').trim(),
+        ...(details?.engineCodes || []).slice(0, 2).map((c) => `${make} ${c}`)];
+    const results = [];
+    for (const q of queries) {
+        try { results.push(...await searchVehicles(q)); } catch (error) { /* a többi keresés még jó lehet */ }
+    }
+    const m = matchFuchs({ ...(details || {}), name }, results);
+    let auto = m.auto[0] || null;
+    if (m.auto.length > 1) {
+        const recs = await Promise.all(m.auto.slice(0, 4).map((id) => engineOilFor(id).catch(() => null)));
+        if (!recs.every((r) => sameOil(r, recs[0]))) auto = null;
+    }
+    return { details, ranked: m.ranked, auto };
 }
 
 // Egy korábbi ajánlat újraszámolása és soronkénti összevetése.
@@ -88,20 +124,29 @@ export default async function handler(req, res) {
             return send(200, rememberFilter(body.engineCode, body));
         }
         if (action === 'td-status') {
-            return send(200, { ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label) })) });
+            return send(200, { ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts, checks }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label),
+                checks: checks.map((c) => ({ id: c.id, text: c.text, why: c.why, auto: c.auto || null,
+                    options: c.options.map((o) => ({ label: o.label, parts: (o.parts || []).map((p) => p.label), extras: o.extras || {}, hours: o.hours || 0,
+                        without: o.without || [], job: o.job || null, note: o.note || '' })) })) })) });
         }
         if (action === 'td-vin') {
             return send(200, { ...(await vinLookup(q.vin)), status: tecdocStatus() });
         }
+        if (action === 'td-car') {
+            return send(200, { details: await vehicleDetails(q.vehicleId).catch(() => null), status: tecdocStatus() });
+        }
+        if (action === 'td-oil') {
+            return send(200, { ...(await fuchsForCar(q.vehicleId, q.name)), status: tecdocStatus() });
+        }
         if (action === 'td-job') {
             const r = await partsForJob(q.vehicleId, q.job, brandsFor);
-            // Amit a szerelő erre az autóra már eldöntött, és a kézzel megadott árak.
-            const learned = learnedPicks(q.vehicleId, [...r.parts.map((p) => p.name), 'FUCHS']);
+            const learned = withLearned(q.vehicleId, r.parts, ['FUCHS']);
             r.fuchsTypeId = learned.FUCHS?.articleNo || null; // a Fuchs-motor, amit erre az autóra választottak
-            for (const p of r.parts) {
-                p.learned = learned[p.name] || null;
-                for (const a of p.articles) { const pr = learnedPrice(priceKey(a.brand, a.articleNo)); if (pr != null) a.price = pr; }
-            }
+            return send(200, { ...r, status: tecdocStatus() });
+        }
+        if (action === 'td-check') {
+            const r = await partsForCheck(q.vehicleId, q.job, q.check, q.opt, brandsFor);
+            withLearned(q.vehicleId, r.parts);
             return send(200, { ...r, status: tecdocStatus() });
         }
         if (action === 'td-oem') {

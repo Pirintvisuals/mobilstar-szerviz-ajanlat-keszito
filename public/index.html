@@ -15,7 +15,7 @@
     <div class="brand"><span class="dot"></span><span id="shop-name">Olajcsere-ajánlat</span></div>
     <nav class="tabs" role="tablist">
       <button class="tab is-on" data-tab="parts" role="tab" aria-selected="true">Új ajánlat</button>
-      <button class="tab" data-tab="quote" role="tab" aria-selected="false">Olajcsere típusból</button>
+      <button class="tab" data-tab="quote" role="tab" aria-selected="false" hidden>Olajcsere alvázszám nélkül</button>
       <button class="tab" data-tab="proof" role="tab" aria-selected="false">Ellenőrzés</button>
     </nav>
   </div>
@@ -100,7 +100,7 @@
       </form>
       <div id="td-vin-hint" class="hint"></div>
       <div id="td-cars" class="results" aria-live="polite"></div>
-      <p class="hint">Nincs kéznél az alvázszám? <button class="linkbtn" type="button" id="to-type">Olajcsere típus alapján →</button></p>
+      <p class="hint">Nincs kéznél az alvázszám? <button class="linkbtn" type="button" id="to-type">Olajcsere alvázszám nélkül, típus alapján →</button></p>
     </div>
 
     <div id="td-card-job" class="card" hidden>
@@ -110,8 +110,10 @@
       <p class="hint">Minden alkatrész-csoport egy kérés a tesztkeretből. Egy munka kétszer nem fogy: a válasz el van mentve.</p>
     </div>
 
+    <div id="td-checks" class="col"></div>
+
     <div id="td-oil" class="card" hidden>
-      <h2>Motorolaj <span class="src">Fuchs olajválasztó</span></h2>
+      <h2><span class="n">4</span> Motorolaj <span class="src">Fuchs olajválasztó</span></h2>
       <div id="td-oil-hint" class="hint"></div>
       <div id="td-oil-res" class="results"></div>
       <div id="td-oil-pick" hidden>

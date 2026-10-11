@@ -1,5 +1,5 @@
 {
-  "_leiras": "Motorkód (a Fuchs adja, pl. CAYC) -> olajszűrő cikkszám. István korábbi ajánlataiból töltjük fel; ha új motor jön, a szerelő egyszer megadja, és a rendszer megjegyzi.",
+  "_leiras": "Motorkód (a Fuchs adja, pl. CAYC) -> olajszűrő cikkszám. A műhely korábbi ajánlataiból töltjük fel; ha új motor jön, a szerelő egyszer megadja, és a rendszer megjegyzi.",
   "byEngine": {
     "696": {
       "cikkszam": "W 75/3",

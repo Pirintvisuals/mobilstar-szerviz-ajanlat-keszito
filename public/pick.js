@@ -13,6 +13,8 @@ const SPEC_HU = [
     [/^filter type/i, 'Kivitel'], [/^number of teeth/i, 'Fogszám'], [/^number of ribs/i, 'Bordaszám'], [/^wear warning contact/i, 'Kopásjelző'],
     [/^thread size/i, 'Menet'], [/^supplementary article/i, 'Kiegészítő'], [/^for pulley/i, 'Tárcsához'],
     [/^brake system/i, 'Fékrendszer'], [/^manufacturer restriction/i, 'Csak ehhez'], [/^material/i, 'Anyag'],
+    [/^(battery )?capacity/i, 'Kapacitás'], [/cold.?(test|cranking|start)/i, 'Hidegindító áram'], [/^(battery )?technology|^battery type/i, 'Akkutípus'],
+    [/terminal (layout|arrangement)|pole arrangement|^polarity/i, 'Pólus'], [/number of splines|spline/i, 'Agybordázat'],
 ];
 const VAL_HU = [[/front axle/gi, 'első tengely'], [/rear axle/gi, 'hátsó tengely'], [/\bleft\b/gi, 'bal'], [/\bright\b/gi, 'jobb'],
     [/internally vented/gi, 'belső hűtésű'], [/perforated/gi, 'perforált'], [/slotted/gi, 'hornyolt'], [/\bcoated\b/gi, 'bevonatos'], [/\bvented\b/gi, 'hűtött'], [/\bsolid\b/gi, 'tömör'], [/filter insert/gi, 'betét'],
@@ -27,7 +29,7 @@ export function specText(s) {
 }
 
 // Ami a döntéshez kell, az elöl; ami csak zaj, az nem látszik.
-const SPEC_ORDER = ['Beépítés', 'Fékrendszer', 'Csak ehhez', 'Külső átmérő', 'Átmérő', 'Vastagság', 'Típus', 'Kivitel', 'Fogszám', 'Bordaszám', 'Kopásjelző', 'Hossz', 'Szélesség', 'Magasság'];
+const SPEC_ORDER = ['Beépítés', 'Fékrendszer', 'Csak ehhez', 'Kapacitás', 'Akkutípus', 'Pólus', 'Agybordázat', 'Külső átmérő', 'Átmérő', 'Vastagság', 'Típus', 'Kivitel', 'Fogszám', 'Bordaszám', 'Kopásjelző', 'Hossz', 'Szélesség', 'Magasság'];
 const SPEC_NOISE = /^(test mark|brake lining|supplementary article|weight|packing|quantity|ean)/i;
 export const specRank = (s) => { const i = SPEC_ORDER.indexOf(specLabel(s.name)); return i < 0 ? 99 : i; };
 export const visibleSpecs = (specs = [], n = 6) => specs.filter((s) => !SPEC_NOISE.test(s.name)).sort((x, y) => specRank(x) - specRank(y)).slice(0, n);
@@ -37,8 +39,10 @@ export const visibleSpecs = (specs = [], n = 6) => specs.filter((s) => !SPEC_NOI
 // méreteknél a gyártók pár tizedet eltérnek ugyanarra a darabra: 3%-on belül
 // egy válasznak számít.
 // Sorrend = kérdezési sorrend: ami a legtöbbet dönt, az előbb.
-const TEXT_Q = ['Beépítés', 'Fékrendszer', 'Csak ehhez'];
-const NUM_Q = ['Külső átmérő', 'Átmérő', 'Vastagság', 'Fogszám', 'Bordaszám', 'Hossz'];
+const TEXT_Q = ['Beépítés', 'Fékrendszer', 'Csak ehhez', 'Akkutípus', 'Pólus'];
+const NUM_Q = ['Külső átmérő', 'Átmérő', 'Vastagság', 'Fogszám', 'Bordaszám', 'Agybordázat', 'Kapacitás', 'Hidegindító áram', 'Hossz'];
+// Mértékegység a válaszon; ami nincs itt és szám, az mm, a darabszámok (fog, borda) egység nélkül.
+const UNIT = { 'Kapacitás': 'Ah', 'Hidegindító áram': 'A', 'Fogszám': '', 'Bordaszám': '', 'Agybordázat': '' };
 const LATE_Q = ['Kivitel', 'Típus'];
 // Az első/hátsó adat sok cikknél hiányzik ebben a forrásban: már kevés adatból is kérdezünk.
 const MIN_COVER = { 'Beépítés': 0.25 };
@@ -49,11 +53,16 @@ const QUESTION = {
     'Fékrendszer': 'Milyen gyártmányú fék (féknyereg) van az autón?',
     'Csak ehhez': 'Milyen fékrendszerhez kell?',
     'Külső átmérő': 'Mekkora a tárcsa átmérője? (első és hátsó tengelyen általában eltér)',
-    'Átmérő': 'Mekkora az átmérője?',
+    'Átmérő': 'Mekkora az átmérője? (kuplungnál a tárcsáé; a régi darabon mérhető)',
     'Vastagság': 'Milyen vastag a tárcsa?',
     'Típus': 'Milyen típusú?',
     'Kivitel': 'Milyen kivitelű?',
-    'Fogszám': 'Hány fogú a szíj?',
+    'Fogszám': 'Hány fogú a szíj? (a régi szíjon rajta van)',
+    'Agybordázat': 'Hány bordás a kuplungtárcsa agya? (a váltó tengelye dönti el)',
+    'Kapacitás': 'Hány Ah-s akku kell? (a régin rajta van)',
+    'Hidegindító áram': 'Mekkora hidegindító áram kell? (a régi akkun: „A EN”)',
+    'Akkutípus': 'Milyen akku kell? (start-stophoz AGM vagy EFB)',
+    'Pólus': 'Melyik oldalon van a plusz pólus?',
     'Bordaszám': 'Hány bordás a szíj?',
     'Hossz': 'Milyen hosszú?',
 };
@@ -129,7 +138,7 @@ export function analyze(articles, { main = null, answers = {} } = {}) {
         // Egyetlen cikk furcsa értéke (elírás, más alkatrész) ne legyen külön válasz.
         if (options.length >= 3 || vals.length >= 5) options = options.filter((o) => o.count > 1);
         if (options.length < 2 || options.length > 5) continue;
-        question = { label, text: QUESTION[label] || label, mm: NUM_Q.includes(label) && label !== 'Fogszám' && label !== 'Bordaszám',
+        question = { label, text: QUESTION[label] || label, mm: isMmLabel(label),
             options: options.sort((x, y) => y.count - x.count) };
         break;
     }
@@ -147,5 +156,5 @@ export function analyze(articles, { main = null, answers = {} } = {}) {
 }
 
 // Kérdés-válasz kiírása emberi nyelven.
-export const answerText = (label, value, mm) => value == null ? 'nem tudom' : `${huValue(value)}${mm ? ' mm' : ''}`;
-export const isMmLabel = (label) => NUM_Q.includes(label) && label !== 'Fogszám' && label !== 'Bordaszám';
+export const answerText = (label, value, mm) => value == null ? 'nem tudom' : `${huValue(value)}${UNIT[label] ? ' ' + UNIT[label] : mm ? ' mm' : ''}`;
+export function isMmLabel(label) { return NUM_Q.includes(label) && !(label in UNIT); }
