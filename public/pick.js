@@ -30,7 +30,7 @@ export function specText(s) {
 
 // Ami a döntéshez kell, az elöl; ami csak zaj, az nem látszik.
 const SPEC_ORDER = ['Beépítés', 'Fékrendszer', 'Csak ehhez', 'Kapacitás', 'Akkutípus', 'Pólus', 'Agybordázat', 'Külső átmérő', 'Átmérő', 'Vastagság', 'Típus', 'Kivitel', 'Fogszám', 'Bordaszám', 'Kopásjelző', 'Hossz', 'Szélesség', 'Magasság'];
-const SPEC_NOISE = /^(test mark|brake lining|supplementary article|weight|packing|quantity|ean)/i;
+const SPEC_NOISE = /^(test mark|brake lining|supplementary article|weight|packing|packaging|quantity|ean|fitting time|article number of the recommended|special tool)/i;
 export const specRank = (s) => { const i = SPEC_ORDER.indexOf(specLabel(s.name)); return i < 0 ? 99 : i; };
 export const visibleSpecs = (specs = [], n = 6) => specs.filter((s) => !SPEC_NOISE.test(s.name)).sort((x, y) => specRank(x) - specRank(y)).slice(0, n);
 

@@ -232,7 +232,10 @@ async function answerCheck(k, opt, auto = false) {
     if (!o.parts.length) return;
     try {
         const r = await api({ action: 'td-check', vehicleId: st.car.vehicleId, job, check: id, opt });
-        if (st.checks[k] === opt) addGroups(job, r.parts, `${k}-${opt}-`, k);
+        if (st.checks[k] === opt) {
+            addGroups(job, r.parts, `${k}-${opt}-`, k);
+            if (!auto) toast(`+ Az ajánlatba került: ${o.parts.join(', ')}`);
+        }
     } catch (e) {
         $('td-checks').insertAdjacentHTML('beforeend', `<div class="hint">${esc(e.message)}</div>`);
     }
@@ -292,53 +295,89 @@ function detail(a) {
         ${rows ? '' : '<div class="hint">Ehhez a cikkhez nincs több műszaki adat.</div>'}</div></div>`;
 }
 function option(g, a, i, pic = true) {
-    const key = `${g.id}:${i}`, isOpen = detailOpen.has(key);
-    const specs = visibleSpecs(a.specs).map((s) => `<span class="spec${specRank(s) < 3 ? ' key' : ''}">${esc(specText(s))}</span>`).join('');
+    const key = `${g.id}:${i}`, isOpen = detailOpen.has(key), on = g.sel === i;
+    const specs = visibleSpecs(a.specs, 4).map((s) => `<span class="spec${specRank(s) < 3 ? ' key' : ''}">${esc(specText(s))}</span>`).join('');
     // A teljes lista külön rádiócsoport: ugyanaz a cikk fent és lent is ott van,
     // és egy csoportban csak az egyik lehetne bejelölve - a fenti, látható nem lenne.
-    return `<label class="oil part${pic ? '' : ' nopic'}"><input type="radio" name="g-${g.id}${pic ? '' : '-all'}" value="${i}" ${g.sel === i ? 'checked' : ''}>
+    return `<label class="oil part${pic ? '' : ' nopic'}${on ? ' in-quote' : ''}"><input type="radio" name="g-${g.id}${pic ? '' : '-all'}" value="${i}" ${on ? 'checked' : ''}>
         ${!pic ? '' : a.img ? `<img class="thumb" src="${esc(a.img)}" alt="" loading="lazy">` : '<span class="thumb"></span>'}
-        <span class="info"><span class="t">${esc(a.brand)} <span class="mono">${esc(a.articleNo)}</span>${a.preferred ? '<span class="badge">a műhely márkája</span>' : ''}${g.sel === i ? '<span class="picked">✓ Kiválasztva</span>' : ''}</span>
+        <span class="info"><span class="t">${esc(a.brand)} <span class="mono">${esc(a.articleNo)}</span>${i === g.r?.recommended ? '<span class="badge rec-b">ajánlott</span>' : ''}${a.preferred ? '<span class="badge">a műhely márkája</span>' : ''}</span>
+        ${on ? '<span class="inq">✓ Az ajánlatban</span>' : '<span class="pick-cta">Ezt kérem</span>'}
         <span class="m">${esc(a.name)}${a.price != null ? ` · legutóbbi ár: ${esc(huf(a.price))}` : ''}</span>${specs ? `<span class="specs">${specs}</span>` : ''}
         <button type="button" class="linkbtn more" data-more="${key}" aria-expanded="${isOpen}">${isOpen ? 'Részletek elrejtése ▴' : 'Részletek ▾'}</button></span>${isOpen ? detail(a) : ''}</label>`;
 }
 
+// Alkatrész-kártya. Ha már van biztos választás (és nincs nyitott kérdés),
+// egy sorrá csukódik: mi van az ajánlatban. Kinyitva a lista sorrendje NEM
+// változik kattintásra: a kiválasztott a helyén kap jelölést, semmi nem ugrik el.
 function renderGroups() {
-    const open = new Set([...$('td-parts').querySelectorAll('[data-g] details[open]')].map((d) => d.closest('[data-g]').dataset.g));
-    $('td-parts').innerHTML = st.groups.filter((g) => !hidden(g)).map((g) => {
+    const openAll = new Set([...$('td-parts').querySelectorAll('[data-g] details[open]')].map((d) => d.closest('[data-g]').dataset.g));
+    const shown = st.groups.filter((g) => !hidden(g));
+    $('td-parts').innerHTML = (shown.length ? `<h2 class="sec"><span class="n">5</span> Alkatrészek <span class="muted">· a kijelölt kerül az ajánlatba</span></h2>` : '') + shown.map((g) => {
         if (!g.category) return `<div class="card"><h2>${esc(g.label)}</h2><div class="hint">Ehhez az autóhoz a TecDoc nem ad ilyen csoportot.</div></div>`;
         if (!g.articles.length) return `<div class="card"><h2>${esc(g.label)}</h2><div class="hint">Nincs illő cikk.</div></div>`;
         const r = g.r, q = r.question;
-        const answered = Object.entries(answersOf(g)).map(([l, v]) =>
-            `<button type="button" class="ans" data-undo="${esc(l)}" title="Válasz törlése">${esc(l)}: <b>${esc(answerText(l, v, isMmLabel(l)))}</b> ✕</button>`).join('');
-        const ask = q ? `<div class="ask">
-                <div class="qtext">${esc(q.text)}</div>
-                <div class="opts">${q.options.map((o) => `<button type="button" class="btn opt" data-ans="${esc(q.label)}" data-val="${esc(o.value)}">${esc(answerText(q.label, o.value, q.mm))}<span class="m">${o.count} cikk</span></button>`).join('')}
-                <button type="button" class="btn ghost opt" data-ans="${esc(q.label)}" data-skip="1">Nem tudom</button></div>
-                <div class="hint">A TecDoc <b>${g.articles.length}</b> cikket ad ehhez az autóhoz (${esc(g.label.toLowerCase())}), és nem mind egyforma: ebben különböznek. Még <b>${r.candidates.length}</b> jöhet szóba. Minden válasz szűkít; ha nem tudod, kattints a „Nem tudom”-ra vagy nézd meg a régi alkatrészen.</div>
-            </div>` : '';
         const rec = r.recommended != null ? g.articles[r.recommended] : null;
         const chosen = g.sel != null ? g.articles[g.sel] : null;
         const why = g.learned ? 'Legutóbb ezt választottad erre az autóra.'
-            : g.manual ? 'A szerelő választotta.'
+            : g.manual ? 'Te választottad.'
                 : !rec ? '' : q ? 'Eddigi legjobb - a kérdés után pontosodik.'
                     : r.unsure ? 'Ellenőrizd: volt „nem tudom” válasz, több változat is lehet.'
                         : r.twins.length ? `Ellenőrizd: a ${rec.brand}-ből ez is illik: ${r.twins.slice(0, 3).join(', ')} - évjárat vagy motorváltozat dönti el.`
                             : rec.preferred ? 'A műhely első márkája, ami a válaszaidra illik.' : 'A műhely márkái közül egyik sem illik - ez a legközelebbi.';
         const tag = g.learned ? 'Megjegyezve' : g.manual ? 'Kézzel választva' : q ? 'Eddigi legjobb' : 'Ajánlott';
         const soft = !g.learned && !g.manual && (q || r.unsure || r.twins.length);
-        const alts = r.alternatives.filter((i) => i !== g.sel);
-        return `<div class="card" data-g="${g.id}">
-            <h2>${esc(g.label)} <span class="src">${esc(g.category.parent)} › ${esc(g.category.name)} · ${g.articles.length} cikk</span></h2>
+        const isOpen = g.open ?? (!!q || !chosen);
+        const head = `<div class="pc-head"><h2>${esc(g.label)}${g.qty > 1 ? ` <span class="muted">· ${fmtQty(g.qty)} db</span>` : ''}</h2>
+            ${q ? '<span class="state ask-s">Kérdés vár</span>' : chosen ? '<span class="state ok-s">✓ Az ajánlatban</span>' : '<span class="state no-s">Nincs kiválasztva</span>'}</div>`;
+
+        if (!isOpen) {
+            const specs = visibleSpecs(chosen.specs, 3).map((s) => `<span class="spec">${esc(specText(s))}</span>`).join('');
+            return `<div class="card part-card closed" data-g="${g.id}">${head}
+                <button type="button" class="pc-sum" data-toggle="1" title="Másik alkatrész választása">
+                  ${chosen.img ? `<img class="thumb" src="${esc(chosen.img)}" alt="" loading="lazy">` : '<span class="thumb"></span>'}
+                  <span class="info"><span class="t">${esc(chosen.brand)} <span class="mono">${esc(chosen.articleNo)}</span></span>
+                  <span class="m"><span class="tag${soft ? ' soft' : ''}">${tag}</span> ${esc(why)}</span>${specs ? `<span class="specs">${specs}</span>` : ''}</span>
+                  <span class="chg">Másik ▾<span class="m">${r.candidates.length} illik</span></span>
+                </button></div>`;
+        }
+
+        const answered = Object.entries(answersOf(g)).map(([l, v]) =>
+            `<button type="button" class="ans" data-undo="${esc(l)}" title="Válasz törlése">${esc(l)}: <b>${esc(answerText(l, v, isMmLabel(l)))}</b> ✕</button>`).join('');
+        const ask = q ? `<div class="ask">
+                <div class="qtext">${esc(q.text)}</div>
+                <div class="hint">Ebben különböznek az erre az autóra illő cikkek (még ${r.candidates.length} jöhet szóba). Ha nem tudod, nézd meg a régi alkatrészen.</div>
+                <div class="opts">${q.options.map((o) => `<button type="button" class="btn opt" data-ans="${esc(q.label)}" data-val="${esc(o.value)}">${esc(answerText(q.label, o.value, q.mm))}<span class="m">${o.count} cikk</span></button>`).join('')}
+                <button type="button" class="btn opt" data-ans="${esc(q.label)}" data-skip="1">Nem tudom</button></div>
+            </div>` : '';
+        // Stabil sorrend: ajánlott, a műhely többi márkája, és ha a teljes listából választott, az is.
+        const list = [...new Set([r.recommended, ...r.alternatives, g.sel].filter((i) => i != null))];
+        return `<div class="card part-card" data-g="${g.id}">${head}
             ${answered ? `<div class="answers">${answered}</div>` : ''}
             ${ask}
-            ${chosen ? `<div class="rec"><div class="rec-h"><span class="tag${soft ? ' soft' : ''}">${tag}</span><span class="hint">${esc(why)}</span></div>
-                <div class="oils">${option(g, chosen, g.sel)}</div></div>` : '<p class="hint">Nincs ajánlható cikk - válassz a listából.</p>'}
-            ${!alts.length && r.candidates.length > 1 ? `<div class="hint">A műhely márkái közül csak ez az egy illik. Más márkából még ${r.candidates.length - 1} cikk jöhet szóba - lent: „Összes illő cikk”.</div>` : ''}
-            ${alts.length ? `<div class="lbl">Másik márka a műhely listájáról</div><div class="oils">${alts.map((i) => option(g, g.articles[i], i)).join('')}</div>` : ''}
-            <details class="plain"${open.has(g.id) ? ' open' : ''}><summary>Összes illő cikk (${r.candidates.length})</summary><div class="oils all">${r.candidates.map((i) => option(g, g.articles[i], i, false)).join('')}</div></details>
+            ${rec ? `<div class="rec-h"><span class="tag${soft ? ' soft' : ''}">${tag}</span><span class="hint">${esc(why)}</span></div>` : '<p class="hint">Nincs ajánlható cikk - válassz a teljes listából.</p>'}
+            <div class="oils">${list.map((i) => option(g, g.articles[i], i)).join('')}</div>
+            ${list.length === 1 && r.candidates.length > 1 ? `<div class="hint">A műhely márkái közül csak ez illik. Más márkából még ${r.candidates.length - 1} cikk - lent.</div>` : ''}
+            <details class="plain"${openAll.has(g.id) ? ' open' : ''}><summary>Összes illő cikk (${r.candidates.length})</summary><div class="oils all">${r.candidates.map((i) => option(g, g.articles[i], i, false)).join('')}</div></details>
+            ${chosen && !q ? '<button type="button" class="btn ghost done-btn" data-toggle="1">Kész, összecsuk ▴</button>' : ''}
         </div>`;
     }).join('');
+}
+
+// Rövid visszajelzés alul: mi került az ajánlatba (telefonon az ajánlat lent van, nem látszik).
+let toastTimer = null;
+function toast(text) {
+    let el = document.getElementById('toast');
+    if (!el) { el = document.createElement('div'); el.id = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+    el.textContent = text;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+}
+// Az ajánlat érintett sora röviden felvillan.
+function flash(key) {
+    st.flash = key;
+    setTimeout(() => { if (st.flash === key) { st.flash = null; document.querySelector(`#td-lines tr[data-row="${CSS.escape(key)}"]`)?.classList.remove('flash'); } }, 1600);
 }
 
 $('td-parts').addEventListener('click', (ev) => {
@@ -348,6 +387,14 @@ $('td-parts').addEventListener('click', (ev) => {
         const k = more.dataset.more;
         detailOpen.has(k) ? detailOpen.delete(k) : detailOpen.add(k);
         renderAll();
+        return;
+    }
+    const tog = ev.target.closest('[data-toggle]');
+    if (tog) {
+        const g = st.groups.find((x) => x.id === tog.closest('[data-g]').dataset.g);
+        g.open = !!tog.closest('.closed'); // összecsukott kártyán: kinyit; nyitotton: összecsuk
+        renderAll();
+        if (!g.open) document.querySelector(`[data-g="${CSS.escape(g.id)}"]`)?.scrollIntoView({ block: 'nearest' });
         return;
     }
     const card = ev.target.closest('[data-g]');
@@ -373,7 +420,11 @@ $('td-parts').addEventListener('change', (ev) => {
     g.sel = Number(ev.target.value);
     g.manual = g.sel !== g.r.recommended;
     g.learned = false;
+    g.open = true; // nyitva marad: látszik, mire kattintott, semmi nem ugrik el
     learn(g);
+    const a = g.articles[g.sel];
+    flash(g.id);
+    toast(`✓ Az ajánlatban: ${g.label} – ${a.brand} ${a.articleNo}`);
     renderAll();
 });
 
@@ -466,7 +517,14 @@ $('td-oil-res').addEventListener('click', (ev) => {
     const b = ev.target.closest('[data-fuchs]');
     if (b) loadFuchs(b.dataset.fuchs, true);
 });
-$('td-oils').addEventListener('change', (ev) => { if (ev.target.name === 'td-oil') { st.oil.code = ev.target.value; delete st.prices.oil; render(); } });
+$('td-oils').addEventListener('change', (ev) => {
+    if (ev.target.name !== 'td-oil') return;
+    st.oil.code = ev.target.value;
+    delete st.prices.oil;
+    flash('oil');
+    toast(`✓ Az ajánlatban: ${oilLine()?.label || 'motorolaj'}`);
+    render();
+});
 $('td-liters').addEventListener('input', () => {
     const n = parseNum($('td-liters').value);
     if (n != null && n >= 0 && n < 50) { st.oil.liters = n; render(); }
@@ -490,7 +548,12 @@ function renderExtras() {
 }
 $('td-extras-list').addEventListener('change', (ev) => {
     const k = ev.target.dataset.extra;
-    if (k) { st.extraOn[k] = ev.target.checked; render(); }
+    if (!k) return;
+    st.extraOn[k] = ev.target.checked;
+    const x = extrasList().find((e) => e.key === k);
+    if (ev.target.checked) flash('x-' + k);
+    toast(ev.target.checked ? `✓ Az ajánlatban: ${x?.label}` : `Kivéve az ajánlatból: ${x?.label}`);
+    render();
 });
 
 // ---------- Gyári szám -> utángyártott ----------
@@ -581,8 +644,9 @@ function render() {
         const src = l.labour ? `${huf(l.unitNet)}/óra · a szerelő dönti el`
             : l.priceMissing ? '<span class="miss">ár: Inter Cars (még kézzel)</span>'
                 : esc(l.typed ? 'kézzel megadva - megjegyezve' : l.source || '');
-        return `<tr>
-        <td><div class="lab">${esc(l.label)}${l.removable ? ` <button class="linkbtn" type="button" data-rm="${l.key}" aria-label="Törlés">✕</button>` : ''}</div>
+        const goto = st.groups.some((g) => g.id === l.key) ? ` data-goto="${esc(l.key)}" title="Ugrás az alkatrészhez"` : '';
+        return `<tr data-row="${esc(l.key)}"${st.flash === l.key ? ' class="flash"' : ''}>
+        <td><div class="lab"${goto}>${esc(l.label)}${l.removable ? ` <button class="linkbtn" type="button" data-rm="${l.key}" aria-label="Törlés">✕</button>` : ''}</div>
             <div class="sub">${l.open ? '<span class="miss">kérdés nyitva</span> · ' : ''}${l.cikkszam ? `<span class="cik">${esc(l.cikkszam)}</span> · ` : ''}${src}</div></td>
         <td class="r"><input class="cell" data-k="${l.key}" data-f="qty" value="${esc(fmtQty(l.qty))}" aria-label="${esc(l.label)} mennyiség"> ${esc(l.unit)}</td>
         <td class="r"><input class="cell${l.priceMissing || l.typed ? ' edited' : ''}" data-k="${l.key}" data-f="price" value="${l.unitNet ?? ''}" placeholder="ár" aria-label="${esc(l.label)} egységár"></td>
@@ -651,6 +715,13 @@ $('td-lines').addEventListener('change', (ev) => {
     render();
 });
 $('td-lines').addEventListener('click', (ev) => {
+    // Ajánlatsor nevére kattintva: ugrás az alkatrész kártyájára, kinyitva.
+    const go = ev.target.closest('[data-goto]');
+    if (go) {
+        const g = st.groups.find((x) => x.id === go.dataset.goto);
+        if (g) { g.open = true; renderAll(); document.querySelector(`[data-g="${CSS.escape(g.id)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+        return;
+    }
     const b = ev.target.closest('[data-rm]');
     if (!b) return;
     st.oemLines = st.oemLines.filter((o) => o.id !== b.dataset.rm);

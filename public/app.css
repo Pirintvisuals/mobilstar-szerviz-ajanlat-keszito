@@ -237,3 +237,55 @@ aside.col { position: sticky; top: 12px; }
 .score { font-size: 18px; font-weight: 800; }
 
 .foot { color: var(--muted); font-size: 12px; padding-bottom: 24px; }
+
+/* ---------- Alkatrész-kártyák: mi van az ajánlatban ---------- */
+/* Minden kattintható elem reagál az egérre. */
+.oil { transition: border-color .12s, background-color .12s, box-shadow .12s; }
+.oil:hover { border-color: var(--accent-strong); background: var(--soft); }
+.oil.in-quote, .oil.in-quote:hover { background: var(--warn-bg); }
+.ans:hover { border-color: var(--accent-strong); }
+.linkbtn:hover { text-decoration: underline; }
+.chip, .res, .answered, .btn { transition: border-color .12s, background-color .12s, transform .06s; }
+.chip:active, .res:active, .btn:active, .oil:active { transform: scale(.99); }
+
+.sec { display: flex; align-items: center; gap: 10px; font-size: 17px; margin: 18px 4px 10px; }
+.part-card .pc-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.part-card .pc-head h2 { margin: 0; }
+.state { margin-left: auto; font-size: 12px; font-weight: 800; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+.ok-s { background: var(--ok); color: #fff; }
+.ask-s { background: var(--accent); color: var(--dark); }
+.no-s { background: var(--bad-bg); color: var(--bad); }
+
+/* Összecsukott kártya: egy kattintható sor a kiválasztott cikkel. */
+.part-card.closed { padding-bottom: 12px; }
+.pc-sum { width: 100%; display: grid; grid-template-columns: 52px 1fr auto; gap: 10px; align-items: center; text-align: left;
+  background: var(--soft); border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; cursor: pointer; }
+.pc-sum:hover { border-color: var(--accent-strong); }
+.pc-sum .thumb { width: 52px; height: 52px; }
+.pc-sum .info { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.pc-sum .t { font-weight: 700; }
+.pc-sum .m { font-size: 12.5px; color: var(--muted); }
+.pc-sum .tag { font-size: 10.5px; padding: 1px 6px; }
+.chg { font-weight: 700; color: var(--accent-ink); display: flex; flex-direction: column; align-items: flex-end; font-size: 14px; }
+.chg .m { font-weight: 400; font-size: 11.5px; }
+
+/* Kinyitott lista: a kiválasztott a helyén, zöld "Az ajánlatban" címkével. */
+.inq { align-self: flex-start; font-size: 12px; font-weight: 800; background: var(--ok); color: #fff; border-radius: 999px; padding: 2px 9px; }
+.pick-cta { align-self: flex-start; font-size: 12px; font-weight: 700; color: var(--accent-ink); border: 1px dashed var(--accent); border-radius: 999px; padding: 1px 9px; opacity: 0; transition: opacity .12s; }
+.oil:hover .pick-cta { opacity: 1; }
+.badge.rec-b { background: var(--warn-bg); color: var(--accent-ink); }
+.done-btn { margin-top: 12px; }
+.rec-h { margin-bottom: 8px; }
+
+/* Ajánlat: az épp hozzáadott sor felvillan; a név az alkatrészhez visz. */
+@keyframes flashrow { 0% { background: rgba(245,158,11,.45); } 100% { background: transparent; } }
+.lines tr.flash td { animation: flashrow 1.6s ease-out; }
+.lines .lab[data-goto] { cursor: pointer; }
+.lines .lab[data-goto]:hover { color: var(--accent-ink); text-decoration: underline; }
+
+/* Visszajelzés alul középen. */
+#toast { position: fixed; left: 50%; bottom: 20px; transform: translate(-50%, 20px); opacity: 0; pointer-events: none;
+  background: var(--dark); color: #fff; border: 1px solid var(--ok); border-radius: 12px; padding: 10px 16px; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0,0,0,.25); max-width: calc(100vw - 32px); transition: opacity .18s, transform .18s; z-index: 50; }
+#toast.show { opacity: 1; transform: translate(-50%, 0); }
+@media (prefers-reduced-motion: reduce) { .lines tr.flash td { animation: none; background: rgba(245,158,11,.25); } #toast { transition: none; } }
