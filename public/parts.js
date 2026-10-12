@@ -13,7 +13,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '
 const api = async (params, body) => {
     const res = body
         ? await apiFetch('/api/olajcsere', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
-        : await fetch('/api/olajcsere?' + new URLSearchParams(params));
+        : await apiFetch('/api/olajcsere?' + new URLSearchParams(params));
     const json = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
     if (json.status) showLeft(json.status);
