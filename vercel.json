@@ -1,4 +1,7 @@
 {
+  "functions": {
+    "api/olajcsere.js": { "includeFiles": "data/**" }
+  },
   "headers": [
     {
       "source": "/(.*)",

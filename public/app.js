@@ -21,7 +21,8 @@ const years = (a, b) => (a ? `${a}–${b || ''}` : '');
 const state = { shop: null, data: null, oilCode: null, liters: 0, filter: null, overrides: {}, t0: null, doneIn: null };
 
 // ---------- Indulás ----------
-api({ action: 'config' }).then(({ shop, live }) => {
+// ?m=mobilstar: a műhely saját bemutató-linkje (név a fejlécben és a PDF-en).
+api({ action: 'config', m: new URLSearchParams(location.search).get('m') || '' }).then(({ shop, live }) => {
     state.shop = shop;
     $('shop-name').textContent = `${shop.name} · árajánlat`;
     if (!live) $('results').innerHTML = '<div class="note">A Fuchs-kapcsolat nincs beállítva (OLY_SUBSCRIPTION).</div>';

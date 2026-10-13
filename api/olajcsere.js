@@ -18,11 +18,11 @@
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
-import { JOBS, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, oemLookup } from '../lib/tecdoc.js';
+import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, oemLookup } from '../lib/tecdoc.js';
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush } from '../lib/store.js';
-import { SHOP, brandsFor } from '../lib/shop.js';
+import { SHOP, brandsFor, shopFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
 async function vehiclePayload(typeId) {
@@ -112,7 +112,7 @@ export default async function handler(req, res) {
     try {
         await hydrate();
         if (action === 'config') {
-            return send(200, { shop: SHOP, live: olyslagerConfigured() });
+            return send(200, { shop: shopFor(q.m), live: olyslagerConfigured(), demoVehicle: DEMO_VEHICLE });
         }
         if (action === 'search') {
             return send(200, { results: await searchVehicles(q.q) });

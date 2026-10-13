@@ -19,7 +19,10 @@ const SPEC_HU = [
 const VAL_HU = [[/front axle/gi, 'első tengely'], [/rear axle/gi, 'hátsó tengely'], [/\bleft\b/gi, 'bal'], [/\bright\b/gi, 'jobb'],
     [/internally vented/gi, 'belső hűtésű'], [/perforated/gi, 'perforált'], [/slotted/gi, 'hornyolt'], [/\bcoated\b/gi, 'bevonatos'], [/\bvented\b/gi, 'hűtött'], [/\bsolid\b/gi, 'tömör'], [/filter insert/gi, 'betét'],
     [/screw-on filter/gi, 'csavaros'], [/prepared for wear warning indicator/gi, 'kopásjelzőre előkészítve'],
-    [/excl\. wear warning contact/gi, 'kopásjelző nélkül'], [/incl\. wear warning contact/gi, 'kopásjelzővel']];
+    [/excl\. wear warning contact/gi, 'kopásjelző nélkül'], [/incl\. wear warning contact/gi, 'kopásjelzővel'],
+    [/activated carbon filter/gi, 'aktívszenes'], [/particulate filter/gi, 'porszűrős'], [/in-line filter/gi, 'csőbe épített'],
+    [/long-life filter/gi, 'hosszú élettartamú'], [/lifelong part/gi, 'élettartam-alkatrész'], [/behind the glove compartment/gi, 'kesztyűtartó mögött'],
+    [/in front of the windscreen/gi, 'szélvédő előtt'], [/front/gi, 'első'], [/rear/gi, 'hátsó']];
 
 export const specLabel = (name) => SPEC_HU.find(([re]) => re.test(name))?.[1] || null;
 export const isMm = (name) => /\[mm\]/.test(name);

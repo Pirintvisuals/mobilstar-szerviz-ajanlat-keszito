@@ -93,13 +93,14 @@
 <main id="view-parts" class="wrap grid">
   <section class="col">
     <div class="card">
-      <h2><span class="n">1</span> Autó alvázszámból <span class="src" id="td-left"></span></h2>
+      <h2><span class="n">1</span> Autó alvázszámból <span class="src" id="td-left" hidden></span></h2>
       <form id="td-vin-form" class="inline-form">
         <input id="td-vin" class="inp mono" maxlength="20" autocomplete="off" spellcheck="false" placeholder="17 karakteres alvázszám" aria-label="Alvázszám">
         <button class="btn" type="submit">Autó keresése</button>
       </form>
       <div id="td-vin-hint" class="hint"></div>
       <div id="td-cars" class="results" aria-live="polite"></div>
+      <button class="btn ghost demo-car" type="button" id="td-demo-car">Mintaautó betöltése (Mercedes SL 500) →</button>
       <p class="hint">Nincs kéznél az alvázszám? <button class="linkbtn" type="button" id="to-type">Olajcsere alvázszám nélkül, típus alapján →</button></p>
     </div>
 
@@ -107,7 +108,7 @@
       <h2><span class="n">2</span> Mi a munka?</h2>
       <div id="td-car" class="vehicle"></div>
       <div id="td-jobs" class="chips"></div>
-      <p class="hint">Minden alkatrész-csoport egy kérés a tesztkeretből. Egy munka kétszer nem fogy: a válasz el van mentve.</p>
+      <p class="hint" id="td-quota-hint" hidden>Minden alkatrész-csoport egy kérés a tesztkeretből. Egy munka kétszer nem fogy: a válasz el van mentve.</p>
     </div>
 
     <div id="td-checks" class="col"></div>

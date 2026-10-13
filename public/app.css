@@ -289,3 +289,6 @@ aside.col { position: sticky; top: 12px; }
   box-shadow: 0 8px 24px rgba(0,0,0,.25); max-width: calc(100vw - 32px); transition: opacity .18s, transform .18s; z-index: 50; }
 #toast.show { opacity: 1; transform: translate(-50%, 0); }
 @media (prefers-reduced-motion: reduce) { .lines tr.flash td { animation: none; background: rgba(245,158,11,.25); } #toast { transition: none; } }
+
+/* Mintaautó gomb a VIN-kártyán. */
+.demo-car { width: 100%; margin-top: 10px; }
