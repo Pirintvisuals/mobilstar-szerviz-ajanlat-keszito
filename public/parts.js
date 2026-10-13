@@ -111,9 +111,11 @@ async function pickCar(vehicleId, name) {
     $('td-card-job').hidden = false;
     renderAll();
     // Az adatlap (motorkód, kW, évjárat): ezt veti össze a forgalmival, és ebből jön az olaj.
-    const r = await api({ action: 'td-car', vehicleId }).catch(() => null);
+    const [r, av] = await Promise.all([api({ action: 'td-car', vehicleId }).catch(() => null), api({ action: 'td-avail', vehicleId }).catch(() => null)]);
     if (st.car?.vehicleId !== vehicleId) return;
     st.car.details = r?.details || null;
+    st.car.avail = av?.jobs || null;
+    renderJobs();
     renderCar();
     autoAnswer();
 }
@@ -133,17 +135,25 @@ function renderCar() {
 // ---------- 2. Munka ----------
 function renderJobs() {
     $('td-jobs').innerHTML = st.jobs.map((j) => {
-        const on = st.loaded.includes(j.key);
+        const on = st.loaded.includes(j.key), na = notHere(j.key);
         const parts = [...(j.oil ? ['Fuchs olaj'] : []), ...j.parts];
-        return `<button type="button" class="chip${on ? ' on' : ''}" data-job="${j.key}" aria-pressed="${on}">
+        return `<button type="button" class="chip${on ? ' on' : ''}${na ? ' na' : ''}" data-job="${j.key}" aria-pressed="${on}">
             <span class="ct">${on ? '<span class="tick">✓</span>' : ''}${esc(j.label)}</span>
-            <span class="m">${esc(parts.join(', '))}</span></button>`;
+            <span class="m">${na ? esc(na) : esc(parts.join(', '))}</span></button>`;
     }).join('');
+}
+// Ez a munka nem létezik erre az autóra (pl. lánccal szerelt motornál nincs szíj).
+function notHere(key) {
+    if (!st.car?.avail || st.car.avail[key] !== false) return '';
+    if (key === 'belt' && st.car.avail.chain) return 'Lánccal szerelt: válaszd a Vezérműlánc-cserét';
+    if (key === 'clutch') return 'Ennél az autónál nincs kuplung (automata)';
+    return 'Ennél az autónál nincs ilyen alkatrész';
 }
 $('td-jobs').addEventListener('click', (ev) => {
     const b = ev.target.closest('.chip');
     if (!b || !st.car) return;
     const key = b.dataset.job;
+    if (notHere(key) && !st.loaded.includes(key)) { toast(notHere(key)); return; }
     if (st.loaded.includes(key)) dropJob(key); // második kattintás: kiveszi
     else loadJob(key);
 });
@@ -164,7 +174,18 @@ async function loadJob(key) {
         addGroups(key, r.parts, `${key}-`);
         if (needsOil() && !st.oil) startOil(r.fuchsTypeId);
     } catch (e) {
-        $('td-jobs').insertAdjacentHTML('afterend', `<div class="hint">${esc(e.message)}</div>`);
+        const j = st.jobs.find((x) => x.key === key);
+        if (DEV || !j) {
+            $('td-jobs').insertAdjacentHTML('afterend', `<div class="hint">${esc(e.message)}</div>`);
+        } else {
+            // A bemutató adataiban nincs meg: a munka ettől még felkerül, az
+            // alkatrészei pirossal, "élesben a gyári katalógusból".
+            st.loaded.push(key);
+            st.shared[key] = {};
+            j.parts.forEach((label, i) => st.groups.push({ id: `${key}-${i}`, job: key, check: null, name: j.partNames?.[i] || label, label,
+                qty: 1, category: null, articles: [], answers: {}, sel: null, manual: false, placeholder: true }));
+            if (needsOil() && !st.oil) startOil(null);
+        }
     }
     renderAll();
     autoAnswer();
@@ -256,7 +277,12 @@ async function answerCheck(k, opt, auto = false) {
             if (!auto) toast(`+ Az ajánlatba került: ${o.parts.join(', ')}`);
         }
     } catch (e) {
-        toast(DEV ? e.message : `${o.parts.join(', ')}: ehhez az autóhoz most nem érhető el az adat.`);
+        if (DEV) toast(e.message);
+        else if (st.checks[k] === opt) {
+            // A tesztadatból nem jön: helyőrző, pirossal - élesben a gyári katalógusból.
+            o.parts.forEach((label, i) => st.groups.push({ id: `${k}-${opt}-${i}`, job, check: k, name: o.partNames?.[i] || label, label,
+                qty: 1, category: null, articles: [], answers: {}, sel: null, manual: false, placeholder: true }));
+        }
     }
     renderAll();
 }
@@ -336,7 +362,9 @@ function renderGroups() {
     const openAll = new Set([...$('td-parts').querySelectorAll('[data-g] details[open]')].map((d) => d.closest('[data-g]').dataset.g));
     const shown = st.groups.filter((g) => !hidden(g));
     $('td-parts').innerHTML = (shown.length ? `<h2 class="sec"><span class="n">5</span> Alkatrészek <span class="muted">· a kijelölt kerül az ajánlatba</span></h2>` : '') + shown.map((g) => {
-        if (!g.category) return `<div class="card"><h2>${esc(g.label)}</h2><div class="hint">Ehhez az autóhoz a TecDoc nem ad ilyen csoportot.</div></div>`;
+        if (!g.category) return DEV ? `<div class="card"><h2>${esc(g.label)}</h2><div class="hint">Ehhez az autóhoz a TecDoc nem ad ilyen csoportot.</div></div>`
+            : `<div class="card part-card" data-g="${g.id}"><div class="pc-head"><h2>${esc(g.label)}</h2><span class="state live-s">Élesben</span></div>
+                <div class="live-box"><b>A cikkszám élesben a gyári katalógusból jön, alvázszám alapján.</b> A bemutató adataiban ennél az autónál nincs meg, ezért az ajánlatban minta árral szerepel.</div></div>`;
         if (!g.articles.length) return `<div class="card"><h2>${esc(g.label)}</h2><div class="hint">Nincs illő cikk.</div></div>`;
         const r = g.r, q = r.question;
         const rec = r.recommended != null ? g.articles[r.recommended] : null;
@@ -619,7 +647,8 @@ function oilLine() {
     const learned = o.data.learnedSale?.[oil.code];
     const unitNet = learned ?? Math.round((list ? list.netPerLiter : st.shop.fallbackOilNetPerLiter) * markup);
     return { key: 'oil', label: `FUCHS ${oil.name}`, cikkszam: list?.cikkszam || oil.code, qty: o.liters, unit: 'l', part: true,
-        auto: unitNet, source: learned != null ? 'legutóbbi ár' : list ? 'árlista' : 'minta ár', priceKey: { brand: 'FUCHS', articleNo: oil.code } };
+        auto: unitNet, source: learned != null ? 'legutóbbi ár' : list ? 'árlista' : 'minta ár', priceKey: { brand: 'FUCHS', articleNo: oil.code },
+        live: !DEV && learned == null && !list ? 'minta ár · élesben a műhely olajára' : null };
 }
 function lines() {
     const out = [];
@@ -631,15 +660,20 @@ function lines() {
         const pos = answersOf(g)['Beépítés'];
         const side = pos ? ` (${answerText('Beépítés', pos)})` : '';
         out.push({ key: g.id, label: `${g.label}${side}, ${a.brand}`, cikkszam: a.articleNo, qty: g.qty, unit: 'db', part: true,
-            auto: a.price ?? sample(g.name), source: a.price != null ? 'legutóbbi ár' : sample(g.name) != null ? 'minta ár' : null, priceKey: { brand: a.brand, articleNo: a.articleNo }, open: g.r?.question?.text || null });
+            auto: a.price ?? sample(g.name), source: a.price != null ? 'legutóbbi ár' : null, live: a.price == null && !DEV ? 'minta ár · élesben a beszállítótól (Inter Cars)' : null,
+            priceKey: { brand: a.brand, articleNo: a.articleNo }, open: g.r?.question?.text || null });
     }
+    // Amit a tesztadat nem ad: sor minta árral, pirossal.
+    if (!DEV) for (const g of st.groups) if (!g.category && !hidden(g)) out.push({ key: g.id, label: g.label, cikkszam: '', qty: g.qty, unit: 'db', part: true,
+        auto: sample(g.name), live: 'cikkszám és ár élesben a gyári katalógusból' });
     for (const o of st.oemLines) out.push({ key: o.id, label: `${o.label}, ${o.brand}`, cikkszam: o.articleNo, qty: o.qty, unit: 'db', part: true, removable: true,
         auto: o.price, source: o.price != null ? 'legutóbbi ár' : null, priceKey: { brand: o.brand, articleNo: o.articleNo } });
-    for (const x of extrasList()) if (x.on) out.push({ key: 'x-' + x.key, label: x.label, cikkszam: '', qty: x.qty, unit: x.unit, auto: x.unitNet, source: DEV ? 'műhely (MINTA)' : 'műhely' });
+    for (const x of extrasList()) if (x.on) out.push({ key: 'x-' + x.key, label: x.label, cikkszam: '', qty: x.qty, unit: x.unit, auto: x.unitNet, source: DEV ? 'műhely (MINTA)' : null, live: DEV ? null : 'minta · élesben a műhely saját ára' });
     if (out.length) {
         const jobHours = st.jobs.filter((j) => st.loaded.includes(j.key)).reduce((s, j) => s + j.hours, 0)
             + Object.keys(st.checks).reduce((s, k) => s + (checkOpt(k)?.hours || 0), 0);
-        out.push({ key: 'labour', label: 'Munkadíj', cikkszam: '', qty: st.hours ?? (jobHours || 1), unit: 'óra', auto: st.shop.hourlyRate, labour: true });
+        out.push({ key: 'labour', label: 'Munkadíj', cikkszam: '', qty: st.hours ?? (jobHours || 1), unit: 'óra', auto: st.shop.hourlyRate, labour: true,
+            live: !DEV && st.shop.sampleRate ? 'minta óradíj · élesben a műhely saját díja' : null });
     }
     return out.map((l) => {
         const qty = st.qty[l.key] ?? l.qty;
@@ -663,15 +697,17 @@ function render() {
     if (!ls.length) return;
 
     $('td-lines').innerHTML = ls.map((l) => {
-        const src = l.labour ? `${huf(l.unitNet)}/óra · a szerelő dönti el`
-            : l.priceMissing ? `<span class="miss">${DEV ? 'ár: Inter Cars (még kézzel)' : 'ár: írd be'}</span>`
-                : esc(l.typed ? 'kézzel megadva - megjegyezve' : l.source || '');
+        const src = l.typed ? esc('kézzel megadva - megjegyezve')
+            : l.live ? `<span class="live">● ${esc(l.live)}</span>`
+                : l.labour ? `${huf(l.unitNet)}/óra · a szerelő dönti el`
+                    : l.priceMissing ? `<span class="miss">${DEV ? 'ár: Inter Cars (még kézzel)' : 'ár: élesben a beszállítótól'}</span>`
+                        : esc(l.source || '');
         const goto = st.groups.some((g) => g.id === l.key) ? ` data-goto="${esc(l.key)}" title="Ugrás az alkatrészhez"` : '';
         return `<tr data-row="${esc(l.key)}"${st.flash === l.key ? ' class="flash"' : ''}>
         <td><div class="lab"${goto}>${esc(l.label)}${l.removable ? ` <button class="linkbtn" type="button" data-rm="${l.key}" aria-label="Törlés">✕</button>` : ''}</div>
             <div class="sub">${l.open ? '<span class="miss">kérdés nyitva</span> · ' : ''}${l.cikkszam ? `<span class="cik">${esc(l.cikkszam)}</span> · ` : ''}${src}</div></td>
         <td class="r"><input class="cell" data-k="${l.key}" data-f="qty" value="${esc(fmtQty(l.qty))}" aria-label="${esc(l.label)} mennyiség"> ${esc(l.unit)}</td>
-        <td class="r"><input class="cell${l.priceMissing || l.typed ? ' edited' : ''}" data-k="${l.key}" data-f="price" value="${l.unitNet ?? ''}" placeholder="ár" aria-label="${esc(l.label)} egységár"></td>
+        <td class="r"><input class="cell${l.priceMissing || l.typed ? ' edited' : ''}${l.live && !l.typed ? ' live' : ''}" data-k="${l.key}" data-f="price" value="${l.unitNet ?? ''}" placeholder="ár" aria-label="${esc(l.label)} egységár"></td>
         <td class="r">${l.priceMissing ? '–' : huf(l.net)}</td></tr>`;
     }).join('');
 
@@ -691,7 +727,7 @@ function render() {
         open.length && `Nyitott kérdés - a tétel addig csak javaslat: ${open.join(' · ')}`,
         st.oil && !st.oil.data && 'Motorolaj: válaszd ki a motort a Fuchs-listában.',
         t.missing && `${t.missing} tételnek még nincs ára. Élesben a beszállítótól jön; most kézzel írható, és a program megjegyzi.`,
-        !DEV && 'Az árak mintaárak. Élesben a műhely saját beszállítói áraival és munkadíjával számol.',
+        !DEV && '● Pirossal jelölve, ami most minta: élesben a beszállítótól (ár), a gyári katalógusból (cikkszám) vagy a műhely saját beállításából jön.',
         unpicked.length && `Nincs kiválasztva: ${unpicked.join(', ')}.`,
         DEV && 'Adatforrás: TecDoc-teszt (nem hivatalos) - éles ügyfélnél licencelt TecDoc.',
     ].filter(Boolean);

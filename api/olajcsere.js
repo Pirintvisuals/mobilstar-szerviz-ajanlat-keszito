@@ -18,7 +18,7 @@
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
-import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, oemLookup } from '../lib/tecdoc.js';
+import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, jobAvailability, oemLookup } from '../lib/tecdoc.js';
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush } from '../lib/store.js';
@@ -124,9 +124,9 @@ export default async function handler(req, res) {
             return send(200, rememberFilter(body.engineCode, body));
         }
         if (action === 'td-status') {
-            return send(200, { ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts, checks }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label),
+            return send(200, { ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts, checks }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label), partNames: parts.map((p) => p.name),
                 checks: checks.map((c) => ({ id: c.id, text: c.text, why: c.why, auto: c.auto || null,
-                    options: c.options.map((o) => ({ label: o.label, parts: (o.parts || []).map((p) => p.label), extras: o.extras || {}, hours: o.hours || 0,
+                    options: c.options.map((o) => ({ label: o.label, parts: (o.parts || []).map((p) => p.label), partNames: (o.parts || []).map((p) => p.name), extras: o.extras || {}, hours: o.hours || 0,
                         without: o.without || [], job: o.job || null, note: o.note || '' })) })) })) });
         }
         if (action === 'td-vin') {
@@ -134,6 +134,9 @@ export default async function handler(req, res) {
         }
         if (action === 'td-car') {
             return send(200, { details: await vehicleDetails(q.vehicleId).catch(() => null), status: tecdocStatus() });
+        }
+        if (action === 'td-avail') {
+            return send(200, { jobs: await jobAvailability(q.vehicleId).catch(() => null), status: tecdocStatus() });
         }
         if (action === 'td-oil') {
             return send(200, { ...(await fuchsForCar(q.vehicleId, q.name)), status: tecdocStatus() });

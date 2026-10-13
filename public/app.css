@@ -292,3 +292,13 @@ aside.col { position: sticky; top: 12px; }
 
 /* Mintaautó gomb a VIN-kártyán. */
 .demo-car { width: 100%; margin-top: 10px; }
+
+/* ---------- "Élesben" jelölés: ami most minta vagy a tesztadatból hiányzik ---------- */
+.live { color: var(--bad); font-weight: 700; }
+.cell.live { background: var(--bad-bg); color: var(--bad); font-weight: 700; }
+.live-box { border: 2px dashed var(--bad); background: var(--bad-bg); color: var(--ink); border-radius: 10px; padding: 10px 12px; font-size: 14px; }
+.live-box b { color: var(--bad); }
+.live-s { background: var(--bad); color: #fff; }
+/* Munka, ami erre az autóra nem létezik: halvány, szaggatott, magyarázattal. */
+.chip.na { opacity: .6; border-style: dashed; cursor: help; }
+.chip.na .m { color: var(--bad); font-weight: 600; }
