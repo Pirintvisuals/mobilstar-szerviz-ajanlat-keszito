@@ -37,7 +37,7 @@ const sample = (name) => (DEV ? null : st.shop?.samplePrices?.[name] ?? null);
 // checks: a munka kérdéseire adott válaszok ("clutch.dmf" -> opció sorszáma);
 // autoChecks: amiket az adatlap töltött ki; reopen: megválaszolt, de újra nyitott kérdés.
 const fresh = () => ({ car: null, loaded: [], groups: [], shared: {}, checks: {}, autoChecks: new Set(), reopen: new Set(),
-    oemLines: [], extraOn: {}, prices: {}, qty: {}, hours: null, oil: null, quoteNo: null });
+    oemLines: [], extraOn: {}, prices: {}, qty: {}, disc: {}, hours: null, oil: null, quoteNo: null });
 const st = { shop: null, jobs: [], ...fresh() };
 
 function showLeft(s) {
@@ -168,7 +168,7 @@ async function loadJob(key) {
     const b = $('td-jobs').querySelector(`[data-job="${key}"]`);
     b?.classList.add('busy');
     try {
-        const r = await api({ action: 'td-job', vehicleId: st.car.vehicleId, job: key });
+        const r = await api({ action: 'td-job', vehicleId: st.car.vehicleId, job: key, m: URLQ.get('m') || '' });
         st.loaded.push(key);
         st.shared[key] = {};
         addGroups(key, r.parts, `${key}-`);
@@ -271,7 +271,7 @@ async function answerCheck(k, opt, auto = false) {
     if (o.job && !st.loaded.includes(o.job)) loadJob(o.job);
     if (!o.parts.length) return;
     try {
-        const r = await api({ action: 'td-check', vehicleId: st.car.vehicleId, job, check: id, opt });
+        const r = await api({ action: 'td-check', vehicleId: st.car.vehicleId, job, check: id, opt, m: URLQ.get('m') || '' });
         if (st.checks[k] === opt) {
             addGroups(job, r.parts, `${k}-${opt}-`, k);
             if (!auto) toast(`+ Az ajánlatba került: ${o.parts.join(', ')}`);
@@ -668,17 +668,24 @@ function lines() {
         auto: sample(g.name), live: 'cikkszám és ár élesben a gyári katalógusból' });
     for (const o of st.oemLines) out.push({ key: o.id, label: `${o.label}, ${o.brand}`, cikkszam: o.articleNo, qty: o.qty, unit: 'db', part: true, removable: true,
         auto: o.price, source: o.price != null ? 'legutóbbi ár' : null, priceKey: { brand: o.brand, articleNo: o.articleNo } });
-    for (const x of extrasList()) if (x.on) out.push({ key: 'x-' + x.key, label: x.label, cikkszam: '', qty: x.qty, unit: x.unit, auto: x.unitNet, source: DEV ? 'műhely (MINTA)' : null, live: DEV ? null : 'minta · élesben a műhely saját ára' });
+    for (const x of extrasList()) if (x.on) out.push({ key: 'x-' + x.key, label: x.label, cikkszam: '', qty: x.qty, unit: x.unit, auto: x.unitNet, source: DEV ? 'műhely (MINTA)' : st.shop.ownExtras ? 'műhely' : null, live: DEV || st.shop.ownExtras ? null : 'minta · élesben a műhely saját ára' });
     if (out.length) {
-        const jobHours = st.jobs.filter((j) => st.loaded.includes(j.key)).reduce((s, j) => s + j.hours, 0)
+        // A műhely fix munkadíjas munkái (pl. "motorolajcsere 1-es típus") külön sorban; óradíjból csak a többi.
+        const fixed = st.shop.jobLabour || {};
+        for (const job of st.loaded) (fixed[job] || []).forEach((f, i) => out.push({ key: `lab-${job}-${i}`, label: f.label, cikkszam: '', qty: 1, unit: 'db', auto: f.net, source: 'műhely munkadíja' }));
+        const jobHours = st.jobs.filter((j) => st.loaded.includes(j.key) && !fixed[j.key]).reduce((s, j) => s + j.hours, 0)
             + Object.keys(st.checks).reduce((s, k) => s + (checkOpt(k)?.hours || 0), 0);
-        out.push({ key: 'labour', label: 'Munkadíj', cikkszam: '', qty: st.hours ?? (jobHours || 1), unit: 'óra', auto: st.shop.hourlyRate, labour: true,
-            live: !DEV && st.shop.sampleRate ? 'minta óradíj · élesben a műhely saját díja' : null });
+        const anyFixed = st.loaded.some((j) => fixed[j]);
+        if (st.hours != null || jobHours > 0 || !anyFixed) {
+            out.push({ key: 'labour', label: anyFixed ? 'További munkadíj' : 'Munkadíj', cikkszam: '', qty: st.hours ?? (Math.round(jobHours * 100) / 100 || 1), unit: 'óra', auto: st.shop.hourlyRate, labour: true,
+                live: !DEV && st.shop.sampleRate ? 'minta óradíj · élesben a műhely saját díja' : null });
+        }
     }
     return out.map((l) => {
         const qty = st.qty[l.key] ?? l.qty;
         const unitNet = st.prices[l.key] ?? l.auto ?? null;
-        return { ...l, qty, unitNet, typed: st.prices[l.key] != null, net: Math.round(qty * (unitNet || 0)), priceMissing: unitNet == null };
+        const disc = st.disc[l.key] || 0; // kedvezmény %, soronként (mint a műhely ajánlatain)
+        return { ...l, qty, unitNet, disc, typed: st.prices[l.key] != null, net: Math.round(qty * (unitNet || 0) * (1 - disc / 100)), priceMissing: unitNet == null };
     });
 }
 
@@ -708,6 +715,7 @@ function render() {
             <div class="sub">${l.open ? '<span class="miss">kérdés nyitva</span> · ' : ''}${l.cikkszam ? `<span class="cik">${esc(l.cikkszam)}</span> · ` : ''}${src}</div></td>
         <td class="r"><input class="cell" data-k="${l.key}" data-f="qty" value="${esc(fmtQty(l.qty))}" aria-label="${esc(l.label)} mennyiség"> ${esc(l.unit)}</td>
         <td class="r"><input class="cell${l.priceMissing || l.typed ? ' edited' : ''}${l.live && !l.typed ? ' live' : ''}" data-k="${l.key}" data-f="price" value="${l.unitNet ?? ''}" placeholder="ár" aria-label="${esc(l.label)} egységár"></td>
+        <td class="r"><input class="cell disc" data-k="${l.key}" data-f="disc" value="${l.disc || ''}" placeholder="0" aria-label="${esc(l.label)} kedvezmény %">%</td>
         <td class="r">${l.priceMissing ? '–' : huf(l.net)}</td></tr>`;
     }).join('');
 
@@ -739,15 +747,32 @@ function render() {
 function customer() {
     return { name: $('td-cust-name').value.trim(), plate: $('td-cust-plate').value.trim().toUpperCase(), phone: $('td-cust-phone').value.trim(), km: $('td-cust-km').value.trim() };
 }
+// A műhely kísérőlevele (profilból): megszólítás, munkánként a saját szövege, lábléc.
+function letterText() {
+    const L = st.shop.letter;
+    if (!L) return '';
+    const c = customer();
+    const jobs = st.loaded.map((k) => st.jobs.find((j) => j.key === k)?.label.toLowerCase()).filter(Boolean);
+    const paras = st.loaded.flatMap((k) => L.jobs[k] || []);
+    return [
+        c.name ? `Tisztelt ${c.name}!` : 'Tisztelt Ügyfelünk!', '',
+        `Köszönöm, hogy megkereste cégünket ${jobs.join(', ')} ügyében. Alább megtalálja az ajánlatunkat a javításra.`, '',
+        ...[...new Set(paras)].flatMap((p) => [p, '']),
+        ...L.footer.flatMap((p) => [p, '']),
+        ...L.signature,
+    ].join('\n');
+}
 function plainText(ls, t) {
     const c = customer(), vin = cleanVin();
+    const letter = letterText();
     return [
+        letter && letter + '\n\n----------------\n',
         `${st.shop.name} - Árajánlat${st.quoteNo ? ' ' + st.quoteNo : ''}`,
         c.name && `Ügyfél: ${c.name}`,
         st.car && `Autó: ${st.car.name}${c.plate ? ` (${c.plate})` : ''}`,
         vin && `Alvázszám: ${vin}`,
         '',
-        ...ls.map((l) => `• ${l.label}${l.cikkszam ? ` (${l.cikkszam})` : ''}: ${fmtQty(l.qty)} ${l.unit} → ${l.priceMissing ? 'ár később' : huf(l.net)}`),
+        ...ls.map((l) => `• ${l.label}${l.cikkszam ? ` (${l.cikkszam})` : ''}: ${fmtQty(l.qty)} ${l.unit}${l.disc ? `, -${l.disc}%` : ''} → ${l.priceMissing ? 'ár később' : huf(l.net)}`),
         '',
         `Nettó${t.missing ? ' (eddig)' : ''}: ${huf(t.net)}`,
         `ÁFA ${Math.round(st.shop.vatRate * 100)}%: ${huf(t.vat)}`,
@@ -761,7 +786,9 @@ $('td-lines').addEventListener('change', (ev) => {
     const el = ev.target.closest('.cell');
     if (!el) return;
     const n = parseNum(el.value), k = el.dataset.k;
-    if (el.dataset.f === 'qty') {
+    if (el.dataset.f === 'disc') {
+        if (n == null || n <= 0) delete st.disc[k]; else st.disc[k] = Math.min(n, 100);
+    } else if (el.dataset.f === 'qty') {
         if (k === 'labour') st.hours = n != null && n >= 0 ? n : null;
         else if (k === 'oil') { if (n != null && n >= 0) st.oil.liters = n; renderOil(); }
         else if (n == null || n < 0) delete st.qty[k]; else st.qty[k] = n;
@@ -826,8 +853,9 @@ function printHtml() {
     const today = new Date(), until = new Date(today.getTime() + (s.quoteValidDays || 15) * 864e5);
     const d = (x) => x.toLocaleDateString('hu-HU');
     const initials = s.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+    const anyDisc = ls.some((l) => l.disc);
     const rows = ls.map((l) => `<tr><td>${esc(l.label)}${l.cikkszam ? `<div class="no">${esc(l.cikkszam)}</div>` : ''}</td>
-        <td class="r">${esc(fmtQty(l.qty))} ${esc(l.unit)}</td><td class="r">${l.priceMissing ? '–' : esc(huf(l.unitNet))}</td><td class="r">${l.priceMissing ? 'ár később' : esc(huf(l.net))}</td></tr>`).join('');
+        <td class="r">${esc(fmtQty(l.qty))} ${esc(l.unit)}</td><td class="r">${l.priceMissing ? '–' : esc(huf(l.unitNet))}</td>${anyDisc ? `<td class="r">${l.disc ? esc(l.disc) + '%' : ''}</td>` : ''}<td class="r">${l.priceMissing ? 'ár később' : esc(huf(l.net))}</td></tr>`).join('');
     return `<!doctype html><html lang="hu"><head><meta charset="utf-8"><title>Árajánlat ${esc(st.quoteNo || '')}</title>
 <style>
   @page { size: A4; margin: 16mm; }
@@ -854,7 +882,7 @@ function printHtml() {
   <div class="box"><div class="l">Ügyfél</div>${esc(c.name || '-')}${c.phone ? `<br>${esc(c.phone)}` : ''}</div>
   <div class="box"><div class="l">Jármű</div>${esc(st.car?.name || '-')}${c.plate ? `<br>Rendszám: <b>${esc(c.plate)}</b>` : ''}${vin ? `<br>Alvázszám: ${esc(vin)}` : ''}${c.km ? `<br>Km-óra: ${esc(c.km)}` : ''}</div>
 </div>
-<table><thead><tr><th>Tétel</th><th class="r">Mennyiség</th><th class="r">Egységár (nettó)</th><th class="r">Nettó</th></tr></thead><tbody>${rows}</tbody></table>
+<table><thead><tr><th>Tétel</th><th class="r">Mennyiség</th><th class="r">Egységár (nettó)</th>${anyDisc ? '<th class="r">Kedv.</th>' : ''}<th class="r">Nettó</th></tr></thead><tbody>${rows}</tbody></table>
 <div class="tot"><div><span>Nettó${t.missing ? ' (eddig)' : ''}</span><b>${esc(huf(t.net))}</b></div><div><span>ÁFA ${Math.round(s.vatRate * 100)}%</span><b>${esc(huf(t.vat))}</b></div>
   <div class="g"><span>Fizetendő${t.missing ? ' (előzetes)' : ''}</span><span>${esc(huf(t.gross))}</span></div></div>
 <p class="note">${esc(s.quoteNote || '')}</p>

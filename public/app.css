@@ -302,3 +302,7 @@ aside.col { position: sticky; top: 12px; }
 /* Munka, ami erre az autóra nem létezik: halvány, szaggatott, magyarázattal. */
 .chip.na { opacity: .6; border-style: dashed; cursor: help; }
 .chip.na .m { color: var(--bad); font-weight: 600; }
+
+/* Kedvezmény % cella: keskeny. */
+.cell.disc { width: 38px; }
+@media (max-width: 520px) { .lines .cell.disc { width: 30px; } }

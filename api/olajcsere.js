@@ -22,7 +22,7 @@ import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJo
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush } from '../lib/store.js';
-import { SHOP, brandsFor, shopFor } from '../lib/shop.js';
+import { SHOP, brandsFor, brandsForShop, shopFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
 async function vehiclePayload(typeId) {
@@ -142,13 +142,13 @@ export default async function handler(req, res) {
             return send(200, { ...(await fuchsForCar(q.vehicleId, q.name)), status: tecdocStatus() });
         }
         if (action === 'td-job') {
-            const r = await partsForJob(q.vehicleId, q.job, brandsFor);
+            const r = await partsForJob(q.vehicleId, q.job, brandsForShop(q.m), brandsFor);
             const learned = withLearned(q.vehicleId, r.parts, ['FUCHS']);
             r.fuchsTypeId = learned.FUCHS?.articleNo || null; // a Fuchs-motor, amit erre az autóra választottak
             return send(200, { ...r, status: tecdocStatus() });
         }
         if (action === 'td-check') {
-            const r = await partsForCheck(q.vehicleId, q.job, q.check, q.opt, brandsFor);
+            const r = await partsForCheck(q.vehicleId, q.job, q.check, q.opt, brandsForShop(q.m), brandsFor);
             withLearned(q.vehicleId, r.parts);
             return send(200, { ...r, status: tecdocStatus() });
         }
