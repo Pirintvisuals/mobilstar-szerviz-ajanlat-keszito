@@ -21,7 +21,8 @@ import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olysla
 import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, jobAvailability, oemLookup } from '../lib/tecdoc.js';
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
-    learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush } from '../lib/store.js';
+    learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush,
+    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine } from '../lib/store.js';
 import { SHOP, brandsFor, brandsForShop, shopFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
@@ -122,6 +123,31 @@ export default async function handler(req, res) {
         }
         if (action === 'filter' && req.method === 'POST') {
             return send(200, rememberFilter(body.engineCode, body));
+        }
+        // --- Olajcsere típusból (Fuchs nélkül): motorkód -> szűrő-változatok, a
+        //     megjegyzett olaj és mennyiség, a műhely márkájának megfelelője, árak.
+        if (action === 'oc-engine') {
+            const shop = shopFor(q.m);
+            const filter = filterOptions(q.code, q.when);
+            const oil = oilForEngine(q.code, q.car);
+            const xrefs = {}, prices = {};
+            const price = (brand, cik) => { const k = priceKey(brand, cik); const v = learnedPrice(k); if (v != null) prices[k] = v; };
+            for (const o of filter.options) {
+                price(o.brand, o.cikkszam);
+                const x = xrefFor(o.brand, o.cikkszam);
+                if (x) { xrefs[priceKey(o.brand, o.cikkszam)] = x; price(x.brand, x.cikkszam); }
+            }
+            for (const o of [...(shop.oils || []), ...(oil ? [{ name: oil.oil }] : [])]) price('OIL', o.name);
+            return send(200, { filter, oil, xrefs, prices });
+        }
+        if (action === 'oc-learn' && req.method === 'POST') {
+            return send(200, rememberOilForEngine(body.engineCode, body.car, body));
+        }
+        if (action === 'oc-xref' && req.method === 'POST') {
+            return send(200, rememberXref(body.from, body.to));
+        }
+        if (action === 'price') {
+            return send(200, { net: learnedPrice(String(q.key || '')) });
         }
         if (action === 'td-status') {
             return send(200, { ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts, checks }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label), partNames: parts.map((p) => p.name),

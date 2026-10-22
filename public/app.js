@@ -1,9 +1,21 @@
+// ---------------------------------------------------------------------------
+//  Olajcsere-ajánlat, Fuchs nélkül:
+//    autó (márka, típus, motor) + motorkód -> olajszűrő a MANN-táblából, a
+//    változatok közül a gyártás hónapja szerint választva -> a műhely saját
+//    márkája (ha egyszer megadták) -> az olaj és a mennyiség, amit erre a
+//    motorra legutóbb választottak -> apró tételek, a műhely munkadíja ->
+//    ajánlat kedvezménnyel, PDF a műhely kísérőlevelével.
+//  Amit a munkafelvevő egyszer megad (olaj, liter, saját márkás szűrő, ár), azt
+//  megjegyezzük. Az árat mindig a kód számolja, sosem az AI.
+// ---------------------------------------------------------------------------
 import { apiFetch } from './auth.js';
-import { buildQuote, quoteText, huf, liters as fmtL } from './quote.js';
-import { cleanVin, vinLooksValid, vinMake, vinYear, vinConflicts } from './vin.js';
+import { huf } from './quote.js';
+import { cleanVin, vinLooksValid, vinMake, vinYear } from './vin.js';
+import { letterParts, letterText, printQuoteHtml, fmtQty } from './print.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const M = new URLSearchParams(location.search).get('m') || '';
 const api = async (params, body) => {
     const res = body
         ? await apiFetch('/api/olajcsere', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
@@ -12,251 +24,396 @@ const api = async (params, body) => {
     if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
     return json;
 };
+const post = (body) => api(null, body).catch(() => null); // tanulás: ha nem sikerül, az ajánlat attól még megy
 const parseNum = (s) => {
     const n = parseFloat(String(s).replace(/\s/g, '').replace(',', '.'));
     return Number.isFinite(n) ? n : null;
 };
-const years = (a, b) => (a ? `${a}–${b || ''}` : '');
+// Ugyanaz a kulcs, mint a szerveren (lib/store.js priceKey).
+const normCode = (s) => String(s || '').toUpperCase().replace(/[\s.\-/]/g, '');
+const priceKey = (brand, articleNo) => `${String(brand || '').toUpperCase()}|${normCode(articleNo)}`;
+const OIL = 'OIL';
 
-const state = { shop: null, data: null, oilCode: null, liters: 0, filter: null, overrides: {}, t0: null, doneIn: null };
+const fresh = () => ({ eng: null, engKey: null, filterSel: null, useOwn: true, oil: '', liters: null, oilTouched: false,
+    extraOn: {}, prices: {}, qty: {}, disc: {}, quoteNo: null, t0: null, doneIn: null, localFilter: null });
+const st = { shop: null, cars: [], ...fresh() };
 
 // ---------- Indulás ----------
-// ?m=mobilstar: a műhely saját bemutató-linkje (név a fejlécben és a PDF-en).
-api({ action: 'config', m: new URLSearchParams(location.search).get('m') || '' }).then(({ shop, live }) => {
-    state.shop = shop;
+Promise.all([
+    api({ action: 'config', m: M }),
+    fetch('/cars.json').then((r) => r.json()).catch(() => ({ makes: [] })),
+]).then(([{ shop }, cars]) => {
+    st.shop = shop;
+    st.cars = cars.makes || [];
     $('shop-name').textContent = `${shop.name} · árajánlat`;
-    if (!live) $('results').innerHTML = '<div class="note">A Fuchs-kapcsolat nincs beállítva (OLY_SUBSCRIPTION).</div>';
-}).catch((e) => { $('results').innerHTML = `<div class="note">${esc(e.message)}</div>`; });
+    $('dl-makes').innerHTML = st.cars.map((m) => `<option value="${esc(m.make)}">`).join('');
+    $('dl-oils').innerHTML = (shop.oils || []).map((o) => `<option value="${esc(o.name)}">`).join('');
+    $('dl-fbrands').innerHTML = (shop.brandsByPart?.['Oil Filter'] || []).map((b) => `<option value="${esc(b)}">`).join('');
+}).catch((e) => { $('quote-empty').textContent = e.message; });
 
-const startClock = () => { if (!state.t0) state.t0 = performance.now(); };
+const val = (id) => $(id).value.trim();
+const startClock = () => { if (!st.t0) st.t0 = performance.now(); };
+const carName = () => [val('oc-make'), val('oc-model'), val('oc-engine')].filter(Boolean).join(' ');
 
-// ---------- Alvázszám ----------
+// ---------- Autó ----------
+// Ékezet és kis-nagybetű nélkül: "skoda" = "Škoda", "citroen" = "Citroën".
+const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
+const findMake = () => st.cars.find((m) => fold(m.make) === fold(val('oc-make')));
+const findModel = () => findMake()?.models.find((m) => fold(m.name) === fold(val('oc-model')));
+function fillLists() {
+    $('dl-models').innerHTML = (findMake()?.models || []).map((m) => `<option value="${esc(m.name)}">`).join('');
+    $('dl-engines').innerHTML = (findModel()?.engines || []).map((e) => `<option value="${esc(e)}">`).join('');
+}
+
+let loadTimer = null;
+['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when'].forEach((id) => $(id).addEventListener('input', () => {
+    startClock();
+    fillLists();
+    clearTimeout(loadTimer);
+    loadTimer = setTimeout(load, 350);
+}));
+
 $('vin').addEventListener('input', () => {
     startClock();
     const v = cleanVin($('vin').value);
     const hint = $('vin-hint');
-    if (!v) { hint.textContent = ''; return; }
+    if (!v) { hint.textContent = ''; render(); return; }
     if (!vinLooksValid(v)) { hint.textContent = `${v.length}/17 karakter`; return; }
     const make = vinMake(v), year = vinYear(v);
-    hint.innerHTML = ([make && `<b>${esc(make)}</b>`, year && `${year}-es évjárat`].filter(Boolean).join(' · ') || 'Érvényes alvázszám')
-        + ' · <button class="linkbtn" type="button" id="to-parts">Pontos típus és alkatrészek ehhez az alvázszámhoz →</button>';
-    $('to-parts').onclick = () => {
-        document.querySelector('.tab[data-tab="parts"]').click();
-        $('td-vin').value = v;
-        $('td-vin-form').requestSubmit();
-    };
-    if (make && !$('q').value.trim()) { $('q').value = make + ' '; $('q').focus(); }
-    if (lastResults.length) renderResults(lastResults);
+    hint.innerHTML = [make && `<b>${esc(make)}</b>`, year && `${year}-es évjárat`].filter(Boolean).join(' · ') || 'Érvényes alvázszám';
+    if (make && !val('oc-make')) { $('oc-make').value = make; fillLists(); }
+    if (year && !val('oc-when')) $('oc-when').value = String(year);
+    load();
 });
 
-// ---------- Keresés ----------
-let timer = null, seq = 0, lastResults = [];
-$('q').addEventListener('input', () => {
-    startClock();
-    clearTimeout(timer);
-    const text = $('q').value.trim();
-    if (text.length < 2) { $('results').innerHTML = ''; return; }
-    timer = setTimeout(async () => {
-        const my = ++seq;
-        $('results').innerHTML = '<div class="note">Keresés a Fuchs adatbázisában…</div>';
-        try {
-            const { results } = await api({ action: 'search', q: text });
-            if (my !== seq) return;
-            lastResults = results;
-            renderResults(results);
-        } catch (e) {
-            if (my === seq) $('results').innerHTML = `<div class="note">${esc(e.message)}</div>`;
-        }
-    }, 280);
-});
-
-function renderResults(results) {
-    const box = $('results');
-    if (!results.length) { box.innerHTML = '<div class="note">Nincs találat. Próbáld rövidebben (pl. „octavia 1.6”) vagy motorkóddal.</div>'; return; }
-    // Ha az alvázszámból tudjuk az évjáratot, a nem illő típusok halványak és hátrébb kerülnek.
-    const year = vinYear($('vin').value);
-    const fits = (r) => !year || !r.yearStart || (r.yearStart <= year && (!r.yearEnd || r.yearEnd >= year));
-    const sorted = [...results].sort((a, b) => fits(b) - fits(a));
-    box.innerHTML = sorted.map((r) => `
-        <button class="res${fits(r) ? '' : ' dim'}" data-id="${r.typeId}">
-          <span class="t">${esc(r.make)} ${esc(r.type)}</span>
-          <span class="code">${esc(r.engineCode || '—')}</span>
-          <span class="m">${esc([years(r.yearStart, r.yearEnd), r.fuel, r.powerKw && `${r.powerKw} kW / ${r.powerHp} LE`].filter(Boolean).join(' · '))}</span>
-        </button>`).join('') + (results.length >= 40 ? '<div class="note">Sok találat - pontosíts (évjárat, kW, motorkód).</div>' : '');
-}
-
-$('results').addEventListener('click', (ev) => {
-    const btn = ev.target.closest('.res');
-    if (btn) loadVehicle(btn.dataset.id);
-});
-
-// ---------- Egy autó ----------
-async function loadVehicle(typeId) {
-    $('results').querySelectorAll('.res').forEach((b) => b.setAttribute('aria-pressed', b.dataset.id === String(typeId)));
-    let data;
+let seq = 0;
+async function load() {
+    const code = val('oc-code'), car = carName();
+    if (!code && !(val('oc-make') && val('oc-model'))) { st.eng = null; renderAll(); return; }
+    const my = ++seq;
+    let eng;
     try {
-        data = await api({ action: 'vehicle', typeId });
+        eng = await api({ action: 'oc-engine', code, car, when: val('oc-when'), m: M });
     } catch (e) {
-        $('results').insertAdjacentHTML('afterbegin', `<div class="note">${esc(e.message)}</div>`);
+        if (my === seq) { $('filter-src').textContent = e.message; }
         return;
     }
-    state.data = data;
-    state.oilCode = data.chosenOil;
-    state.liters = data.liters;
-    state.filter = data.filter;
-    state.overrides = {};
-    state.doneIn = null;
-
-    const v = data.vehicle;
-    $('vehicle').innerHTML = `<div class="t">${esc(v.make)} ${esc(v.type)}</div>
-        <div class="m">Motorkód: <b class="mono">${esc(v.engineCode || '—')}</b> · ${esc([years(v.yearStart, v.yearEnd), v.fuel, v.ccm && `${v.ccm} cm³`, v.powerKw && `${v.powerKw} kW`].filter(Boolean).join(' · '))}</div>`;
-    const conflicts = vinConflicts(cleanVin($('vin').value), v);
-    if (conflicts.length) {
-        $('vehicle').insertAdjacentHTML('beforeend', `<div class="warn"><b>Nem biztos, hogy ez az autó.</b> ${conflicts.map(esc).join(' ')} Nézd meg a forgalmit, mielőtt ajánlatot adsz.</div>`);
+    if (my !== seq) return;
+    const key = normCode(code) || 'C|' + normCode(car);
+    if (key !== st.engKey) {
+        // Másik motor: a szűrő-választás és az olaj ennek a motornak a megjegyzett adatából indul.
+        st.engKey = key;
+        st.filterSel = null;
+        st.useOwn = true;
+        st.localFilter = null;
+        st.oilTouched = false;
+        delete st.prices.filter; delete st.prices.oil;
     }
-    $('cap').textContent = data.capacityL ? fmtL(data.capacityL) : 'nincs adat';
-    $('liters').value = String(data.liters || '').replace('.', ',');
-    $('fuchs-link').href = v.fuchsUrl;
-    renderOils();
-    renderFilter();
-    $('card-oil').hidden = false;
-    $('card-filter').hidden = false;
-    render();
-    if (window.innerWidth < 880) $('card-oil').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    st.eng = eng;
+    if (!st.oilTouched) {
+        st.oil = eng.oil?.oil || '';
+        st.liters = eng.oil?.liters ?? null;
+        $('oc-oil').value = st.oil;
+        $('liters').value = st.liters != null ? fmtQty(st.liters) : '';
+    }
+    renderAll();
 }
 
-function renderOils() {
-    const { oils, oilPrices } = state.data;
-    if (!oils.length) { $('oils').innerHTML = '<div class="hint">A Fuchs erre a motorra nem ad olajajánlást.</div>'; return; }
-    $('oils').innerHTML = oils.map((o) => {
-        const p = oilPrices[o.code];
-        const uses = o.uses.map((u) => `${u.name}${u.interval ? ' (' + u.interval + ')' : ''}`).join(' · ');
-        return `<label class="oil"><input type="radio" name="oil" value="${esc(o.code)}" ${o.code === state.oilCode ? 'checked' : ''}>
-            <span class="t">${esc(o.name)}${o.approved ? '<span class="badge">gyári jóváhagyás</span>' : ''}</span>
-            <span class="m">Fuchs kód: <span class="mono">${esc(o.code)}</span>${p?.cikkszam ? ` · Unix: <span class="mono">${esc(p.cikkszam)}</span>` : ''} · ${esc(uses)}</span></label>`;
-    }).join('');
+// ---------- Olajszűrő ----------
+function filterChoice() {
+    const f = st.eng?.filter;
+    if (!f) return null;
+    if (f.kind === 'none') return st.localFilter;
+    const idx = st.filterSel ?? f.auto ?? (f.kind === 'date' ? null : 0);
+    if (idx == null) return null;
+    const base = f.options[idx];
+    const own = st.eng.xrefs?.[priceKey(base.brand, base.cikkszam)] || null;
+    const pick = own && st.useOwn ? own : base;
+    return { ...pick, base, own, idx };
 }
-$('oils').addEventListener('change', (ev) => {
-    if (ev.target.name !== 'oil') return;
-    state.oilCode = ev.target.value;
-    delete state.overrides.oil;
+
+function renderFilter() {
+    const f = st.eng?.filter;
+    $('card-filter').hidden = !f;
+    if (!f) return;
+    const ch = filterChoice();
+    const code = val('oc-code');
+    $('filter-src').textContent = f.kind === 'none' ? '' : f.learned ? 'műhely adta meg' : `MANN katalógus · ${f.family ? `motorcsalád: ${f.family}` : `motorkód: ${f.code}`}`;
+
+    if (f.kind === 'none') {
+        $('filter-opts').innerHTML = ch
+            ? `<div class="found"><span class="code">${esc(ch.cikkszam)}</span><span class="m">${esc(ch.brand || '')} · csak erre az ajánlatra</span></div>` : '';
+        $('filter-own').innerHTML = '';
+        $('filter-why').innerHTML = code
+            ? `Ehhez a motorkódhoz (<b class="mono">${esc(code)}</b>) még nincs szűrő a táblában. Add meg egyszer, és minden ${esc(code)} motoros autónál magától jön.`
+            : 'Motorkód nélkül a szűrőt nem tudom kikeresni. Írd be a motorkódot, vagy add meg a szűrőt kézzel erre az ajánlatra.';
+        $('filter-form').hidden = false;
+        return;
+    }
+    $('filter-form').hidden = true;
+
+    const many = f.options.length > 1;
+    const head = f.kind === 'date' && f.auto == null && st.filterSel == null
+        ? `<div class="warn">Ennél a motornál a szűrő a gyártás idejétől függ. Írd be fent a gyártás hónapját (pl. 2014-03), vagy válaszd ki:</div>`
+        : f.kind === 'check' && st.filterSel == null
+            ? `<div class="warn">Ennél a motornál a szűrő ${f.options.some((o) => /más autónál/.test(o.cond)) ? 'autótól' : 'a szűrőháztól vagy a motorszámtól'} függ. Nézd meg, melyik illik:</div>`
+            : f.family ? `<div class="warn">Pontos motorkód nincs a táblában, a motorcsalád (${esc(f.family)}) alapján hozom. Ellenőrizd a cikkszámot.</div>` : '';
+    // Egy szűrő + megadott saját márka: a lenti választó már mindkettőt mutatja.
+    $('filter-opts').innerHTML = !many && ch?.own ? head : head + f.options.map((o, i) => {
+        const on = ch && ch.idx === i;
+        const why = on && f.auto === i && st.filterSel == null ? '<span class="badge">gyártás alapján</span>' : '';
+        return `<label class="oil"><input type="radio" name="filter" value="${i}" ${on ? 'checked' : ''} ${many ? '' : 'hidden'}>
+            <span class="t"><span class="mono">${esc(o.cikkszam)}</span> · ${esc(o.brand)}${why}</span>
+            ${o.cond ? `<span class="m">${esc(o.cond)}</span>` : ''}</label>`;
+    }).join('');
+
+    // A műhely saját márkája ugyanerre a szűrőre (pl. Bosch a MANN helyett).
+    if (!ch) { $('filter-own').innerHTML = ''; return; }
+    const brands = (st.shop.brandsByPart?.['Oil Filter'] || []).filter((b) => normCode(b) !== normCode(ch.base.brand));
+    if (ch.own) {
+        $('filter-own').innerHTML = `<div class="oils own">
+            <label class="oil"><input type="radio" name="own" value="1" ${st.useOwn ? 'checked' : ''}><span class="t"><span class="mono">${esc(ch.own.cikkszam)}</span> · ${esc(ch.own.brand)} <span class="badge">a ti márkátok</span></span></label>
+            <label class="oil"><input type="radio" name="own" value="0" ${st.useOwn ? '' : 'checked'}><span class="t"><span class="mono">${esc(ch.base.cikkszam)}</span> · ${esc(ch.base.brand)}</span></label>
+            <button class="linkbtn" type="button" id="own-edit">Másik megfelelő</button></div>`;
+        $('own-edit').onclick = () => showOwnForm(ch, brands);
+    } else if (brands.length) {
+        $('filter-own').innerHTML = `<p class="hint">Ha ${esc(brands.join(' / '))} szűrőt tesztek be: <button class="linkbtn" type="button" id="own-add">add meg egyszer a ${esc(ch.base.cikkszam)} megfelelőjét →</button></p>`;
+        $('own-add').onclick = () => showOwnForm(ch, brands);
+    } else $('filter-own').innerHTML = '';
+}
+
+function showOwnForm(ch, brands) {
+    $('filter-own').innerHTML = `<form id="own-form" class="filter-form">
+        <p class="hint">A <b class="mono">${esc(ch.base.cikkszam)}</b> (${esc(ch.base.brand)}) megfelelője a ti márkátokban. Egyszer kell megadni, utána minden autónál ez jön, ahol ez a szűrő kell.</p>
+        <div class="row">
+          <div><label class="lbl" for="own-brand">Márka</label><select id="own-brand" class="inp">${brands.map((b) => `<option ${ch.own?.brand === b ? 'selected' : ''}>${esc(b)}</option>`).join('')}</select></div>
+          <div><label class="lbl" for="own-code">Cikkszám</label><input id="own-code" class="inp mono" maxlength="40" value="${esc(ch.own?.cikkszam || '')}" placeholder="pl. F 026 407 ..."></div>
+        </div>
+        <button class="btn" type="submit">Megjegyzem</button> <button class="btn ghost" type="button" id="own-cancel">Mégse</button></form>`;
+    $('own-code').focus();
+    $('own-cancel').onclick = () => renderFilter();
+    $('own-form').onsubmit = async (ev) => {
+        ev.preventDefault();
+        const to = { brand: $('own-brand').value, cikkszam: $('own-code').value.trim() };
+        if (!to.cikkszam) return;
+        await post({ action: 'oc-xref', from: { brand: ch.base.brand, cikkszam: ch.base.cikkszam }, to });
+        st.useOwn = true;
+        delete st.prices.filter;
+        await load();
+    };
+}
+
+$('filter-opts').addEventListener('change', (ev) => {
+    if (ev.target.name !== 'filter') return;
+    st.filterSel = Number(ev.target.value);
+    delete st.prices.filter;
+    renderFilter(); render();
+});
+$('filter-own').addEventListener('change', (ev) => {
+    if (ev.target.name !== 'own') return;
+    st.useOwn = ev.target.value === '1';
+    delete st.prices.filter;
     render();
+});
+$('filter-form').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const entry = { cikkszam: $('f-code').value.trim(), brand: $('f-brand').value.trim() };
+    if (!entry.cikkszam) return;
+    const code = val('oc-code');
+    if (code) {
+        await post({ action: 'filter', engineCode: code, ...entry, source: 'szerelő adta meg' });
+        await load();
+    } else {
+        st.localFilter = { ...entry, base: entry, own: null, idx: 0 };
+        renderAll();
+    }
+});
+
+// ---------- Olaj ----------
+let learnTimer = null;
+function learnOil() {
+    clearTimeout(learnTimer);
+    learnTimer = setTimeout(() => {
+        if (!st.oil || !(st.liters > 0)) return;
+        post({ action: 'oc-learn', engineCode: val('oc-code'), car: carName(), oil: st.oil, liters: st.liters });
+    }, 600);
+}
+async function oilPriceFor(name) {
+    const k = priceKey(OIL, name);
+    if (!name || st.eng?.prices?.[k] != null || (st.shop.oils || []).some((o) => o.name === name)) return;
+    const r = await api({ action: 'price', key: k }).catch(() => null);
+    if (r?.net != null && st.eng) { st.eng.prices[k] = r.net; render(); }
+}
+$('oc-oil').addEventListener('input', () => {
+    st.oil = val('oc-oil'); st.oilTouched = true;
+    delete st.prices.oil;
+    render(); learnOil(); oilPriceFor(st.oil);
 });
 $('liters').addEventListener('input', () => {
     const n = parseNum($('liters').value);
-    if (n != null && n >= 0 && n < 50) { state.liters = n; delete state.overrides.oil; render(); }
+    st.liters = n != null && n > 0 && n < 50 ? n : null;
+    st.oilTouched = true;
+    render(); learnOil();
 });
+function renderOil() {
+    $('card-oil').hidden = !st.eng;
+    const m = st.eng?.oil;
+    $('oil-memo').innerHTML = m
+        ? `Erre a motorra legutóbb: <b>${esc(m.oil)}</b>, ${esc(fmtQty(m.liters))} l.`
+        : 'Ehhez a motorhoz még nincs megjegyzett olaj: válaszd ki egyszer.';
+}
 
-// ---------- Szűrő ----------
-function renderFilter() {
-    const f = state.filter, eng = state.data.vehicle.engineCode;
-    $('filter-src').textContent = f ? f.source : '';
-    if (f) {
-        $('filter-found').innerHTML = `<div class="found">
-            <span class="code">${esc(f.cikkszam)}</span>
-            <button class="linkbtn" type="button" id="f-change">Másik szűrő</button>
-            <span class="m">${esc([f.brand, f.net != null ? 'beszerzés ' + huf(f.net) + ' + ÁFA' : 'ár hiányzik', eng && `motorkód ${eng}`].filter(Boolean).join(' · '))}</span>
-          </div>`;
-        $('filter-found').hidden = false;
-        $('filter-form').hidden = true;
-        $('f-change').onclick = () => showFilterForm(f);
-    } else {
-        $('filter-found').hidden = true;
-        showFilterForm(null);
-    }
+// ---------- Apró tételek ----------
+const extrasList = () => (st.shop?.jobExtras?.oil || []).map((x) => ({ ...x, on: st.extraOn[x.key] ?? x.on }));
+function renderExtras() {
+    $('card-extras').hidden = !st.eng;
+    $('extras').innerHTML = extrasList().map((x) => `<label class="oil"><input type="checkbox" data-x="${esc(x.key)}" ${x.on ? 'checked' : ''}>
+        <span class="t">${esc(x.label)}</span><span class="m">${esc(fmtQty(x.qty))} ${esc(x.unit)} · ${huf(x.unitNet)}${x.own ? '' : ' · minta'}</span></label>`).join('');
 }
-function showFilterForm(f) {
-    const eng = state.data.vehicle.engineCode;
-    $('filter-why').innerHTML = f
-        ? 'Add meg a helyes szűrőt - ezentúl ez jön erre a motorra.'
-        : eng
-            ? `Ehhez a motorhoz (<b class="mono">${esc(eng)}</b>) még nincs szűrő a táblában. Add meg egyszer, és legközelebb minden ${esc(eng)} motoros autónál magától jön.`
-            : 'A Fuchs nem ad motorkódot ehhez az autóhoz, így a szűrő csak erre az ajánlatra kerül fel.';
-    $('f-code').value = f?.cikkszam || '';
-    $('f-brand').value = f?.brand || '';
-    $('f-net').value = f?.net ?? '';
-    $('filter-form').hidden = false;
-    $('f-code').focus();
-}
-$('filter-form').addEventListener('submit', async (ev) => {
-    ev.preventDefault();
-    const entry = { cikkszam: $('f-code').value.trim(), brand: $('f-brand').value.trim(), net: parseNum($('f-net').value) };
-    if (!entry.cikkszam) return;
-    const eng = state.data.vehicle.engineCode;
-    if (eng) {
-        try {
-            const r = await api(null, { action: 'filter', engineCode: eng, ...entry, source: 'szerelő adta meg' });
-            state.filter = r.filter;
-        } catch (e) {
-            state.filter = { ...entry, source: 'csak erre az ajánlatra' };
-        }
-    } else {
-        state.filter = { ...entry, source: 'csak erre az ajánlatra' };
-    }
-    delete state.overrides.filter;
-    renderFilter();
+$('extras').addEventListener('change', (ev) => {
+    const k = ev.target.dataset.x;
+    if (!k) return;
+    st.extraOn[k] = ev.target.checked;
     render();
 });
 
 // ---------- Ajánlat ----------
-function currentQuote() {
-    const { data, shop } = state;
-    const oil = data.oils.find((o) => o.code === state.oilCode) || null;
-    return buildQuote({ shop, oil, liters: state.liters, oilPrice: oil ? data.oilPrices[oil.code] : null, filter: state.filter, overrides: state.overrides });
+function lines() {
+    const out = [];
+    const sh = st.shop, eng = st.eng;
+    if (!eng) return out;
+    if (st.oil) {
+        const k = priceKey(OIL, st.oil);
+        const learned = eng.prices?.[k];
+        const listed = (sh.oils || []).find((o) => o.name === st.oil);
+        out.push({ key: 'oil', label: st.oil, cikkszam: '', qty: st.liters ?? 0, unit: 'l', auto: learned ?? listed?.unitNet ?? null,
+            source: learned != null ? 'legutóbbi ár' : listed ? (sh.ownOils ? 'a műhely olajlistája' : null) : null,
+            live: learned == null && listed && !sh.ownOils ? 'minta ár · írd át egyszer, megjegyzi' : null,
+            priceKey: { brand: OIL, articleNo: st.oil }, missingQty: !(st.liters > 0) });
+    }
+    const ch = filterChoice();
+    if (ch) {
+        const learned = eng.prices?.[priceKey(ch.brand, ch.cikkszam)];
+        const sample = sh.samplePrices?.['Oil Filter'] ?? null;
+        out.push({ key: 'filter', label: `Olajszűrő, ${ch.brand || 'márka?'}`, cikkszam: ch.cikkszam, qty: 1, unit: 'db', auto: learned ?? sample,
+            source: learned != null ? 'legutóbbi ár' : null, live: learned == null ? 'minta ár · írd át egyszer, megjegyzi' : null,
+            priceKey: { brand: ch.brand, articleNo: ch.cikkszam } });
+    } else {
+        out.push({ key: 'filter', label: 'Olajszűrő', cikkszam: '', qty: 1, unit: 'db', auto: null, open: true });
+    }
+    for (const x of extrasList()) if (x.on) out.push({ key: 'x-' + x.key, label: x.label, cikkszam: '', qty: x.qty, unit: x.unit, auto: x.unitNet,
+        source: x.own ? 'műhely' : null, live: x.own ? null : 'minta · élesben a műhely saját ára' });
+    out.push({ key: 'labour', label: sh.labour.label, cikkszam: '', qty: 1, unit: 'db', auto: sh.labour.net,
+        source: sh.ownLabour ? 'műhely munkadíja' : null, live: sh.ownLabour ? null : 'minta · élesben a műhely saját díja' });
+    return out.map((l) => {
+        const qty = st.qty[l.key] ?? l.qty;
+        const unitNet = st.prices[l.key] ?? l.auto ?? null;
+        const disc = st.disc[l.key] || 0; // kedvezmény %, soronként (mint a műhely ajánlatain)
+        return { ...l, qty, unitNet, disc, typed: st.prices[l.key] != null, net: Math.round(qty * (unitNet || 0) * (1 - disc / 100)), priceMissing: unitNet == null };
+    });
 }
+const totals = (ls) => {
+    const net = ls.reduce((s, l) => s + l.net, 0);
+    const vat = Math.round(net * st.shop.vatRate);
+    return { net, vat, gross: net + vat, missing: ls.filter((l) => l.priceMissing).length };
+};
+const customer = () => ({ name: val('cust-name'), plate: val('cust-plate').toUpperCase(), phone: val('cust-phone'), km: val('cust-km') });
+const carLabel = () => carName() + (val('oc-code') ? ` (${val('oc-code').toUpperCase()})` : '');
+const letter = () => letterParts(st.shop, { name: customer().name, jobKeys: ['oil'], jobLabels: ['motorolajcsere'] });
 
 function render() {
-    if (!state.data || !state.shop) return;
-    const q = currentQuote();
-    const v = state.data.vehicle;
-    $('quote-empty').hidden = true;
-    $('quote').hidden = false;
+    if (!st.shop) return;
+    const ls = lines();
+    $('quote-empty').hidden = ls.length > 0;
+    $('quote').hidden = ls.length === 0;
+    $('oc-no').textContent = st.quoteNo ? `№ ${st.quoteNo}` : '';
+    if (!ls.length) { $('timer').textContent = ''; return; }
 
-    $('lines').innerHTML = q.lines.map((l) => {
-        let sub = '';
-        if (l.key === 'oil') sub = `<span class="cik">${esc(l.cikkszam)}</span> · <a href="${esc(v.fuchsUrl)}" target="_blank" rel="noopener">Fuchs ↗</a>`;
-        else if (l.key === 'filter') sub = l.cikkszam
-            ? `<span class="cik">${esc(l.cikkszam)}</span> · <a href="https://www.google.com/search?q=${encodeURIComponent(l.cikkszam + ' olajszűrő')}" target="_blank" rel="noopener">keresés ↗</a>`
-            : '<span class="miss">cikkszám hiányzik</span>';
-        else if (l.cikkszam) sub = `<span class="cik">${esc(l.cikkszam)}</span>`;
-        const src = l.priceMissing ? `<span class="miss">${esc(l.source)}</span>` : esc(l.source);
-        const qtyTxt = l.unit === 'l' ? String(l.qty).replace('.', ',') : String(l.qty);
-        return `<tr>
-          <td><div class="lab">${esc(l.label)}</div><div class="sub">${sub}${sub ? ' · ' : ''}${src}</div></td>
-          <td class="r"><input class="cell${state.overrides[l.key]?.qty != null ? ' edited' : ''}" data-k="${l.key}" data-f="qty" value="${esc(qtyTxt)}" aria-label="${esc(l.label)} mennyiség"> ${l.unit}</td>
-          <td class="r"><input class="cell${state.overrides[l.key]?.unitNet != null ? ' edited' : ''}" data-k="${l.key}" data-f="unitNet" value="${l.unitNet}" aria-label="${esc(l.label)} egységár"></td>
-          <td class="r">${huf(l.net)}</td>
-        </tr>`;
+    $('lines').innerHTML = ls.map((l) => {
+        const src = l.open ? '<span class="miss">válaszd ki a szűrőt</span>'
+            : l.typed ? esc(l.priceKey ? 'kézzel megadva - megjegyezve' : 'kézzel megadva')
+                : l.live ? `<span class="live">● ${esc(l.live)}</span>`
+                    : l.priceMissing ? '<span class="miss">ár hiányzik - írd be, megjegyzi</span>' : esc(l.source || '');
+        return `<tr><td><div class="lab">${esc(l.label)}</div>
+            <div class="sub">${l.cikkszam ? `<span class="cik">${esc(l.cikkszam)}</span> · ` : ''}${src}${l.missingQty ? ' · <span class="miss">mennyiség?</span>' : ''}</div></td>
+          <td class="r"><input class="cell" data-k="${l.key}" data-f="qty" value="${esc(fmtQty(l.qty))}" aria-label="${esc(l.label)} mennyiség"> ${esc(l.unit)}</td>
+          <td class="r"><input class="cell${l.priceMissing || l.typed ? ' edited' : ''}${l.live && !l.typed ? ' live' : ''}" data-k="${l.key}" data-f="price" value="${l.unitNet ?? ''}" placeholder="ár" aria-label="${esc(l.label)} egységár"></td>
+          <td class="r"><input class="cell disc" data-k="${l.key}" data-f="disc" value="${l.disc || ''}" placeholder="0" aria-label="${esc(l.label)} kedvezmény %">%</td>
+          <td class="r">${l.priceMissing ? '–' : huf(l.net)}</td></tr>`;
     }).join('');
 
-    $('t-net').textContent = huf(q.net);
-    $('t-vat-l').textContent = `ÁFA ${Math.round(state.shop.vatRate * 100)}%`;
-    $('t-vat').textContent = huf(q.vat);
-    $('t-gross').textContent = huf(q.gross);
+    const t = totals(ls);
+    $('t-net').textContent = huf(t.net);
+    $('t-vat-l').textContent = `ÁFA ${Math.round(st.shop.vatRate * 100)}%`;
+    $('t-vat').textContent = huf(t.vat);
+    $('t-gross').textContent = huf(t.gross);
 
-    const missing = q.lines.filter((l) => l.priceMissing).map((l) => l.key === 'oil' ? 'olaj ára (MINTA ár)' : l.key === 'filter' ? 'olajszűrő' : l.label);
-    $('warn').hidden = !missing.length;
-    $('warn').textContent = missing.length ? `Még hiányzik: ${missing.join(', ')}. A valós Unix-árak a műhely számláiból kerülnek be.` : '';
+    const f = st.eng?.filter, ch = filterChoice();
+    const warn = [
+        !ch && f?.kind === 'none' && 'Olajszűrő: ehhez a motorhoz még nincs a táblában - add meg egyszer.',
+        !ch && f?.kind === 'date' && 'Olajszűrő: a gyártás hónapjától függ - írd be, vagy válassz.',
+        ch && f?.kind === 'check' && st.filterSel == null && `Olajszűrő: ellenőrizd, melyik változat illik (most: ${ch.base.cikkszam}).`,
+        ch && f?.family && `Olajszűrő: motorcsalád (${f.family}) alapján - ellenőrizd.`,
+        !st.oil && 'Motorolaj: válaszd ki egyszer erre a motorra.',
+        st.oil && !(st.liters > 0) && 'Motorolaj: add meg a mennyiséget.',
+        ls.some((l) => l.live && !l.typed) && '● Pirossal: minta adat. Amit átírsz, azt a program megjegyzi, legközelebb magától jön.',
+    ].filter(Boolean);
+    $('warn').hidden = !warn.length;
+    $('warn').innerHTML = warn.map(esc).join('<br>');
+    $('plain').textContent = plainText(ls, t);
 
-    $('plain').textContent = quoteText({ shop: state.shop, vehicle: v, vin: cleanVin($('vin').value), quote: q });
-
-    if (state.t0 && state.doneIn == null && q.lines.find((l) => l.key === 'filter').cikkszam) {
-        state.doneIn = Math.max(1, Math.round((performance.now() - state.t0) / 1000));
-    }
-    $('timer').textContent = state.doneIn != null ? `kész ${state.doneIn} mp alatt` : '';
+    if (st.t0 && st.doneIn == null && ch && st.oil && st.liters > 0) st.doneIn = Math.max(1, Math.round((performance.now() - st.t0) / 1000));
+    $('timer').textContent = st.doneIn != null ? `kész ${st.doneIn} mp alatt` : '';
 }
 
-// A szerelő bármelyik számot átírhatja; csak az átírt szám számít.
+function plainText(ls, t) {
+    const c = customer(), vin = cleanVin($('vin').value);
+    const lt = letterText(letter());
+    return [
+        lt && lt + '\n\n----------------\n',
+        `${st.shop.name} - Árajánlat${st.quoteNo ? ' ' + st.quoteNo : ''}: olajcsere`,
+        c.name && `Ügyfél: ${c.name}`,
+        `Autó: ${carLabel()}${c.plate ? ` (${c.plate})` : ''}`,
+        vin && `Alvázszám: ${vin}`,
+        c.km && `Km-óra: ${c.km}`,
+        '',
+        ...ls.map((l) => `• ${l.label}${l.cikkszam ? ` (${l.cikkszam})` : ''}: ${fmtQty(l.qty)} ${l.unit}${l.disc ? `, -${l.disc}%` : ''} → ${l.priceMissing ? 'ár később' : huf(l.net)}`),
+        '',
+        `Nettó${t.missing ? ' (eddig)' : ''}: ${huf(t.net)}`,
+        `ÁFA ${Math.round(st.shop.vatRate * 100)}%: ${huf(t.vat)}`,
+        `Fizetendő${t.missing ? ' (előzetes)' : ''}: ${huf(t.gross)}`,
+        '',
+        !st.shop.letter && st.shop.quoteNote,
+    ].filter((x) => x !== false && x != null).join('\n').replace(/\n{3,}/g, '\n\n');
+}
+
+// A munkafelvevő bármelyik számot átírhatja. A beírt alkatrész- és olajár
+// megjegyződik (cikkszám, ill. olajnév szerint), legközelebb magától jön.
 $('lines').addEventListener('change', (ev) => {
     const el = ev.target.closest('.cell');
     if (!el) return;
-    const n = parseNum(el.value);
-    const o = state.overrides[el.dataset.k] || (state.overrides[el.dataset.k] = {});
-    if (n == null || n < 0) delete o[el.dataset.f]; else o[el.dataset.f] = n;
+    const n = parseNum(el.value), k = el.dataset.k;
+    if (el.dataset.f === 'disc') {
+        if (n == null || n <= 0) delete st.disc[k]; else st.disc[k] = Math.min(n, 100);
+    } else if (el.dataset.f === 'qty') {
+        if (k === 'oil') {
+            st.liters = n != null && n > 0 && n < 50 ? n : null; st.oilTouched = true;
+            $('liters').value = st.liters != null ? fmtQty(st.liters) : ''; learnOil();
+        } else if (n == null || n < 0) delete st.qty[k]; else st.qty[k] = n;
+    } else {
+        if (n == null || n < 0) delete st.prices[k]; else st.prices[k] = n;
+        const l = lines().find((x) => x.key === k);
+        if (l?.priceKey) {
+            post({ action: 'td-price', ...l.priceKey, net: n });
+            if (st.eng) { const pk = priceKey(l.priceKey.brand, l.priceKey.articleNo); if (n == null) delete st.eng.prices[pk]; else st.eng.prices[pk] = n; }
+        }
+    }
     render();
 });
+['cust-name', 'cust-plate', 'cust-phone', 'cust-km'].forEach((id) => $(id).addEventListener('input', () => render()));
 
 $('copy').addEventListener('click', async () => {
+    learnOil();
     try {
         await navigator.clipboard.writeText($('plain').textContent);
         $('copy').textContent = 'Kimásolva ✓';
@@ -264,43 +421,44 @@ $('copy').addEventListener('click', async () => {
         $('copy').textContent = 'Nem sikerült - jelöld ki lent';
         $('plain').closest('details').open = true;
     }
-    setTimeout(() => { $('copy').textContent = 'Ajánlat másolása'; }, 1800);
+    setTimeout(() => { $('copy').textContent = 'Szöveg másolása'; }, 1800);
+});
+
+// PDF: külön lap a műhely fejlécével és kísérőlevelével; a böngésző "Mentés PDF-be" opciójával PDF lesz belőle.
+$('print').addEventListener('click', async () => {
+    const win = window.open('', '_blank');
+    if (!win) { $('print').textContent = 'Engedélyezd a felugró ablakot'; return; }
+    learnOil();
+    if (!st.quoteNo) {
+        const r = await api(null, { action: 'quote-no' }).catch(() => null);
+        st.quoteNo = r?.number || new Date().toISOString().slice(0, 10);
+        render();
+    }
+    const ls = lines();
+    win.document.write(printQuoteHtml({ shop: st.shop, quoteNo: st.quoteNo, customer: customer(), carName: carLabel(), vin: cleanVin($('vin').value), lines: ls, totals: totals(ls), letter: letter() }));
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 300);
 });
 
 $('reset').addEventListener('click', () => {
-    Object.assign(state, { data: null, filter: null, overrides: {}, t0: null, doneIn: null });
-    $('vin').value = ''; $('q').value = ''; $('vin-hint').textContent = '';
-    $('results').innerHTML = ''; lastResults = [];
-    $('card-oil').hidden = true; $('card-filter').hidden = true;
-    $('quote').hidden = true; $('quote-empty').hidden = false; $('timer').textContent = '';
+    Object.assign(st, fresh());
+    ['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when', 'vin', 'oc-oil', 'liters', 'cust-name', 'cust-plate', 'cust-phone', 'cust-km'].forEach((id) => { $(id).value = ''; });
+    $('vin-hint').textContent = '';
+    renderAll();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    $('vin').focus();
+    $('oc-make').focus();
 });
+
+function renderAll() {
+    renderFilter();
+    renderOil();
+    renderExtras();
+    render();
+}
 
 // ---------- Fülek ----------
 document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach((x) => { x.classList.toggle('is-on', x === t); x.setAttribute('aria-selected', x === t); });
     ['quote', 'parts', 'proof'].forEach((k) => { $('view-' + k).hidden = t.dataset.tab !== k; });
 }));
-
-// ---------- Ellenőrzés ----------
-$('run-proof').addEventListener('click', async () => {
-    const box = $('proof');
-    box.innerHTML = '<div class="hint">Fut…</div>';
-    try {
-        const { results } = await api({ action: 'proof' });
-        if (!results.length) {
-            box.innerHTML = '<div class="empty">Ide kerülnek a műhely korábbi olajcsere-ajánlatai. Amint megjönnek, a rendszer mindegyiket újraszámolja, és soronként összeveti.</div>';
-            return;
-        }
-        const good = results.filter((r) => r.ok).length;
-        box.innerHTML = `<div class="score">${good} / ${results.length} egyezik</div>` + results.map((r) => r.error
-            ? `<div class="pcase bad"><div class="h"><span>${esc(r.id)}</span><span class="x">hiba</span></div><div class="hint">${esc(r.error)}</div></div>`
-            : `<div class="pcase ${r.ok ? 'ok' : 'bad'}">
-                <div class="h"><span>${esc(r.id)} · ${esc(r.vehicle.make)} ${esc(r.vehicle.type)}</span><span class="muted">${(r.ms / 1000).toFixed(1)} mp</span></div>
-                <table>${r.checks.map((c) => `<tr><td>${esc(c.what)}</td><td>ajánlaton: <b>${esc(typeof c.expected === 'number' && c.what === 'Végösszeg' ? huf(c.expected) : c.expected ?? '-')}</b></td><td>rendszer: <b>${esc(typeof c.got === 'number' && c.what === 'Végösszeg' ? huf(c.got) : c.got)}</b></td><td class="${c.ok ? 'y' : 'x'}">${c.ok ? '✓' : '✗'}</td></tr>`).join('')}</table>
-              </div>`).join('');
-    } catch (e) {
-        box.innerHTML = `<div class="hint">${esc(e.message)}</div>`;
-    }
-});

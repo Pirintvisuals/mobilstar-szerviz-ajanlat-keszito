@@ -14,64 +14,76 @@
   <div class="top-in">
     <div class="brand"><span class="dot"></span><span id="shop-name">Olajcsere-ajánlat</span></div>
     <nav class="tabs" role="tablist">
-      <button class="tab is-on" data-tab="parts" role="tab" aria-selected="true">Új ajánlat</button>
-      <button class="tab" data-tab="quote" role="tab" aria-selected="false" hidden>Olajcsere alvázszám nélkül</button>
-      <button class="tab" data-tab="proof" role="tab" aria-selected="false">Ellenőrzés</button>
+      <button class="tab is-on" data-tab="quote" role="tab" aria-selected="true">Olajcsere</button>
+      <button class="tab" data-tab="parts" role="tab" aria-selected="false">Alvázszámos ajánlat</button>
+      <button class="tab" data-tab="proof" role="tab" aria-selected="false" hidden>Ellenőrzés</button>
     </nav>
   </div>
 </header>
 
-<main id="view-quote" class="wrap grid" hidden>
+<main id="view-quote" class="wrap grid">
   <section class="col">
     <div class="card">
       <h2><span class="n">1</span> Autó</h2>
+      <div class="row3">
+        <div><label class="lbl" for="oc-make">Márka</label><input id="oc-make" class="inp" list="dl-makes" autocomplete="off" placeholder="pl. Skoda"></div>
+        <div><label class="lbl" for="oc-model">Típus</label><input id="oc-model" class="inp" list="dl-models" autocomplete="off" placeholder="pl. Octavia"></div>
+        <div><label class="lbl" for="oc-engine">Motor</label><input id="oc-engine" class="inp" list="dl-engines" autocomplete="off" placeholder="pl. 1.6 TDI dízel"></div>
+      </div>
+      <div class="row">
+        <div><label class="lbl" for="oc-code">Motorkód</label><input id="oc-code" class="inp mono" maxlength="20" autocomplete="off" spellcheck="false" placeholder="pl. CAYC"></div>
+        <div><label class="lbl" for="oc-when">Gyártás / forgalomba helyezés</label><input id="oc-when" class="inp" maxlength="10" autocomplete="off" placeholder="pl. 2014-03"></div>
+      </div>
       <label class="lbl" for="vin">Alvázszám <span class="muted">(nem kötelező, ráírja az ajánlatra)</span></label>
       <input id="vin" class="inp mono" maxlength="20" autocomplete="off" spellcheck="false" placeholder="pl. TMBJJ21Z8C2012345">
       <div id="vin-hint" class="hint"></div>
-      <label class="lbl" for="q">Keresés: típus, motor vagy motorkód</label>
-      <input id="q" class="inp" autocomplete="off" placeholder="pl. octavia 1.6 tdi · golf 7 CRKB · astra j 1.4 turbo">
-      <div id="results" class="results" aria-live="polite"></div>
-    </div>
-
-    <div id="card-oil" class="card" hidden>
-      <h2><span class="n">2</span> Olaj <span class="src">Fuchs olajválasztó</span></h2>
-      <div id="vehicle" class="vehicle"></div>
-      <div id="oils" class="oils"></div>
-      <div class="row">
-        <div>
-          <div class="lbl">Feltöltés a Fuchs szerint</div>
-          <div id="cap" class="big"></div>
-        </div>
-        <div>
-          <label class="lbl" for="liters">Számlázott mennyiség</label>
-          <div class="unit-inp"><input id="liters" class="inp num" inputmode="decimal"><span>l</span></div>
-        </div>
-      </div>
-      <a id="fuchs-link" class="ext" target="_blank" rel="noopener">Megnézem ugyanezt a Fuchs oldalán ↗</a>
+      <p class="hint">A motorkód a munkalapról vagy a forgalmiból. Ebből jön az olajszűrő, és erre a motorra jegyzi meg az olajat és a mennyiséget.</p>
+      <datalist id="dl-makes"></datalist><datalist id="dl-models"></datalist><datalist id="dl-engines"></datalist><datalist id="dl-oils"></datalist><datalist id="dl-fbrands"></datalist>
     </div>
 
     <div id="card-filter" class="card" hidden>
-      <h2><span class="n">3</span> Olajszűrő <span class="src" id="filter-src"></span></h2>
-      <div id="filter-found" hidden></div>
+      <h2><span class="n">2</span> Olajszűrő <span class="src" id="filter-src"></span></h2>
+      <div id="filter-opts" class="oils"></div>
+      <div id="filter-own"></div>
       <form id="filter-form" class="filter-form" hidden>
         <p class="hint" id="filter-why"></p>
-        <div class="row3">
-          <div><label class="lbl" for="f-code">Cikkszám</label><input id="f-code" class="inp mono" required maxlength="40" placeholder="a Unix katalógusból"></div>
-          <div><label class="lbl" for="f-brand">Márka</label><input id="f-brand" class="inp" maxlength="30" placeholder="pl. MANN"></div>
-          <div><label class="lbl" for="f-net">Nettó beszerzési ár</label><div class="unit-inp"><input id="f-net" class="inp num" inputmode="numeric"><span>Ft</span></div></div>
+        <div class="row">
+          <div><label class="lbl" for="f-code">Cikkszám</label><input id="f-code" class="inp mono" required maxlength="40" placeholder="pl. W 712/95"></div>
+          <div><label class="lbl" for="f-brand">Márka</label><input id="f-brand" class="inp" maxlength="30" list="dl-fbrands" placeholder="pl. MANN-FILTER"></div>
         </div>
         <button class="btn" type="submit">Megjegyzem erre a motorra</button>
       </form>
+    </div>
+
+    <div id="card-oil" class="card" hidden>
+      <h2><span class="n">3</span> Motorolaj</h2>
+      <div id="oil-memo" class="hint"></div>
+      <div class="row">
+        <div><label class="lbl" for="oc-oil">Olaj</label><input id="oc-oil" class="inp" list="dl-oils" autocomplete="off" placeholder="válassz vagy írd be"></div>
+        <div><label class="lbl" for="liters">Mennyiség</label><div class="unit-inp"><input id="liters" class="inp num" inputmode="decimal" placeholder="pl. 4,5"><span>l</span></div></div>
+      </div>
+      <p class="hint">Egyszer választjátok ki erre a motorra, onnantól magától jön. Ha egy autónál mást kell, írd át: a legutóbbit jegyzi meg.</p>
+    </div>
+
+    <div id="card-extras" class="card" hidden>
+      <h2>Apró tételek <span class="src">a műhely tételei</span></h2>
+      <div id="extras" class="oils"></div>
     </div>
   </section>
 
   <aside class="col">
     <div id="card-quote" class="card quote">
-      <h2>Ajánlat <span id="timer" class="timer"></span></h2>
-      <div id="quote-empty" class="empty">Keresd meg az autót, és az ajánlat itt magától összeáll.</div>
+      <h2>Ajánlat <span id="oc-no" class="timer"></span> <span id="timer" class="timer"></span></h2>
+      <div id="quote-empty" class="empty">Add meg az autót és a motorkódot, és az ajánlat itt magától összeáll.</div>
       <div id="quote" hidden>
+        <div class="cust">
+          <div><label class="lbl" for="cust-name">Ügyfél</label><input id="cust-name" class="inp" maxlength="60" autocomplete="off" placeholder="név"></div>
+          <div><label class="lbl" for="cust-plate">Rendszám</label><input id="cust-plate" class="inp mono" maxlength="12" autocomplete="off" placeholder="ABC-123"></div>
+          <div><label class="lbl" for="cust-phone">Telefon</label><input id="cust-phone" class="inp" maxlength="20" autocomplete="off" placeholder="nem kötelező"></div>
+          <div><label class="lbl" for="cust-km">Km-óra</label><input id="cust-km" class="inp num" maxlength="8" inputmode="numeric" autocomplete="off" placeholder="nem kötelező"></div>
+        </div>
         <table class="lines">
-          <thead><tr><th>Tétel</th><th class="r">Menny.</th><th class="r">Egységár</th><th class="r">Nettó</th></tr></thead>
+          <thead><tr><th>Tétel</th><th class="r">Menny.</th><th class="r">Egységár</th><th class="r">Kedv.</th><th class="r">Nettó</th></tr></thead>
           <tbody id="lines"></tbody>
         </table>
         <div class="totals">
@@ -81,7 +93,8 @@
         </div>
         <div id="warn" class="warn" hidden></div>
         <div class="actions">
-          <button id="copy" class="btn">Ajánlat másolása</button>
+          <button id="print" class="btn">PDF / nyomtatás</button>
+          <button id="copy" class="btn ghost">Szöveg másolása</button>
           <button id="reset" class="btn ghost">Új autó</button>
         </div>
         <details class="plain"><summary>Az ügyfélnek küldött szöveg</summary><pre id="plain"></pre></details>
@@ -90,7 +103,7 @@
   </aside>
 </main>
 
-<main id="view-parts" class="wrap grid">
+<main id="view-parts" class="wrap grid" hidden>
   <section class="col">
     <div class="card">
       <h2><span class="n">1</span> Autó alvázszámból <span class="src" id="td-left" hidden></span></h2>
@@ -187,6 +200,6 @@
   </div>
 </main>
 
-<footer class="foot wrap">Olajadatok: Fuchs olajválasztó (Olyslager). Az árat mindig a kód számolja, a szerelő minden sort átírhat.</footer>
+<footer class="foot wrap">Olajszűrő: MANN-FILTER katalógus. Az árat mindig a kód számolja; a munkafelvevő minden sort átírhat, és amit átír, azt megjegyzi.</footer>
 </body>
 </html>

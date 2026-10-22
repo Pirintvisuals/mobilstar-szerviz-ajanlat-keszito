@@ -4,11 +4,11 @@ import assert from 'assert/strict';
 import { chargedLiters, pickOil, buildQuote, quoteText } from './public/quote.js';
 import { normalizeRecommendation } from './lib/olyslager.js';
 import { vinMake, vinYear, vinLooksValid, vinConflicts } from './public/vin.js';
-import { engineCodes } from './lib/store.js';
+import { engineCodes, dateRange, parseMonth, pickByDate, filterOptions, priceKey } from './lib/store.js';
 import { analyze } from './public/pick.js';
 import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs, detailsFrom, JOBS, checkOption } from './lib/tecdoc.js';
 import { codeMatch, matchFuchs, sameOil } from './lib/match.js';
-import { SHOP } from './lib/shop.js';
+import { SHOP, shopFor } from './lib/shop.js';
 
 let passed = 0;
 const t = (name, fn) => { fn(); passed++; console.log('  ✓ ' + name); };
@@ -246,6 +246,54 @@ t('minden munka-kérdés válasza ismert alkatrészt és létező tételt kapcso
     assert.equal(new Set(JOBS.flatMap((j) => j.checks.map((c) => j.key + c.id))).size, JOBS.reduce((s, j) => s + j.checks.length, 0));
     assert.equal(checkOption('clutch', 'dmf', 0).parts[0].name, 'Flywheel');
     assert.throws(() => checkOption('clutch', 'nincs', 0));
+});
+
+console.log('Olajcsere Fuchs nélkül: szűrő-változatok');
+t('dátum: "-tól", "-ig", két dátum', () => {
+    assert.deepEqual(dateRange('04/2003-tól'), { from: 2003 * 12 + 3, to: null });
+    assert.deepEqual(dateRange('05/2000-ig'), { from: null, to: 2000 * 12 + 4 });
+    assert.deepEqual(dateRange('06/2000 03/2003'), { from: 2000 * 12 + 5, to: 2003 * 12 + 2 });
+    assert.equal(dateRange('Ház: Purflux'), null);
+});
+t('gyártás hónapja: 2014-03, 03/2014, csak év', () => {
+    assert.equal(parseMonth('2014-03').m, 2014 * 12 + 2);
+    assert.equal(parseMonth('03/2014').m, 2014 * 12 + 2);
+    assert.equal(parseMonth('2014').yearOnly, true);
+    assert.equal(parseMonth('valami'), null);
+});
+const opts = ['04/2003-tól', '05/2000-ig', '06/2000 03/2003'].map((cond) => ({ range: dateRange(cond) }));
+t('dátum szerint választ, csak évnél csak ha az egész év egy tartományba esik', () => {
+    assert.equal(pickByDate(opts, '2004-05'), 0);
+    assert.equal(pickByDate(opts, '1999'), 1);
+    assert.equal(pickByDate(opts, '2001-07'), 2);
+    assert.equal(pickByDate(opts, '2003'), null); // 2003 eleje HU 611 x, vége W 66
+    assert.equal(pickByDate(opts, ''), null);
+});
+t('MANN-tábla: egy szűrő, dátumfüggő, autófüggő, motorcsalád, ismeretlen', () => {
+    assert.equal(filterOptions('CAYC').kind, 'one');
+    const d = filterOptions('720', '2004-05');
+    assert.equal(d.kind, 'date');
+    assert.equal(d.options[d.auto].cikkszam, 'W 66');
+    const c = filterOptions('ATD');
+    assert.equal(c.kind, 'check');
+    assert.deepEqual(c.options.map((o) => o.cikkszam), ['HU 726/2 x', 'HU 719/7 x']);
+    assert.match(c.options[1].cond, /^más autónál: Polo IV \(9N\)/);
+    assert.equal(filterOptions('K9K 999').family, 'K9K');
+    assert.equal(filterOptions('QQ99').kind, 'none');
+});
+t('Mobilstar-profil: saját olajcsere-munkadíj, saját és minta apró tételek', () => {
+    const s = shopFor('mobilstar');
+    assert.equal(s.labour.net, 9843);
+    assert.equal(s.ownLabour, true);
+    const x = Object.fromEntries(s.jobExtras.oil.map((e) => [e.key, e]));
+    assert.equal(x.washer.unitNet, 1050);
+    assert.equal(x.washer.own, true);
+    assert.equal(x.waste.own, false);
+    assert.equal(shopFor('').ownLabour, false);
+});
+t('ár- és olajkulcs: ugyanaz írásjelektől függetlenül', () => {
+    assert.equal(priceKey('Bosch', 'F 026 407 079'), priceKey('BOSCH', 'F026407079'));
+    assert.equal(priceKey('OIL', 'FUCHS TITAN GT1 PRO C-3 5W-30'), 'OIL|FUCHSTITANGT1PROC35W30');
 });
 
 console.log(`\n${passed} teszt rendben.`);

@@ -6,6 +6,7 @@
 // ---------------------------------------------------------------------------
 import { apiFetch } from './auth.js';
 import { huf, pickOil } from './quote.js';
+import { letterParts, letterText as letterOf, printQuoteHtml } from './print.js';
 import { analyze, answerText, isMmLabel, specLabel, isMm, huValue, specText, specRank, visibleSpecs, SHARED } from './pick.js';
 
 const $ = (id) => document.getElementById(id);
@@ -747,21 +748,13 @@ function render() {
 function customer() {
     return { name: $('td-cust-name').value.trim(), plate: $('td-cust-plate').value.trim().toUpperCase(), phone: $('td-cust-phone').value.trim(), km: $('td-cust-km').value.trim() };
 }
-// A műhely kísérőlevele (profilból): megszólítás, munkánként a saját szövege, lábléc.
-function letterText() {
-    const L = st.shop.letter;
-    if (!L) return '';
-    const c = customer();
-    const jobs = st.loaded.map((k) => st.jobs.find((j) => j.key === k)?.label.toLowerCase()).filter(Boolean);
-    const paras = st.loaded.flatMap((k) => L.jobs[k] || []);
-    return [
-        c.name ? `Tisztelt ${c.name}!` : 'Tisztelt Ügyfelünk!', '',
-        `Köszönöm, hogy megkereste cégünket ${jobs.join(', ')} ügyében. Alább megtalálja az ajánlatunkat a javításra.`, '',
-        ...[...new Set(paras)].flatMap((p) => [p, '']),
-        ...L.footer.flatMap((p) => [p, '']),
-        ...L.signature,
-    ].join('\n');
+// A műhely kísérőlevele (profilból) - közös a PDF-fel (print.js).
+function letter() {
+    const jobKeys = st.loaded;
+    const jobLabels = st.loaded.map((k) => st.jobs.find((j) => j.key === k)?.label.toLowerCase()).filter(Boolean);
+    return letterParts(st.shop, { name: customer().name, jobKeys, jobLabels });
 }
+function letterText() { return letterOf(letter()); }
 function plainText(ls, t) {
     const c = customer(), vin = cleanVin();
     const letter = letterText();
@@ -849,45 +842,8 @@ $('td-print').addEventListener('click', async () => {
 });
 
 function printHtml() {
-    const s = st.shop, ls = lines(), t = totals(ls), c = customer(), vin = cleanVin();
-    const today = new Date(), until = new Date(today.getTime() + (s.quoteValidDays || 15) * 864e5);
-    const d = (x) => x.toLocaleDateString('hu-HU');
-    const initials = s.name.split(/\s+/).map((w) => w[0]).join('').slice(0, 2).toUpperCase();
-    const anyDisc = ls.some((l) => l.disc);
-    const rows = ls.map((l) => `<tr><td>${esc(l.label)}${l.cikkszam ? `<div class="no">${esc(l.cikkszam)}</div>` : ''}</td>
-        <td class="r">${esc(fmtQty(l.qty))} ${esc(l.unit)}</td><td class="r">${l.priceMissing ? '–' : esc(huf(l.unitNet))}</td>${anyDisc ? `<td class="r">${l.disc ? esc(l.disc) + '%' : ''}</td>` : ''}<td class="r">${l.priceMissing ? 'ár később' : esc(huf(l.net))}</td></tr>`).join('');
-    return `<!doctype html><html lang="hu"><head><meta charset="utf-8"><title>Árajánlat ${esc(st.quoteNo || '')}</title>
-<style>
-  @page { size: A4; margin: 16mm; }
-  body { font: 11pt/1.45 'Segoe UI', Arial, sans-serif; color: #1a1d21; margin: 0; }
-  .head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 3px solid #F59E0B; padding-bottom: 12px; }
-  .brand { display: flex; gap: 12px; align-items: center; }
-  .logo { width: 48px; height: 48px; border-radius: 50%; background: #16191D; color: #F59E0B; display: grid; place-items: center; font-weight: 800; font-size: 18pt; }
-  .shop b { font-size: 14pt; } .shop div { color: #555; font-size: 9.5pt; }
-  .meta { text-align: right; } .meta h1 { margin: 0; font-size: 18pt; } .meta div { font-size: 9.5pt; color: #555; }
-  .info { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 16px 0; }
-  .box { border: 1px solid #ddd; border-radius: 6px; padding: 8px 10px; } .box .l { font-size: 8.5pt; text-transform: uppercase; color: #777; letter-spacing: .05em; }
-  table { width: 100%; border-collapse: collapse; } th { text-align: left; font-size: 9pt; color: #555; border-bottom: 1px solid #999; padding: 5px 4px; }
-  td { padding: 6px 4px; border-bottom: 1px solid #e5e5e5; vertical-align: top; } .r { text-align: right; white-space: nowrap; } .no { font-family: Consolas, monospace; font-size: 9pt; color: #555; }
-  .tot { margin-left: auto; width: 45%; margin-top: 10px; } .tot div { display: flex; justify-content: space-between; padding: 2px 0; }
-  .tot .g { font-size: 14pt; font-weight: 800; border-top: 2px solid #1a1d21; margin-top: 4px; padding-top: 6px; }
-  .note { margin-top: 18px; font-size: 9.5pt; color: #444; } .sign { margin-top: 40px; display: flex; justify-content: space-between; font-size: 9.5pt; color: #555; }
-  .sign span { border-top: 1px solid #999; padding-top: 4px; width: 40%; text-align: center; }
-</style></head><body>
-<div class="head">
-  <div class="brand"><div class="logo">${esc(initials)}</div><div class="shop"><b>${esc(s.name)}</b><div>${esc(s.address || '')}</div><div>${esc(s.phone || '')}${s.taxNumber ? ` · Adószám: ${esc(s.taxNumber)}` : ''}</div></div></div>
-  <div class="meta"><h1>Árajánlat</h1><div>Szám: <b>${esc(st.quoteNo || '')}</b></div><div>Kelt: ${d(today)}</div><div>Érvényes: ${d(until).replace(/\.$/, '')}-ig</div></div>
-</div>
-<div class="info">
-  <div class="box"><div class="l">Ügyfél</div>${esc(c.name || '-')}${c.phone ? `<br>${esc(c.phone)}` : ''}</div>
-  <div class="box"><div class="l">Jármű</div>${esc(st.car?.name || '-')}${c.plate ? `<br>Rendszám: <b>${esc(c.plate)}</b>` : ''}${vin ? `<br>Alvázszám: ${esc(vin)}` : ''}${c.km ? `<br>Km-óra: ${esc(c.km)}` : ''}</div>
-</div>
-<table><thead><tr><th>Tétel</th><th class="r">Mennyiség</th><th class="r">Egységár (nettó)</th>${anyDisc ? '<th class="r">Kedv.</th>' : ''}<th class="r">Nettó</th></tr></thead><tbody>${rows}</tbody></table>
-<div class="tot"><div><span>Nettó${t.missing ? ' (eddig)' : ''}</span><b>${esc(huf(t.net))}</b></div><div><span>ÁFA ${Math.round(s.vatRate * 100)}%</span><b>${esc(huf(t.vat))}</b></div>
-  <div class="g"><span>Fizetendő${t.missing ? ' (előzetes)' : ''}</span><span>${esc(huf(t.gross))}</span></div></div>
-<p class="note">${esc(s.quoteNote || '')}</p>
-<div class="sign"><span>${esc(s.name)}</span><span>Ügyfél</span></div>
-</body></html>`;
+    const ls = lines();
+    return printQuoteHtml({ shop: st.shop, quoteNo: st.quoteNo, customer: customer(), carName: st.car?.name, vin: cleanVin(), lines: ls, totals: totals(ls), letter: letter() });
 }
 
 $('td-reset').addEventListener('click', () => {
