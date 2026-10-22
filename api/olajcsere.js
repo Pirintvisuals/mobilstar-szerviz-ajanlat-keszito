@@ -22,7 +22,7 @@ import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJo
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush,
-    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine } from '../lib/store.js';
+    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine } from '../lib/store.js';
 import { SHOP, brandsFor, brandsForShop, shopFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
@@ -113,7 +113,8 @@ export default async function handler(req, res) {
     try {
         await hydrate();
         if (action === 'config') {
-            return send(200, { shop: shopFor(q.m), live: olyslagerConfigured(), demoVehicle: DEMO_VEHICLE });
+            const jobs = JOBS.map(({ key, label, hours, oil, parts }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => ({ label: p.label, name: p.name })) }));
+            return send(200, { shop: shopFor(q.m), live: olyslagerConfigured(), demoVehicle: DEMO_VEHICLE, jobs });
         }
         if (action === 'search') {
             return send(200, { results: await searchVehicles(q.q) });
@@ -138,10 +139,15 @@ export default async function handler(req, res) {
                 if (x) { xrefs[priceKey(o.brand, o.cikkszam)] = x; price(x.brand, x.cikkszam); }
             }
             for (const o of [...(shop.oils || []), ...(oil ? [{ name: oil.oil }] : [])]) price('OIL', o.name);
-            return send(200, { filter, oil, xrefs, prices });
+            const parts = partsForEngine(q.code, q.car);
+            for (const p of Object.values(parts)) price(p.brand, p.cikkszam);
+            return send(200, { filter, oil, xrefs, prices, parts });
         }
         if (action === 'oc-learn' && req.method === 'POST') {
             return send(200, rememberOilForEngine(body.engineCode, body.car, body));
+        }
+        if (action === 'oc-part' && req.method === 'POST') {
+            return send(200, rememberPartForEngine(body.engineCode, body.car, body.part, body));
         }
         if (action === 'oc-xref' && req.method === 'POST') {
             return send(200, rememberXref(body.from, body.to));

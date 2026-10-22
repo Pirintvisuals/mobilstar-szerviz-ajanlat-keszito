@@ -14,8 +14,8 @@
   <div class="top-in">
     <div class="brand"><span class="dot"></span><span id="shop-name">Olajcsere-ajánlat</span></div>
     <nav class="tabs" role="tablist">
-      <button class="tab is-on" data-tab="quote" role="tab" aria-selected="true">Olajcsere</button>
-      <button class="tab" data-tab="parts" role="tab" aria-selected="false">Alvázszámos ajánlat</button>
+      <button class="tab is-on" data-tab="quote" role="tab" aria-selected="true">Új ajánlat</button>
+      <button class="tab" data-tab="parts" role="tab" aria-selected="false">Alvázszámból (teszt)</button>
       <button class="tab" data-tab="proof" role="tab" aria-selected="false" hidden>Ellenőrzés</button>
     </nav>
   </div>
@@ -37,12 +37,18 @@
       <label class="lbl" for="vin">Alvázszám <span class="muted">(nem kötelező, ráírja az ajánlatra)</span></label>
       <input id="vin" class="inp mono" maxlength="20" autocomplete="off" spellcheck="false" placeholder="pl. TMBJJ21Z8C2012345">
       <div id="vin-hint" class="hint"></div>
-      <p class="hint">A motorkód a munkalapról vagy a forgalmiból. Ebből jön az olajszűrő, és erre a motorra jegyzi meg az olajat és a mennyiséget.</p>
+      <p class="hint">A motorkód a munkalapról vagy a forgalmiból. Erre a motorra jegyzi meg, amit kiválasztotok (olaj, szűrő, alkatrészek), és legközelebb magától hozza.</p>
       <datalist id="dl-makes"></datalist><datalist id="dl-models"></datalist><datalist id="dl-engines"></datalist><datalist id="dl-oils"></datalist><datalist id="dl-fbrands"></datalist>
     </div>
 
+    <div id="card-jobs" class="card">
+      <h2><span class="n">2</span> Mi a munka?</h2>
+      <div id="jobs" class="chips"></div>
+      <p class="hint">Több munka is választható. Az olajcserénél az olajszűrőt és az olajat a rendszer hozza; a többi munkánál az alkatrészt egyszer kell beírni erre a motorra.</p>
+    </div>
+
     <div id="card-filter" class="card" hidden>
-      <h2><span class="n">2</span> Olajszűrő <span class="src" id="filter-src"></span></h2>
+      <h2>Olajszűrő <span class="src" id="filter-src"></span></h2>
       <div id="filter-opts" class="oils"></div>
       <div id="filter-own"></div>
       <form id="filter-form" class="filter-form" hidden>
@@ -56,13 +62,19 @@
     </div>
 
     <div id="card-oil" class="card" hidden>
-      <h2><span class="n">3</span> Motorolaj</h2>
+      <h2>Motorolaj</h2>
       <div id="oil-memo" class="hint"></div>
       <div class="row">
         <div><label class="lbl" for="oc-oil">Olaj</label><input id="oc-oil" class="inp" list="dl-oils" autocomplete="off" placeholder="válassz vagy írd be"></div>
         <div><label class="lbl" for="liters">Mennyiség</label><div class="unit-inp"><input id="liters" class="inp num" inputmode="decimal" placeholder="pl. 4,5"><span>l</span></div></div>
       </div>
       <p class="hint">Egyszer választjátok ki erre a motorra, onnantól magától jön. Ha egy autónál mást kell, írd át: a legutóbbit jegyzi meg.</p>
+    </div>
+
+    <div id="card-parts" class="card" hidden>
+      <h2>Alkatrészek <span class="src">erre a motorra megjegyezve</span></h2>
+      <div id="parts"></div>
+      <button class="btn ghost" type="button" id="add-line">+ Tétel hozzáadása</button>
     </div>
 
     <div id="card-extras" class="card" hidden>
@@ -74,7 +86,7 @@
   <aside class="col">
     <div id="card-quote" class="card quote">
       <h2>Ajánlat <span id="oc-no" class="timer"></span> <span id="timer" class="timer"></span></h2>
-      <div id="quote-empty" class="empty">Add meg az autót és a motorkódot, és az ajánlat itt magától összeáll.</div>
+      <div id="quote-empty" class="empty">Add meg az autót, a motorkódot és a munkát, és az ajánlat itt magától összeáll.</div>
       <div id="quote" hidden>
         <div class="cust">
           <div><label class="lbl" for="cust-name">Ügyfél</label><input id="cust-name" class="inp" maxlength="60" autocomplete="off" placeholder="név"></div>

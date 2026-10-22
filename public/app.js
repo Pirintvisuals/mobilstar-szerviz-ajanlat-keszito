@@ -1,12 +1,14 @@
 // ---------------------------------------------------------------------------
-//  Olajcsere-ajánlat, Fuchs nélkül:
-//    autó (márka, típus, motor) + motorkód -> olajszűrő a MANN-táblából, a
-//    változatok közül a gyártás hónapja szerint választva -> a műhely saját
-//    márkája (ha egyszer megadták) -> az olaj és a mennyiség, amit erre a
-//    motorra legutóbb választottak -> apró tételek, a műhely munkadíja ->
-//    ajánlat kedvezménnyel, PDF a műhely kísérőlevelével.
-//  Amit a munkafelvevő egyszer megad (olaj, liter, saját márkás szűrő, ár), azt
-//  megjegyezzük. Az árat mindig a kód számolja, sosem az AI.
+//  Új ajánlat, TecDoc és Fuchs nélkül:
+//    autó (márka, típus, motor) + motorkód -> munka (egy vagy több).
+//    Olajcserénél (és kis szerviznél): olajszűrő a MANN-táblából, a változatok
+//    közül a gyártás hónapja szerint választva -> a műhely saját márkája (ha
+//    egyszer megadták) -> az olaj és a mennyiség, amit erre a motorra legutóbb
+//    választottak. A többi munkánál az alkatrészt egyszer kell beírni erre a
+//    motorra, utána magától jön. Apró tételek és munkadíj munkánként (a műhely
+//    fix díja vagy normaidő x óradíj) -> ajánlat kedvezménnyel, PDF a műhely
+//    kísérőlevelével. Amit a munkafelvevő egyszer megad, azt megjegyezzük.
+//    Az árat mindig a kód számolja, sosem az AI.
 // ---------------------------------------------------------------------------
 import { apiFetch } from './auth.js';
 import { huf } from './quote.js';
@@ -35,20 +37,23 @@ const priceKey = (brand, articleNo) => `${String(brand || '').toUpperCase()}|${n
 const OIL = 'OIL';
 
 const fresh = () => ({ eng: null, engKey: null, filterSel: null, useOwn: true, oil: '', liters: null, oilTouched: false,
+    sel: [], partEdits: {}, manual: [], hours: null,
     extraOn: {}, prices: {}, qty: {}, disc: {}, quoteNo: null, t0: null, doneIn: null, localFilter: null });
-const st = { shop: null, cars: [], ...fresh() };
+const st = { shop: null, cars: [], jobs: [], ...fresh() };
 
 // ---------- Indulás ----------
 Promise.all([
     api({ action: 'config', m: M }),
     fetch('/cars.json').then((r) => r.json()).catch(() => ({ makes: [] })),
-]).then(([{ shop }, cars]) => {
+]).then(([{ shop, jobs }, cars]) => {
     st.shop = shop;
+    st.jobs = jobs || [];
     st.cars = cars.makes || [];
     $('shop-name').textContent = `${shop.name} · árajánlat`;
     $('dl-makes').innerHTML = st.cars.map((m) => `<option value="${esc(m.make)}">`).join('');
     $('dl-oils').innerHTML = (shop.oils || []).map((o) => `<option value="${esc(o.name)}">`).join('');
     $('dl-fbrands').innerHTML = (shop.brandsByPart?.['Oil Filter'] || []).map((b) => `<option value="${esc(b)}">`).join('');
+    renderJobs();
 }).catch((e) => { $('quote-empty').textContent = e.message; });
 
 const val = (id) => $(id).value.trim();
@@ -107,7 +112,9 @@ async function load() {
         st.useOwn = true;
         st.localFilter = null;
         st.oilTouched = false;
+        st.partEdits = {};
         delete st.prices.filter; delete st.prices.oil;
+        for (const k of Object.keys(st.prices)) if (k.startsWith('p-')) delete st.prices[k];
     }
     st.eng = eng;
     if (!st.oilTouched) {
@@ -118,6 +125,103 @@ async function load() {
     }
     renderAll();
 }
+
+// ---------- Munka ----------
+const selJobs = () => st.sel.map((k) => st.jobs.find((j) => j.key === k)).filter(Boolean);
+const hasOil = () => selJobs().some((j) => j.oil);
+function renderJobs() {
+    $('jobs').innerHTML = st.jobs.map((j) => `<button class="chip${st.sel.includes(j.key) ? ' on' : ''}" type="button" data-job="${esc(j.key)}" aria-pressed="${st.sel.includes(j.key)}">
+        <span class="ct">${esc(j.label)}</span><span class="m">${esc(j.parts.map((p) => p.label).join(', ') || 'munkadíj')}</span></button>`).join('');
+}
+$('jobs').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-job]');
+    if (!b) return;
+    startClock();
+    const k = b.dataset.job;
+    if (st.sel.includes(k)) st.sel = st.sel.filter((x) => x !== k);
+    else {
+        // A kis szerviz tartalmazza az olajcserét: a kettő közül egyszerre csak az egyik.
+        if (k === 'oil') st.sel = st.sel.filter((x) => x !== 'service');
+        if (k === 'service') st.sel = st.sel.filter((x) => x !== 'oil');
+        st.sel = [...st.sel, k];
+    }
+    st.hours = null;
+    renderJobs();
+    renderAll();
+});
+
+// ---------- Alkatrészek a többi munkához ----------
+//  Az olajszűrőt a szűrő-kártya intézi; a többi alkatrész itt: márka, cikkszám,
+//  mennyiség. Motorkódonként megjegyezzük (lib/store.js parts).
+function partList() {
+    const seen = new Set(), out = [];
+    for (const j of selJobs()) for (const p of j.parts) {
+        if (p.name === 'Oil Filter' || seen.has(p.name)) continue;
+        seen.add(p.name);
+        out.push({ ...p, job: j.key });
+    }
+    return out;
+}
+const partData = (name) => st.partEdits[name] ?? st.eng?.parts?.[name] ?? {};
+function renderParts() {
+    const list = partList();
+    $('card-parts').hidden = !st.eng || (!list.length && !st.manual.length && !st.sel.length);
+    if ($('card-parts').hidden) return;
+    const rows = list.map((p, i) => {
+        const d = partData(p.name);
+        const brands = st.shop.brandsByPart?.[p.name] || st.shop.preferredBrands || [];
+        return `<div class="prow" data-part="${esc(p.name)}">
+            <div class="lab">${esc(p.label)}${st.eng?.parts?.[p.name] && !st.partEdits[p.name] ? ' <span class="badge">megjegyezve</span>' : ''}</div>
+            <div class="row3">
+              <div><input class="inp" data-f="brand" list="dl-pb-${i}" value="${esc(d.brand || '')}" placeholder="márka" aria-label="${esc(p.label)} márka"><datalist id="dl-pb-${i}">${brands.map((b) => `<option value="${esc(b)}">`).join('')}</datalist></div>
+              <div><input class="inp mono" data-f="cikkszam" value="${esc(d.cikkszam || '')}" placeholder="cikkszám" aria-label="${esc(p.label)} cikkszám"></div>
+              <div class="unit-inp"><input class="inp num" data-f="qty" inputmode="decimal" value="${esc(fmtQty(d.qty ?? 1))}" aria-label="${esc(p.label)} mennyiség"><span>db</span></div>
+            </div></div>`;
+    });
+    const manual = st.manual.map((m) => `<div class="prow" data-man="${esc(m.id)}">
+            <div class="row3">
+              <div><input class="inp" data-f="label" value="${esc(m.label)}" placeholder="megnevezés" aria-label="Tétel megnevezése"></div>
+              <div><input class="inp mono" data-f="cikkszam" value="${esc(m.cikkszam)}" placeholder="cikkszám (nem kötelező)" aria-label="Tétel cikkszáma"></div>
+              <div class="unit-inp"><input class="inp num" data-f="qty" inputmode="decimal" value="${esc(fmtQty(m.qty))}" aria-label="Tétel mennyisége"><span>db</span> <button class="linkbtn" type="button" data-rm="${esc(m.id)}" aria-label="Törlés">✕</button></div>
+            </div></div>`);
+    $('parts').innerHTML = rows.join('') + manual.join('')
+        || '<p class="hint">Ehhez a munkához nincs külön alkatrész. Ha kell, add hozzá lent.</p>';
+}
+let partTimer = {};
+$('parts').addEventListener('input', (ev) => {
+    const f = ev.target.dataset.f;
+    if (!f) return;
+    const row = ev.target.closest('.prow');
+    if (row.dataset.man) {
+        const m = st.manual.find((x) => x.id === row.dataset.man);
+        if (f === 'qty') { const n = parseNum(ev.target.value); m.qty = n > 0 ? n : 1; } else m[f] = ev.target.value.trim();
+        render();
+        return;
+    }
+    const name = row.dataset.part;
+    const d = { ...partData(name) };
+    if (f === 'qty') { const n = parseNum(ev.target.value); d.qty = n > 0 && n < 100 ? n : 1; } else d[f] = ev.target.value.trim();
+    st.partEdits[name] = d;
+    delete st.prices['p-' + name];
+    render();
+    clearTimeout(partTimer[name]);
+    partTimer[name] = setTimeout(() => {
+        post({ action: 'oc-part', engineCode: val('oc-code'), car: carName(), part: name, ...d });
+        if (d.brand && d.cikkszam) oilPriceFor(null, d.brand, d.cikkszam);
+    }, 700);
+});
+$('parts').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-rm]');
+    if (!b) return;
+    st.manual = st.manual.filter((m) => m.id !== b.dataset.rm);
+    delete st.prices['m-' + b.dataset.rm];
+    renderParts(); render();
+});
+$('add-line').addEventListener('click', () => {
+    st.manual.push({ id: String(Date.now()), label: '', cikkszam: '', qty: 1 });
+    renderParts();
+    $('parts').querySelector('.prow:last-child [data-f="label"]')?.focus();
+});
 
 // ---------- Olajszűrő ----------
 function filterChoice() {
@@ -133,7 +237,7 @@ function filterChoice() {
 }
 
 function renderFilter() {
-    const f = st.eng?.filter;
+    const f = hasOil() ? st.eng?.filter : null;
     $('card-filter').hidden = !f;
     if (!f) return;
     const ch = filterChoice();
@@ -238,9 +342,9 @@ function learnOil() {
         post({ action: 'oc-learn', engineCode: val('oc-code'), car: carName(), oil: st.oil, liters: st.liters });
     }, 600);
 }
-async function oilPriceFor(name) {
-    const k = priceKey(OIL, name);
-    if (!name || st.eng?.prices?.[k] != null || (st.shop.oils || []).some((o) => o.name === name)) return;
+async function oilPriceFor(name, brand, articleNo) {
+    const k = name ? priceKey(OIL, name) : priceKey(brand, articleNo);
+    if (!(name || articleNo) || st.eng?.prices?.[k] != null || (name && (st.shop.oils || []).some((o) => o.name === name))) return;
     const r = await api({ action: 'price', key: k }).catch(() => null);
     if (r?.net != null && st.eng) { st.eng.prices[k] = r.net; render(); }
 }
@@ -256,7 +360,7 @@ $('liters').addEventListener('input', () => {
     render(); learnOil();
 });
 function renderOil() {
-    $('card-oil').hidden = !st.eng;
+    $('card-oil').hidden = !st.eng || !hasOil();
     const m = st.eng?.oil;
     $('oil-memo').innerHTML = m
         ? `Erre a motorra legutóbb: <b>${esc(m.oil)}</b>, ${esc(fmtQty(m.liters))} l.`
@@ -264,9 +368,13 @@ function renderOil() {
 }
 
 // ---------- Apró tételek ----------
-const extrasList = () => (st.shop?.jobExtras?.oil || []).map((x) => ({ ...x, on: st.extraOn[x.key] ?? x.on }));
+const extrasList = () => {
+    const seen = new Set(), out = [];
+    for (const j of st.sel) for (const x of st.shop?.jobExtras?.[j] || []) if (!seen.has(x.key)) { seen.add(x.key); out.push({ ...x, on: st.extraOn[x.key] ?? x.on }); }
+    return out;
+};
 function renderExtras() {
-    $('card-extras').hidden = !st.eng;
+    $('card-extras').hidden = !st.eng || !extrasList().length;
     $('extras').innerHTML = extrasList().map((x) => `<label class="oil"><input type="checkbox" data-x="${esc(x.key)}" ${x.on ? 'checked' : ''}>
         <span class="t">${esc(x.label)}</span><span class="m">${esc(fmtQty(x.qty))} ${esc(x.unit)} · ${huf(x.unitNet)}${x.own ? '' : ' · minta'}</span></label>`).join('');
 }
@@ -281,8 +389,9 @@ $('extras').addEventListener('change', (ev) => {
 function lines() {
     const out = [];
     const sh = st.shop, eng = st.eng;
-    if (!eng) return out;
-    if (st.oil) {
+    if (!eng || !st.sel.length) return out;
+    const oilJob = hasOil();
+    if (oilJob && st.oil) {
         const k = priceKey(OIL, st.oil);
         const learned = eng.prices?.[k];
         const listed = (sh.oils || []).find((o) => o.name === st.oil);
@@ -291,8 +400,8 @@ function lines() {
             live: learned == null && listed && !sh.ownOils ? 'minta ár · írd át egyszer, megjegyzi' : null,
             priceKey: { brand: OIL, articleNo: st.oil }, missingQty: !(st.liters > 0) });
     }
-    const ch = filterChoice();
-    if (ch) {
+    const ch = oilJob ? filterChoice() : null;
+    if (!oilJob) { /* nincs olajos munka */ } else if (ch) {
         const learned = eng.prices?.[priceKey(ch.brand, ch.cikkszam)];
         const sample = sh.samplePrices?.['Oil Filter'] ?? null;
         out.push({ key: 'filter', label: `Olajszűrő, ${ch.brand || 'márka?'}`, cikkszam: ch.cikkszam, qty: 1, unit: 'db', auto: learned ?? sample,
@@ -301,10 +410,32 @@ function lines() {
     } else {
         out.push({ key: 'filter', label: 'Olajszűrő', cikkszam: '', qty: 1, unit: 'db', auto: null, open: true });
     }
+    for (const p of partList()) {
+        const d = partData(p.name);
+        const has = d.brand || d.cikkszam;
+        const learned = has ? eng.prices?.[priceKey(d.brand, d.cikkszam)] : null;
+        const sample = sh.samplePrices?.[p.name] ?? null;
+        out.push({ key: 'p-' + p.name, label: `${p.label}${d.brand ? ', ' + d.brand : ''}`, cikkszam: d.cikkszam || '', qty: d.qty ?? 1, unit: 'db',
+            auto: learned ?? sample, source: learned != null ? 'legutóbbi ár' : null,
+            live: learned == null ? (has ? 'minta ár · írd át egyszer, megjegyzi' : 'add meg a cikkszámot bal oldalt · minta ár') : null,
+            priceKey: d.cikkszam ? { brand: d.brand, articleNo: d.cikkszam } : null, needsCode: !d.cikkszam });
+    }
+    for (const m of st.manual) out.push({ key: 'm-' + m.id, label: m.label || 'Tétel', cikkszam: m.cikkszam, qty: m.qty, unit: 'db', auto: null });
     for (const x of extrasList()) if (x.on) out.push({ key: 'x-' + x.key, label: x.label, cikkszam: '', qty: x.qty, unit: x.unit, auto: x.unitNet,
         source: x.own ? 'műhely' : null, live: x.own ? null : 'minta · élesben a műhely saját ára' });
-    out.push({ key: 'labour', label: sh.labour.label, cikkszam: '', qty: 1, unit: 'db', auto: sh.labour.net,
-        source: sh.ownLabour ? 'műhely munkadíja' : null, live: sh.ownLabour ? null : 'minta · élesben a műhely saját díja' });
+    // Munkadíj: a műhely fix díjas munkái külön sorban; a többi normaidő x óradíj.
+    const fixed = sh.jobLabour || {};
+    let hours = 0;
+    for (const j of selJobs()) {
+        if (j.key === 'oil') out.push({ key: 'lab-oil', label: sh.labour.label, cikkszam: '', qty: 1, unit: 'db', auto: sh.labour.net,
+            source: sh.ownLabour ? 'műhely munkadíja' : null, live: sh.ownLabour ? null : 'minta · élesben a műhely saját díja' });
+        else if (fixed[j.key]) fixed[j.key].forEach((f, i) => out.push({ key: `lab-${j.key}-${i}`, label: f.label, cikkszam: '', qty: 1, unit: 'db', auto: f.net, source: 'műhely munkadíja' }));
+        else hours += j.hours || 0;
+    }
+    if (hours > 0 || st.hours != null) {
+        out.push({ key: 'labour', label: 'Munkadíj', cikkszam: '', qty: st.hours ?? Math.round(hours * 100) / 100, unit: 'óra', auto: sh.hourlyRate, labour: true,
+            live: st.hours == null ? `becsült normaidő · ${huf(sh.hourlyRate)}/óra${sh.sampleRate ? ' (minta)' : ''} · írd át` : null });
+    }
     return out.map((l) => {
         const qty = st.qty[l.key] ?? l.qty;
         const unitNet = st.prices[l.key] ?? l.auto ?? null;
@@ -319,7 +450,8 @@ const totals = (ls) => {
 };
 const customer = () => ({ name: val('cust-name'), plate: val('cust-plate').toUpperCase(), phone: val('cust-phone'), km: val('cust-km') });
 const carLabel = () => carName() + (val('oc-code') ? ` (${val('oc-code').toUpperCase()})` : '');
-const letter = () => letterParts(st.shop, { name: customer().name, jobKeys: ['oil'], jobLabels: ['motorolajcsere'] });
+const jobLabels = () => selJobs().map((j) => j.label.toLowerCase());
+const letter = () => letterParts(st.shop, { name: customer().name, jobKeys: st.sel, jobLabels: jobLabels() });
 
 function render() {
     if (!st.shop) return;
@@ -348,21 +480,26 @@ function render() {
     $('t-vat').textContent = huf(t.vat);
     $('t-gross').textContent = huf(t.gross);
 
-    const f = st.eng?.filter, ch = filterChoice();
+    const oj = hasOil();
+    const f = oj ? st.eng?.filter : null, ch = oj ? filterChoice() : null;
+    const noCode = ls.filter((l) => l.needsCode).map((l) => l.label);
     const warn = [
+        !st.sel.length && 'Válaszd ki a munkát.',
+        t.missing && `${t.missing} tételnek még nincs ára - írd be a táblázatban.`,
+        noCode.length && `Cikkszám még nincs: ${noCode.join(', ')} - add meg egyszer bal oldalt, erre a motorra megjegyzi.`,
         !ch && f?.kind === 'none' && 'Olajszűrő: ehhez a motorhoz még nincs a táblában - add meg egyszer.',
         !ch && f?.kind === 'date' && 'Olajszűrő: a gyártás hónapjától függ - írd be, vagy válassz.',
         ch && f?.kind === 'check' && st.filterSel == null && `Olajszűrő: ellenőrizd, melyik változat illik (most: ${ch.base.cikkszam}).`,
         ch && f?.family && `Olajszűrő: motorcsalád (${f.family}) alapján - ellenőrizd.`,
-        !st.oil && 'Motorolaj: válaszd ki egyszer erre a motorra.',
-        st.oil && !(st.liters > 0) && 'Motorolaj: add meg a mennyiséget.',
+        oj && !st.oil && 'Motorolaj: válaszd ki egyszer erre a motorra.',
+        oj && st.oil && !(st.liters > 0) && 'Motorolaj: add meg a mennyiséget.',
         ls.some((l) => l.live && !l.typed) && '● Pirossal: minta adat. Amit átírsz, azt a program megjegyzi, legközelebb magától jön.',
     ].filter(Boolean);
     $('warn').hidden = !warn.length;
     $('warn').innerHTML = warn.map(esc).join('<br>');
     $('plain').textContent = plainText(ls, t);
 
-    if (st.t0 && st.doneIn == null && ch && st.oil && st.liters > 0) st.doneIn = Math.max(1, Math.round((performance.now() - st.t0) / 1000));
+    if (st.t0 && st.doneIn == null && !t.missing && !noCode.length && (!oj || (ch && st.oil && st.liters > 0))) st.doneIn = Math.max(1, Math.round((performance.now() - st.t0) / 1000));
     $('timer').textContent = st.doneIn != null ? `kész ${st.doneIn} mp alatt` : '';
 }
 
@@ -371,7 +508,7 @@ function plainText(ls, t) {
     const lt = letterText(letter());
     return [
         lt && lt + '\n\n----------------\n',
-        `${st.shop.name} - Árajánlat${st.quoteNo ? ' ' + st.quoteNo : ''}: olajcsere`,
+        `${st.shop.name} - Árajánlat${st.quoteNo ? ' ' + st.quoteNo : ''}: ${jobLabels().join(', ')}`,
         c.name && `Ügyfél: ${c.name}`,
         `Autó: ${carLabel()}${c.plate ? ` (${c.plate})` : ''}`,
         vin && `Alvázszám: ${vin}`,
@@ -399,7 +536,13 @@ $('lines').addEventListener('change', (ev) => {
         if (k === 'oil') {
             st.liters = n != null && n > 0 && n < 50 ? n : null; st.oilTouched = true;
             $('liters').value = st.liters != null ? fmtQty(st.liters) : ''; learnOil();
-        } else if (n == null || n < 0) delete st.qty[k]; else st.qty[k] = n;
+        } else if (k === 'labour') st.hours = n != null && n >= 0 ? n : null;
+        else if (k.startsWith('p-')) {
+            const name = k.slice(2), d = { ...partData(name), qty: n > 0 && n < 100 ? n : 1 };
+            st.partEdits[name] = d; renderParts();
+            post({ action: 'oc-part', engineCode: val('oc-code'), car: carName(), part: name, ...d });
+        } else if (k.startsWith('m-')) { const m = st.manual.find((x) => 'm-' + x.id === k); if (m) m.qty = n > 0 ? n : 1; renderParts(); }
+        else if (n == null || n < 0) delete st.qty[k]; else st.qty[k] = n;
     } else {
         if (n == null || n < 0) delete st.prices[k]; else st.prices[k] = n;
         const l = lines().find((x) => x.key === k);
@@ -445,12 +588,14 @@ $('reset').addEventListener('click', () => {
     Object.assign(st, fresh());
     ['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when', 'vin', 'oc-oil', 'liters', 'cust-name', 'cust-plate', 'cust-phone', 'cust-km'].forEach((id) => { $(id).value = ''; });
     $('vin-hint').textContent = '';
+    renderJobs();
     renderAll();
     window.scrollTo({ top: 0, behavior: 'smooth' });
     $('oc-make').focus();
 });
 
 function renderAll() {
+    renderParts();
     renderFilter();
     renderOil();
     renderExtras();

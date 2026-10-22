@@ -306,3 +306,9 @@ aside.col { position: sticky; top: 12px; }
 /* Kedvezmény % cella: keskeny. */
 .cell.disc { width: 38px; }
 @media (max-width: 520px) { .lines .cell.disc { width: 30px; } }
+
+/* Új ajánlat: alkatrész-sorok a többi munkához */
+.prow { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.prow:last-child { border-bottom: 0; }
+.prow .lab { font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
+#add-line { margin-top: 10px; }
