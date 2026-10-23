@@ -117,7 +117,10 @@ export default async function handler(req, res) {
                 checks: (checks || []).map((c) => ({ id: c.id, text: c.text, why: c.why || '', auto: c.auto || null,
                     options: c.options.map((o) => ({ label: o.label, parts: (o.parts || []).map((p) => ({ label: p.label, name: p.name })),
                         extras: o.extras || {}, hours: o.hours || 0, without: o.without || [], note: o.note || '' })) })) }));
-            return send(200, { shop: shopFor(q.m), live: olyslagerConfigured(), demoVehicle: DEMO_VEHICLE, jobs });
+            // Alvázszám -> autó az Új ajánlat fülön: most a TecDoc-tesztből (RAPIDAPI_KEY).
+            // Fizető ügyfél előtt licencelt forrásra kell cserélni; VIN_LOOKUP=off kikapcsolja.
+            const vinLookup = tecdocStatus().configured && process.env.VIN_LOOKUP !== 'off';
+            return send(200, { shop: shopFor(q.m), live: olyslagerConfigured(), demoVehicle: DEMO_VEHICLE, jobs, vinLookup });
         }
         if (action === 'search') {
             return send(200, { results: await searchVehicles(q.q) });

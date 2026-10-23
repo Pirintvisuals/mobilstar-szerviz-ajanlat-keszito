@@ -45,8 +45,9 @@ const st = { shop: null, cars: [], jobs: [], ...fresh() };
 Promise.all([
     api({ action: 'config', m: M }),
     fetch('/cars.json').then((r) => r.json()).catch(() => ({ makes: [] })),
-]).then(([{ shop, jobs }, cars]) => {
+]).then(([{ shop, jobs, vinLookup }, cars]) => {
     st.shop = shop;
+    st.vinLookup = !!vinLookup;
     st.jobs = jobs || [];
     st.cars = cars.makes || [];
     $('shop-name').textContent = `${shop.name} · árajánlat`;
@@ -81,17 +82,55 @@ let loadTimer = null;
     loadTimer = setTimeout(load, 350);
 }));
 
+let vinSeq = 0, lastVin = '';
 $('vin').addEventListener('input', () => {
     startClock();
     const v = cleanVin($('vin').value);
     const hint = $('vin-hint');
-    if (!v) { hint.textContent = ''; render(); return; }
-    if (!vinLooksValid(v)) { hint.textContent = `${v.length}/17 karakter`; return; }
+    if (!v) { hint.textContent = ''; $('vin-cars').innerHTML = ''; lastVin = ''; render(); return; }
+    if (!vinLooksValid(v)) { hint.textContent = `${v.length}/17 karakter`; $('vin-cars').innerHTML = ''; return; }
     const make = vinMake(v), year = vinYear(v);
     hint.innerHTML = [make && `<b>${esc(make)}</b>`, year && `${year}-es évjárat`].filter(Boolean).join(' · ') || 'Érvényes alvázszám';
     if (make && !val('oc-make')) { $('oc-make').value = make; fillLists(); }
     if (year && !val('oc-when')) $('oc-when').value = String(year);
+    if (st.vinLookup && v !== lastVin) { lastVin = v; vinCars(v); }
     load();
+});
+
+// ---------- Alvázszám -> pontos autó (most: TecDoc-teszt) ----------
+//  Ha több változatot ad (pl. AWD és nem AWD), a munkafelvevő választ. A kiválasztott
+//  autóból kitöltjük a típust, a motort és a motorkódot.
+async function vinCars(v) {
+    const my = ++vinSeq;
+    $('vin-cars').innerHTML = '<div class="note">Keresés az alvázszám alapján…</div>';
+    let r;
+    try { r = await api({ action: 'td-vin', vin: v }); } catch (e) { if (my === vinSeq) $('vin-cars').innerHTML = `<div class="note">${esc(e.message)}</div>`; return; }
+    if (my !== vinSeq) return;
+    const cars = r.vehicles || [];
+    if (!cars.length) { $('vin-cars').innerHTML = '<div class="note">Ehhez az alvázszámhoz nincs találat - add meg kézzel.</div>'; return; }
+    $('vin-cars').innerHTML = (cars.length > 1 ? `<div class="note">${cars.length} változat illik erre az alvázszámra - melyik?</div>` : '')
+        + cars.map((c) => `<button class="res" type="button" data-vid="${c.vehicleId}"><span class="t">${esc(c.name)}</span></button>`).join('')
+        + '<div class="hint">Teszt-adatforrás. Éles használat előtt licencelt alvázszám-szolgáltatásra cseréljük.</div>';
+    if (cars.length === 1) pickVinCar(cars[0].vehicleId);
+}
+const FUEL = (f) => { const x = fold(f); return /diesel/.test(x) ? (/electro|hybrid/.test(x) ? 'dízel hibrid' : 'dízel') : /petrol|benzin|gasoline/.test(x) ? (/electro|hybrid/.test(x) ? 'benzin hibrid' : 'benzin') : /electr/.test(x) ? 'elektromos' : ''; };
+async function pickVinCar(vehicleId) {
+    $('vin-cars').querySelectorAll('.res').forEach((b) => b.setAttribute('aria-pressed', b.dataset.vid === String(vehicleId)));
+    let d;
+    try { d = (await api({ action: 'td-car', vehicleId })).details; } catch { d = null; }
+    if (!d) { $('vin-hint').insertAdjacentHTML('beforeend', ' · az adatlap nem töltött be, add meg kézzel'); return; }
+    const mk = st.cars.find((m) => fold(m.make) === fold(d.make));
+    $('oc-make').value = mk ? mk.make : d.make.charAt(0) + d.make.slice(1).toLowerCase();
+    $('oc-model').value = d.model || '';
+    $('oc-engine').value = [d.ccm && (d.ccm / 1000).toFixed(1), d.type, FUEL(d.fuel), d.powerKw && `${d.powerKw} kW`].filter(Boolean).join(' ');
+    if (d.engineCodes?.[0]) $('oc-code').value = d.engineCodes[0];
+    fillLists();
+    renderChecks();
+    load();
+}
+$('vin-cars').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-vid]');
+    if (b) pickVinCar(b.dataset.vid);
 });
 
 let seq = 0;
@@ -674,7 +713,7 @@ $('print').addEventListener('click', async () => {
 $('reset').addEventListener('click', () => {
     Object.assign(st, fresh());
     ['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when', 'vin', 'oc-oil', 'liters', 'cust-name', 'cust-plate', 'cust-phone', 'cust-km'].forEach((id) => { $(id).value = ''; });
-    $('vin-hint').textContent = '';
+    $('vin-hint').textContent = ''; $('vin-cars').innerHTML = ''; lastVin = '';
     renderJobs();
     renderAll();
     window.scrollTo({ top: 0, behavior: 'smooth' });
