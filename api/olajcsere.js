@@ -22,7 +22,7 @@ import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJo
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush,
-    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine } from '../lib/store.js';
+    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine, listQuotes, saveQuote } from '../lib/store.js';
 import { SHOP, brandsFor, brandsForShop, shopFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
@@ -148,6 +148,12 @@ export default async function handler(req, res) {
         }
         if (action === 'oc-part' && req.method === 'POST') {
             return send(200, rememberPartForEngine(body.engineCode, body.car, body.part, body));
+        }
+        if (action === 'quote-save' && req.method === 'POST') {
+            return send(200, saveQuote(body.m, body.quote));
+        }
+        if (action === 'quotes') {
+            return send(200, { quotes: listQuotes(q.m) });
         }
         if (action === 'oc-xref' && req.method === 'POST') {
             return send(200, rememberXref(body.from, body.to));

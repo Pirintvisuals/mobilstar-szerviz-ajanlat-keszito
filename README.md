@@ -1,8 +1,31 @@
 # Szerviz-árajánlat - Mobil Star Szerviz, prototípus
 
-A munkafelvevőnek készült. Két út:
+A munkafelvevőnek készült.
 
-## Új ajánlat (alvázszámból) - a fő út
+## Új ajánlat (alapfül) - TecDoc és Fuchs nélkül
+
+1. **Autó:** márka, típus, motor (`public/cars.json`), **motorkód**, gyártás
+   hónapja, alvázszám (nem kötelező). A motorkód a kulcs: erre jegyez meg mindent.
+2. **Munka:** egy vagy több (olajcsere, kis szerviz, fék, vezérlés, kuplung…).
+3. **Olajcsere / kis szerviz:** olajszűrő a MANN-táblából (`data/filters.json`).
+   A változatokat (`lib/store.js` filterOptions) kezeli: dátum szerint magától
+   választ a gyártás hónapjából, ház-, motorszám- vagy autófüggőnél jelöl, a
+   motorcsalád-találatot jelzi. A MANN-szám megfelelője a műhely márkájában
+   (pl. Bosch) egyszer megadva, utána az jön. Az olaj és a mennyiség
+   motorkódonként megjegyezve.
+4. **Többi munka:** az alkatrész (márka, cikkszám, mennyiség) egyszer beírva,
+   ugyanilyen motornál magától jön. Féknél tengelyenként (első / hátsó / mindkettő).
+   Szabad tétel is felvehető.
+5. **Apró tételek és munkadíj** munkánként: a műhely fix díja (`lib/shop.js`
+   PROFILES jobLabour), különben becsült normaidő x óradíj (átírható).
+6. **Ajánlat:** soronkénti kedvezmény, ügyféladatok, PDF a műhely kísérőlevelével
+   (`public/print.js`). Minden átírt ár megjegyződik (cikkszám / olajnév szerint).
+7. **Korábbi ajánlatok** fül: a kinyomtatottak listája, újranyomtatható
+   (ügyféladat: élesítés előtt adatfeldolgozói szerződés kell).
+
+## Alvázszámból (teszt) - csak `?dev=1` vagy `?teszt=1` linkkel
+
+Ügyfélnek nem látszik: nem licencelt TecDoc-másolatra épül.
 
 1. **Alvázszám → autó** (TecDoc).
 2. **Munka:** olajcsere, kis szerviz, vezérműszíj/-lánc, fék, kuplung,

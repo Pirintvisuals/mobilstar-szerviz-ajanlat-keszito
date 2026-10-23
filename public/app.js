@@ -37,7 +37,7 @@ const priceKey = (brand, articleNo) => `${String(brand || '').toUpperCase()}|${n
 const OIL = 'OIL';
 
 const fresh = () => ({ eng: null, engKey: null, filterSel: null, useOwn: true, oil: '', liters: null, oilTouched: false,
-    sel: [], partEdits: {}, manual: [], hours: null,
+    sel: [], partEdits: {}, manual: [], hours: null, axle: 'első',
     extraOn: {}, prices: {}, qty: {}, disc: {}, quoteNo: null, t0: null, doneIn: null, localFilter: null });
 const st = { shop: null, cars: [], jobs: [], ...fresh() };
 
@@ -54,6 +54,9 @@ Promise.all([
     $('dl-oils').innerHTML = (shop.oils || []).map((o) => `<option value="${esc(o.name)}">`).join('');
     $('dl-fbrands').innerHTML = (shop.brandsByPart?.['Oil Filter'] || []).map((b) => `<option value="${esc(b)}">`).join('');
     renderJobs();
+    // Az alvázszámos fül a nem licencelt TecDoc-tesztre épül: ügyfélnek nem mutatjuk, csak ?dev=1 / ?teszt=1 linkkel.
+    const q = new URLSearchParams(location.search);
+    if (q.has('dev') || q.has('teszt')) document.querySelector('.tab[data-tab="parts"]').hidden = false;
 }).catch((e) => { $('quote-empty').textContent = e.message; });
 
 const val = (id) => $(id).value.trim();
@@ -153,12 +156,19 @@ $('jobs').addEventListener('click', (ev) => {
 // ---------- Alkatrészek a többi munkához ----------
 //  Az olajszűrőt a szűrő-kártya intézi; a többi alkatrész itt: márka, cikkszám,
 //  mennyiség. Motorkódonként megjegyezzük (lib/store.js parts).
+// Féknél tengelyenként külön sor (első / hátsó / mindkettő), külön megjegyezve.
+const AXLES = { 'első': ['első'], 'hátsó': ['hátsó'], 'mindkettő': ['első', 'hátsó'] };
+const axles = () => AXLES[st.axle] || AXLES['első'];
 function partList() {
     const seen = new Set(), out = [];
     for (const j of selJobs()) for (const p of j.parts) {
-        if (p.name === 'Oil Filter' || seen.has(p.name)) continue;
-        seen.add(p.name);
-        out.push({ ...p, job: j.key });
+        if (p.name === 'Oil Filter') continue;
+        const variants = j.key === 'brake' ? axles().map((a) => ({ name: `${p.name}|${a}`, label: `${p.label} (${a})` })) : [{ name: p.name, label: p.label }];
+        for (const v of variants) {
+            if (seen.has(v.name)) continue;
+            seen.add(v.name);
+            out.push({ ...v, base: p.name, job: j.key });
+        }
     }
     return out;
 }
@@ -169,7 +179,7 @@ function renderParts() {
     if ($('card-parts').hidden) return;
     const rows = list.map((p, i) => {
         const d = partData(p.name);
-        const brands = st.shop.brandsByPart?.[p.name] || st.shop.preferredBrands || [];
+        const brands = st.shop.brandsByPart?.[p.base] || st.shop.preferredBrands || [];
         return `<div class="prow" data-part="${esc(p.name)}">
             <div class="lab">${esc(p.label)}${st.eng?.parts?.[p.name] && !st.partEdits[p.name] ? ' <span class="badge">megjegyezve</span>' : ''}</div>
             <div class="row3">
@@ -184,10 +194,18 @@ function renderParts() {
               <div><input class="inp mono" data-f="cikkszam" value="${esc(m.cikkszam)}" placeholder="cikkszám (nem kötelező)" aria-label="Tétel cikkszáma"></div>
               <div class="unit-inp"><input class="inp num" data-f="qty" inputmode="decimal" value="${esc(fmtQty(m.qty))}" aria-label="Tétel mennyisége"><span>db</span> <button class="linkbtn" type="button" data-rm="${esc(m.id)}" aria-label="Törlés">✕</button></div>
             </div></div>`);
-    $('parts').innerHTML = rows.join('') + manual.join('')
+    const axleRow = st.sel.includes('brake') ? `<div class="axle" role="radiogroup" aria-label="Melyik tengely">Fék: ${Object.keys(AXLES).map((a) =>
+        `<label><input type="radio" name="axle" value="${a}" ${st.axle === a ? 'checked' : ''}> ${a}</label>`).join(' ')}</div>` : '';
+    $('parts').innerHTML = axleRow + rows.join('') + manual.join('')
         || '<p class="hint">Ehhez a munkához nincs külön alkatrész. Ha kell, add hozzá lent.</p>';
 }
 let partTimer = {};
+$('parts').addEventListener('change', (ev) => {
+    if (ev.target.name !== 'axle') return;
+    st.axle = ev.target.value;
+    st.hours = null;
+    renderParts(); render();
+});
 $('parts').addEventListener('input', (ev) => {
     const f = ev.target.dataset.f;
     if (!f) return;
@@ -414,7 +432,7 @@ function lines() {
         const d = partData(p.name);
         const has = d.brand || d.cikkszam;
         const learned = has ? eng.prices?.[priceKey(d.brand, d.cikkszam)] : null;
-        const sample = sh.samplePrices?.[p.name] ?? null;
+        const sample = sh.samplePrices?.[p.base] ?? null;
         out.push({ key: 'p-' + p.name, label: `${p.label}${d.brand ? ', ' + d.brand : ''}`, cikkszam: d.cikkszam || '', qty: d.qty ?? 1, unit: 'db',
             auto: learned ?? sample, source: learned != null ? 'legutóbbi ár' : null,
             live: learned == null ? (has ? 'minta ár · írd át egyszer, megjegyzi' : 'add meg a cikkszámot bal oldalt · minta ár') : null,
@@ -430,7 +448,7 @@ function lines() {
         if (j.key === 'oil') out.push({ key: 'lab-oil', label: sh.labour.label, cikkszam: '', qty: 1, unit: 'db', auto: sh.labour.net,
             source: sh.ownLabour ? 'műhely munkadíja' : null, live: sh.ownLabour ? null : 'minta · élesben a műhely saját díja' });
         else if (fixed[j.key]) fixed[j.key].forEach((f, i) => out.push({ key: `lab-${j.key}-${i}`, label: f.label, cikkszam: '', qty: 1, unit: 'db', auto: f.net, source: 'műhely munkadíja' }));
-        else hours += j.hours || 0;
+        else hours += (j.hours || 0) * (j.key === 'brake' ? axles().length : 1);
     }
     if (hours > 0 || st.hours != null) {
         out.push({ key: 'labour', label: 'Munkadíj', cikkszam: '', qty: st.hours ?? Math.round(hours * 100) / 100, unit: 'óra', auto: sh.hourlyRate, labour: true,
@@ -577,8 +595,9 @@ $('print').addEventListener('click', async () => {
         st.quoteNo = r?.number || new Date().toISOString().slice(0, 10);
         render();
     }
-    const ls = lines();
-    win.document.write(printQuoteHtml({ shop: st.shop, quoteNo: st.quoteNo, customer: customer(), carName: carLabel(), vin: cleanVin($('vin').value), lines: ls, totals: totals(ls), letter: letter() }));
+    const ls = lines(), t = totals(ls);
+    post({ action: 'quote-save', m: M, quote: { no: st.quoteNo, customer: customer(), car: carLabel(), vin: cleanVin($('vin').value), jobs: st.sel, lines: ls, totals: t } });
+    win.document.write(printQuoteHtml({ shop: st.shop, quoteNo: st.quoteNo, customer: customer(), carName: carLabel(), vin: cleanVin($('vin').value), lines: ls, totals: t, letter: letter() }));
     win.document.close();
     win.focus();
     setTimeout(() => win.print(), 300);
@@ -605,5 +624,36 @@ function renderAll() {
 // ---------- Fülek ----------
 document.querySelectorAll('.tab').forEach((t) => t.addEventListener('click', () => {
     document.querySelectorAll('.tab').forEach((x) => { x.classList.toggle('is-on', x === t); x.setAttribute('aria-selected', x === t); });
-    ['quote', 'parts', 'proof'].forEach((k) => { $('view-' + k).hidden = t.dataset.tab !== k; });
+    ['quote', 'parts', 'history', 'proof'].forEach((k) => { $('view-' + k).hidden = t.dataset.tab !== k; });
+    if (t.dataset.tab === 'history') loadHistory();
 }));
+
+// ---------- Korábbi ajánlatok ----------
+let history = [];
+async function loadHistory() {
+    const box = $('history');
+    box.innerHTML = '<div class="hint">Betöltés…</div>';
+    try {
+        history = (await api({ action: 'quotes', m: M })).quotes || [];
+    } catch (e) { box.innerHTML = `<div class="hint">${esc(e.message)}</div>`; return; }
+    if (!history.length) { box.innerHTML = '<div class="empty">Még nincs kinyomtatott ajánlat. A PDF / nyomtatás gomb után itt jelennek meg.</div>'; return; }
+    box.innerHTML = `<table class="lines"><thead><tr><th>Szám</th><th>Dátum</th><th>Ügyfél</th><th>Autó</th><th class="r">Fizetendő</th><th></th></tr></thead><tbody>${
+        history.map((h, i) => `<tr><td class="mono">${esc(h.no)}</td><td>${esc(new Date(h.at).toLocaleDateString('hu-HU'))}</td>
+            <td>${esc(h.customer.name || '-')}${h.customer.plate ? `<div class="sub">${esc(h.customer.plate)}</div>` : ''}</td>
+            <td>${esc(h.car)}<div class="sub">${esc(h.jobs.map((k) => st.jobs.find((j) => j.key === k)?.label || k).join(', '))}</div></td>
+            <td class="r">${huf(h.totals.gross)}</td><td class="r"><button class="btn ghost" type="button" data-reprint="${i}">Újranyomtatás</button></td></tr>`).join('')
+    }</tbody></table>`;
+}
+$('history').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-reprint]');
+    if (!b) return;
+    const h = history[Number(b.dataset.reprint)];
+    const win = window.open('', '_blank');
+    if (!win) return;
+    const labels = h.jobs.map((k) => st.jobs.find((j) => j.key === k)?.label.toLowerCase()).filter(Boolean);
+    win.document.write(printQuoteHtml({ shop: st.shop, quoteNo: h.no, customer: h.customer, carName: h.car, vin: h.vin, lines: h.lines, totals: h.totals,
+        letter: letterParts(st.shop, { name: h.customer.name, jobKeys: h.jobs, jobLabels: labels }) }));
+    win.document.close();
+    win.focus();
+    setTimeout(() => win.print(), 300);
+});

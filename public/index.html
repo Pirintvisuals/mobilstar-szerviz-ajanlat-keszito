@@ -15,7 +15,8 @@
     <div class="brand"><span class="dot"></span><span id="shop-name">Olajcsere-ajánlat</span></div>
     <nav class="tabs" role="tablist">
       <button class="tab is-on" data-tab="quote" role="tab" aria-selected="true">Új ajánlat</button>
-      <button class="tab" data-tab="parts" role="tab" aria-selected="false">Alvázszámból (teszt)</button>
+      <button class="tab" data-tab="parts" role="tab" aria-selected="false" hidden>Alvázszámból (teszt)</button>
+      <button class="tab" data-tab="history" role="tab" aria-selected="false">Korábbi ajánlatok</button>
       <button class="tab" data-tab="proof" role="tab" aria-selected="false" hidden>Ellenőrzés</button>
     </nav>
   </div>
@@ -201,6 +202,14 @@
       </div>
     </div>
   </aside>
+</main>
+
+<main id="view-history" class="wrap" hidden>
+  <div class="card">
+    <h2>Korábbi ajánlatok</h2>
+    <p class="hint">A kinyomtatott ajánlatok, a legfrissebb elöl. Bármelyik újra kinyomtatható.</p>
+    <div id="history" class="history"></div>
+  </div>
 </main>
 
 <main id="view-proof" class="wrap" hidden>

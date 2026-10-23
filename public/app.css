@@ -312,3 +312,6 @@ aside.col { position: sticky; top: 12px; }
 .prow:last-child { border-bottom: 0; }
 .prow .lab { font-weight: 600; margin-bottom: 6px; display: flex; align-items: center; gap: 8px; }
 #add-line { margin-top: 10px; }
+.axle { display: flex; gap: 14px; align-items: center; font-weight: 600; padding: 4px 0 8px; flex-wrap: wrap; }
+.axle label { font-weight: 400; display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
+.history td .sub { font-size: 12px; color: var(--muted); }
