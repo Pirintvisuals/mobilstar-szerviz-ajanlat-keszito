@@ -22,7 +22,7 @@ import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJo
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush,
-    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine, listQuotes, saveQuote } from '../lib/store.js';
+    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine, listQuotes, saveQuote, labourForEngine, rememberLabourForEngine } from '../lib/store.js';
 import { SHOP, brandsFor, brandsForShop, shopFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
@@ -113,7 +113,10 @@ export default async function handler(req, res) {
     try {
         await hydrate();
         if (action === 'config') {
-            const jobs = JOBS.map(({ key, label, hours, oil, parts }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => ({ label: p.label, name: p.name })) }));
+            const jobs = JOBS.map(({ key, label, hours, oil, parts, checks }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => ({ label: p.label, name: p.name })),
+                checks: (checks || []).map((c) => ({ id: c.id, text: c.text, why: c.why || '', auto: c.auto || null,
+                    options: c.options.map((o) => ({ label: o.label, parts: (o.parts || []).map((p) => ({ label: p.label, name: p.name })),
+                        extras: o.extras || {}, hours: o.hours || 0, without: o.without || [], note: o.note || '' })) })) }));
             return send(200, { shop: shopFor(q.m), live: olyslagerConfigured(), demoVehicle: DEMO_VEHICLE, jobs });
         }
         if (action === 'search') {
@@ -141,13 +144,16 @@ export default async function handler(req, res) {
             for (const o of [...(shop.oils || []), ...(oil ? [{ name: oil.oil }] : [])]) price('OIL', o.name);
             const parts = partsForEngine(q.code, q.car);
             for (const p of Object.values(parts)) price(p.brand, p.cikkszam);
-            return send(200, { filter, oil, xrefs, prices, parts });
+            return send(200, { filter, oil, xrefs, prices, parts, labour: labourForEngine(q.code, q.car) });
         }
         if (action === 'oc-learn' && req.method === 'POST') {
             return send(200, rememberOilForEngine(body.engineCode, body.car, body));
         }
         if (action === 'oc-part' && req.method === 'POST') {
             return send(200, rememberPartForEngine(body.engineCode, body.car, body.part, body));
+        }
+        if (action === 'oc-labour' && req.method === 'POST') {
+            return send(200, rememberLabourForEngine(body.engineCode, body.car, body.jobs, body.hours));
         }
         if (action === 'quote-save' && req.method === 'POST') {
             return send(200, saveQuote(body.m, body.quote));

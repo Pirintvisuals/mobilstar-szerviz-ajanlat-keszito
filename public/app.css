@@ -315,3 +315,10 @@ aside.col { position: sticky; top: 12px; }
 .axle { display: flex; gap: 14px; align-items: center; font-weight: 600; padding: 4px 0 8px; flex-wrap: wrap; }
 .axle label { font-weight: 400; display: inline-flex; gap: 6px; align-items: center; cursor: pointer; }
 .history td .sub { font-size: 12px; color: var(--muted); }
+.qrow { padding: 10px 0; border-bottom: 1px solid var(--border); }
+.qrow:last-child { border-bottom: 0; }
+.qrow .lab { font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.qrow.open .lab::before { content: '●'; color: var(--danger, #d9534f); font-size: 10px; }
+.qopts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.qopt { border: 1px solid var(--border); background: var(--card); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; color: inherit; }
+.qopt.on { border: 2px solid var(--accent-strong); background: var(--accent); color: var(--dark); font-weight: 600; }
