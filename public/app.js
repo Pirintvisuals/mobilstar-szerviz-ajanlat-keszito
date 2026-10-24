@@ -14,6 +14,7 @@ import { apiFetch } from './auth.js';
 import { huf } from './quote.js';
 import { cleanVin, vinLooksValid, vinMake, vinYear } from './vin.js';
 import { letterParts, letterText, printQuoteHtml, fmtQty } from './print.js';
+import { visibleSpecs, specText } from './pick.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -38,6 +39,7 @@ const OIL = 'OIL';
 
 const fresh = () => ({ eng: null, engKey: null, filterSel: null, useOwn: true, oil: '', liters: null, oilTouched: false,
     sel: [], partEdits: {}, manual: [], hours: null, axle: 'első', answers: {},
+    tdVehicleId: null, td: { jobs: {}, checks: {}, byName: {} },
     extraOn: {}, prices: {}, qty: {}, disc: {}, quoteNo: null, t0: null, doneIn: null, localFilter: null });
 const st = { shop: null, cars: [], jobs: [], ...fresh() };
 
@@ -87,7 +89,7 @@ $('vin').addEventListener('input', () => {
     startClock();
     const v = cleanVin($('vin').value);
     const hint = $('vin-hint');
-    if (!v) { hint.textContent = ''; $('vin-cars').innerHTML = ''; lastVin = ''; render(); return; }
+    if (!v) { hint.textContent = ''; $('vin-cars').innerHTML = ''; lastVin = ''; st.tdVehicleId = null; st.td = { jobs: {}, checks: {}, byName: {} }; renderParts(); render(); return; }
     if (!vinLooksValid(v)) { hint.textContent = `${v.length}/17 karakter`; $('vin-cars').innerHTML = ''; return; }
     const make = vinMake(v), year = vinYear(v);
     hint.innerHTML = [make && `<b>${esc(make)}</b>`, year && `${year}-es évjárat`].filter(Boolean).join(' · ') || 'Érvényes alvázszám';
@@ -116,6 +118,8 @@ async function vinCars(v) {
 const FUEL = (f) => { const x = fold(f); return /diesel/.test(x) ? (/electro|hybrid/.test(x) ? 'dízel hibrid' : 'dízel') : /petrol|benzin|gasoline/.test(x) ? (/electro|hybrid/.test(x) ? 'benzin hibrid' : 'benzin') : /electr/.test(x) ? 'elektromos' : ''; };
 async function pickVinCar(vehicleId) {
     $('vin-cars').querySelectorAll('.res').forEach((b) => b.setAttribute('aria-pressed', b.dataset.vid === String(vehicleId)));
+    if (String(st.tdVehicleId) !== String(vehicleId)) { st.tdVehicleId = vehicleId; st.td = { jobs: {}, checks: {}, byName: {} }; }
+    loadTd();
     let d;
     try { d = (await api({ action: 'td-car', vehicleId })).details; } catch { d = null; }
     if (!d) { $('vin-hint').insertAdjacentHTML('beforeend', ' · az adatlap nem töltött be, add meg kézzel'); return; }
@@ -168,6 +172,48 @@ async function load() {
     renderAll();
 }
 
+// ---------- Alkatrészek az alvázszámos autóhoz (most: TecDoc-teszt) ----------
+//  Ha az autót alvázszámból választották, a munkák alkatrészeit a TecDoc-tesztből
+//  hozzuk: soronként választható lista, a műhely márkái elöl, féknél tengely szerint.
+async function loadTd() {
+    const vid = st.tdVehicleId;
+    if (!vid) return;
+    const jobs = st.sel.filter((k) => st.td.jobs[k] == null);
+    const checks = answered().filter((x) => (x.o.parts || []).length && st.td.checks[`${x.c.job}.${x.c.id}.${x.i}`] == null);
+    if (!jobs.length && !checks.length) return;
+    const keep = (r) => { if (String(vid) !== String(st.tdVehicleId)) return; for (const g of r?.parts || []) if (g.articles?.length) st.td.byName[g.name] = g; };
+    await Promise.all([
+        ...jobs.map(async (k) => { st.td.jobs[k] = 'loading'; try { keep(await api({ action: 'td-job', vehicleId: vid, job: k, m: M })); st.td.jobs[k] = true; } catch { st.td.jobs[k] = false; } }),
+        ...checks.map(async (x) => { const key = `${x.c.job}.${x.c.id}.${x.i}`; st.td.checks[key] = 'loading';
+            try { keep(await api({ action: 'td-check', vehicleId: vid, job: x.c.job, check: x.c.id, opt: x.i, m: M })); st.td.checks[key] = true; } catch { st.td.checks[key] = false; } }),
+    ]);
+    renderParts(); render();
+}
+function tdArticles(p) {
+    const g = st.td.byName[p.base];
+    if (!g) return [];
+    let a = g.articles;
+    if (p.axle) {
+        // Sok cikknél nincs megadva a tengely: csak azt vesszük ki, ami kifejezetten a másik tengelyé.
+        const other = p.axle === 'első' ? /rear/i : /front/i, want = p.axle === 'első' ? /front/i : /rear/i;
+        const pos = (x) => (x.specs || []).find((sp) => /fitting position/i.test(sp.name))?.value || '';
+        a = a.filter((x) => !(other.test(pos(x)) && !want.test(pos(x))));
+    }
+    return a;
+}
+// Ha a jelöltek egy fontos méretben eltérnek (pl. tárcsaátmérő), azt jelezzük.
+const KEY_SPECS = [/^outer diameter/i, /^brake disc thickness/i, /^diameter/i, /^thickness/i, /^number of ribs/i, /^capacity/i];
+function tdVariants(list) {
+    for (const re of KEY_SPECS) {
+        // A gyártók pár tizedet eltérnek ugyanarra a darabra: 3%-on belül egy méretnek számít.
+        const nums = list.map((a) => parseFloat(String((a.specs || []).find((sp) => re.test(sp.name))?.value || '').replace(',', '.'))).filter((x) => x > 0).sort((x, y) => x - y);
+        const vals = [];
+        for (const x of nums) if (!vals.length || x > vals[vals.length - 1] * 1.03) vals.push(x);
+        if (vals.length > 1) { const sp = list.flatMap((a) => a.specs || []).find((x) => re.test(x.name)); return `${specText({ ...sp, value: vals.slice(0, 4).join(' / ') })}${vals.length > 4 ? '…' : ''}`; }
+    }
+    return '';
+}
+
 // ---------- Munka ----------
 // A megjegyzett munkaidő kulcsa: a munkák + a válaszok (más a "csak betét", mint a "betét + tárcsa").
 const labourJobs = () => [...st.sel, ...answered().filter((x) => x.o.hours).map((x) => `${x.c.id}=${x.i}`), ...(st.sel.includes('brake') ? [`axle=${st.axle}`] : [])];
@@ -193,6 +239,7 @@ $('jobs').addEventListener('click', (ev) => {
     st.hours = null;
     renderJobs();
     renderAll();
+    loadTd();
 });
 ['oc-engine', 'oc-model'].forEach((id) => $(id).addEventListener('change', () => { renderChecks(); renderParts(); render(); }));
 
@@ -242,6 +289,7 @@ $('checks').addEventListener('click', (ev) => {
     if (st.answers[id] === i) delete st.answers[id]; else st.answers[id] = i;
     st.hours = null;
     renderChecks(); renderParts(); renderExtras(); render();
+    loadTd();
 });
 
 // ---------- Alkatrészek a többi munkához ----------
@@ -255,10 +303,11 @@ function partList() {
     const ans = answered();
     const without = new Set(ans.flatMap((x) => x.o.without || []));
     const sources = [...selJobs().map((j) => ({ job: j.key, parts: j.parts })), ...ans.map((x) => ({ job: x.c.job, parts: x.o.parts || [] }))];
+    const tdOilFilter = hasOil() && st.eng?.filter?.kind === 'none' && !st.localFilter && st.td.byName['Oil Filter'];
     for (const { job, parts } of sources) for (const p of parts) {
-        if (p.name === 'Oil Filter' || without.has(p.name)) continue;
+        if ((p.name === 'Oil Filter' && !tdOilFilter) || without.has(p.name)) continue;
         const j = { key: job };
-        const variants = j.key === 'brake' ? axles().map((a) => ({ name: `${p.name}|${a}`, label: `${p.label} (${a})` })) : [{ name: p.name, label: p.label }];
+        const variants = j.key === 'brake' ? axles().map((a) => ({ name: `${p.name}|${a}`, label: `${p.label} (${a})`, axle: a })) : [{ name: p.name, label: p.label }];
         for (const v of variants) {
             if (seen.has(v.name)) continue;
             seen.add(v.name);
@@ -268,15 +317,30 @@ function partList() {
     return out;
 }
 const partData = (name) => st.partEdits[name] ?? st.eng?.parts?.[name] ?? {};
+function partFor(p) {
+    const d = partData(p.name);
+    if (d.brand || d.cikkszam) return d;
+    const a = tdArticles(p)[0];
+    return a ? { brand: a.brand, cikkszam: a.articleNo, qty: d.qty ?? p.qty ?? 1, td: true } : d;
+}
 function renderParts() {
     const list = partList();
     $('card-parts').hidden = !st.eng || (!list.length && !st.manual.length && !st.sel.length);
     if ($('card-parts').hidden) return;
     const rows = list.map((p, i) => {
-        const d = partData(p.name);
+        const d = partFor(p);
         const brands = st.shop.brandsByPart?.[p.base] || st.shop.preferredBrands || [];
+        const arts = tdArticles(p);
+        const loading = st.tdVehicleId && Object.values(st.td.jobs).includes('loading') && !arts.length;
+        const cur = arts.findIndex((a) => normCode(a.articleNo) === normCode(d.cikkszam) && normCode(a.brand) === normCode(d.brand));
+        const pick = arts.length ? `<select class="inp tdpick" data-f="td" aria-label="${esc(p.label)} választás">
+                ${arts.slice(0, 80).map((a, k) => `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(`${a.brand} ${a.articleNo}${a.preferred ? ' ★' : ''} · ${visibleSpecs(a.specs, 3).map(specText).join(', ')}`)}</option>`).join('')}
+                <option value="-1" ${cur < 0 ? 'selected' : ''}>Más / kézzel beírva</option></select>
+              <div class="hint">${arts.length} illő cikk a TecDoc-tesztből${tdVariants(arts) ? ` · <span class="miss">eltérnek: ${esc(tdVariants(arts))} - ellenőrizd</span>` : ''}</div>`
+            : loading ? '<div class="hint">Alkatrészek betöltése az alvázszám alapján…</div>' : '';
         return `<div class="prow" data-part="${esc(p.name)}">
-            <div class="lab">${esc(p.label)}${st.eng?.parts?.[p.name] && !st.partEdits[p.name] ? ' <span class="badge">megjegyezve</span>' : ''}</div>
+            <div class="lab">${esc(p.label)}${st.eng?.parts?.[p.name] && !st.partEdits[p.name] ? ' <span class="badge">megjegyezve</span>' : d.td ? ' <span class="badge">javaslat</span>' : ''}</div>
+            ${pick}
             <div class="row3">
               <div><input class="inp" data-f="brand" list="dl-pb-${i}" value="${esc(d.brand || '')}" placeholder="márka" aria-label="${esc(p.label)} márka"><datalist id="dl-pb-${i}">${brands.map((b) => `<option value="${esc(b)}">`).join('')}</datalist></div>
               <div><input class="inp mono" data-f="cikkszam" value="${esc(d.cikkszam || '')}" placeholder="cikkszám" aria-label="${esc(p.label)} cikkszám"></div>
@@ -296,6 +360,17 @@ function renderParts() {
 }
 let partTimer = {};
 $('parts').addEventListener('change', (ev) => {
+    if (ev.target.dataset.f === 'td') {
+        const name = ev.target.closest('.prow').dataset.part;
+        const p = partList().find((x) => x.name === name);
+        const a = tdArticles(p)[Number(ev.target.value)];
+        const d = a ? { brand: a.brand, cikkszam: a.articleNo, qty: partFor(p).qty ?? 1 } : { brand: '', cikkszam: '', qty: partFor(p).qty ?? 1 };
+        st.partEdits[name] = d;
+        delete st.prices['p-' + name];
+        if (a) post({ action: 'oc-part', engineCode: val('oc-code'), car: carName(), part: name, ...d });
+        renderParts(); render();
+        return;
+    }
     if (ev.target.name !== 'axle') return;
     st.axle = ev.target.value;
     st.hours = null;
@@ -312,7 +387,8 @@ $('parts').addEventListener('input', (ev) => {
         return;
     }
     const name = row.dataset.part;
-    const d = { ...partData(name) };
+    const d = { ...partFor(partList().find((x) => x.name === name) || { name }) };
+    delete d.td;
     if (f === 'qty') { const n = parseNum(ev.target.value); d.qty = n > 0 && n < 100 ? n : 1; } else d[f] = ev.target.value.trim();
     st.partEdits[name] = d;
     delete st.prices['p-' + name];
@@ -521,17 +597,18 @@ function lines() {
         out.push({ key: 'filter', label: `Olajszűrő, ${ch.brand || 'márka?'}`, cikkszam: ch.cikkszam, qty: 1, unit: 'db', auto: learned ?? sample,
             source: learned != null ? 'legutóbbi ár' : null, live: learned == null ? 'minta ár · írd át egyszer, megjegyzi' : null,
             priceKey: { brand: ch.brand, articleNo: ch.cikkszam } });
-    } else {
+    } else if (!(eng.filter?.kind === 'none' && st.td.byName['Oil Filter'])) {
         out.push({ key: 'filter', label: 'Olajszűrő', cikkszam: '', qty: 1, unit: 'db', auto: null, open: true });
     }
     for (const p of partList()) {
-        const d = partData(p.name);
+        const d = partFor(p);
         const has = d.brand || d.cikkszam;
+        const variants = d.td ? tdVariants(tdArticles(p)) : '';
         const learned = has ? eng.prices?.[priceKey(d.brand, d.cikkszam)] : null;
         const sample = sh.samplePrices?.[p.base] ?? null;
         out.push({ key: 'p-' + p.name, label: `${p.label}${d.brand ? ', ' + d.brand : ''}`, cikkszam: d.cikkszam || '', qty: d.qty ?? 1, unit: 'db',
             auto: learned ?? sample, source: learned != null ? 'legutóbbi ár' : null,
-            live: learned == null ? (has ? 'minta ár · írd át egyszer, megjegyzi' : 'add meg a cikkszámot bal oldalt · minta ár') : null,
+            live: learned == null ? (has ? `${d.td ? 'TecDoc-javaslat' + (variants ? ', több méret - ellenőrizd' : '') + ' · ' : ''}minta ár · írd át egyszer, megjegyzi` : 'add meg a cikkszámot bal oldalt · minta ár') : null,
             priceKey: d.cikkszam ? { brand: d.brand, articleNo: d.cikkszam } : null, needsCode: !d.cikkszam });
     }
     for (const m of st.manual) out.push({ key: 'm-' + m.id, label: m.label || 'Tétel', cikkszam: m.cikkszam, qty: m.qty, unit: 'db', auto: null });
@@ -713,7 +790,7 @@ $('print').addEventListener('click', async () => {
 $('reset').addEventListener('click', () => {
     Object.assign(st, fresh());
     ['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when', 'vin', 'oc-oil', 'liters', 'cust-name', 'cust-plate', 'cust-phone', 'cust-km'].forEach((id) => { $(id).value = ''; });
-    $('vin-hint').textContent = ''; $('vin-cars').innerHTML = ''; lastVin = '';
+    $('vin-hint').textContent = ''; $('vin-cars').innerHTML = ''; lastVin = ''; st.tdVehicleId = null;
     renderJobs();
     renderAll();
     window.scrollTo({ top: 0, behavior: 'smooth' });

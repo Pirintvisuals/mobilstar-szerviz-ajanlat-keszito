@@ -322,3 +322,4 @@ aside.col { position: sticky; top: 12px; }
 .qopts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
 .qopt { border: 1px solid var(--border); background: var(--card); border-radius: 8px; padding: 6px 10px; cursor: pointer; font: inherit; color: inherit; }
 .qopt.on { border: 2px solid var(--accent-strong); background: var(--accent); color: var(--dark); font-weight: 600; }
+.tdpick { width: 100%; margin-bottom: 6px; }
