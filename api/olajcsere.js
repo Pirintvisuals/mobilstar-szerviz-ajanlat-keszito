@@ -18,7 +18,7 @@
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
-import { JOBS, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, jobAvailability, oemLookup } from '../lib/tecdoc.js';
+import { JOBS, jobsForClient, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, jobAvailability, oemLookup } from '../lib/tecdoc.js';
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush,
@@ -113,10 +113,7 @@ export default async function handler(req, res) {
     try {
         await hydrate();
         if (action === 'config') {
-            const jobs = JOBS.map(({ key, label, hours, oil, parts, checks }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => ({ label: p.label, name: p.name })),
-                checks: (checks || []).map((c) => ({ id: c.id, text: c.text, why: c.why || '', auto: c.auto || null,
-                    options: c.options.map((o) => ({ label: o.label, parts: (o.parts || []).map((p) => ({ label: p.label, name: p.name })),
-                        extras: o.extras || {}, hours: o.hours || 0, without: o.without || [], note: o.note || '' })) })) }));
+            const jobs = jobsForClient();
             // Alvázszám -> autó az Új ajánlat fülön: most a TecDoc-tesztből (RAPIDAPI_KEY).
             // Fizető ügyfél előtt licencelt forrásra kell cserélni; VIN_LOOKUP=off kikapcsolja.
             const vinLookup = tecdocStatus().configured && process.env.VIN_LOOKUP !== 'off';

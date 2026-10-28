@@ -5,4 +5,6 @@ node_modules
 .vercel
 .tecdoc-cache
 data/learned.json
+# A műhelyek valódi ajánlatai a visszaméréshez (backtest.mjs): árak, nem publikus.
+private/
 .DS_Store

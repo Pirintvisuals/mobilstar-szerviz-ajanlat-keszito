@@ -15,6 +15,7 @@ import { huf } from './quote.js';
 import { cleanVin, vinLooksValid, vinMake, vinYear } from './vin.js';
 import { letterParts, letterText, printQuoteHtml, fmtQty } from './print.js';
 import { visibleSpecs, specText } from './pick.js';
+import { activeJobs, checkList as checksOf, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf } from './plan.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -178,7 +179,7 @@ async function load() {
 async function loadTd() {
     const vid = st.tdVehicleId;
     if (!vid) return;
-    const jobs = st.sel.filter((k) => st.td.jobs[k] == null);
+    const jobs = selJobs().map((j) => j.key).filter((k) => st.td.jobs[k] == null);
     const checks = answered().filter((x) => (x.o.parts || []).length && st.td.checks[`${x.c.job}.${x.c.id}.${x.i}`] == null);
     if (!jobs.length && !checks.length) return;
     const keep = (r) => { if (String(vid) !== String(st.tdVehicleId)) return; for (const g of r?.parts || []) if (g.articles?.length) st.td.byName[g.name] = g; };
@@ -216,10 +217,11 @@ function tdVariants(list) {
 
 // ---------- Munka ----------
 // A megjegyzett munkaidő kulcsa: a munkák + a válaszok (más a "csak betét", mint a "betét + tárcsa").
-const labourJobs = () => [...st.sel, ...answered().filter((x) => x.o.hours).map((x) => `${x.c.id}=${x.i}`), ...(st.sel.includes('brake') ? [`axle=${st.axle}`] : [])];
+const labourJobs = () => [...selJobs().map((j) => j.key), ...answered().filter((x) => x.o.hours).map((x) => `${x.c.id}=${x.i}`), ...(st.sel.includes('brake') ? [`axle=${st.axle}`] : [])];
 const labourKey = () => [...new Set(labourJobs())].sort().join('+');
-const selJobs = () => st.sel.map((k) => st.jobs.find((j) => j.key === k)).filter(Boolean);
-const hasOil = () => selJobs().some((j) => j.oil);
+// A kiválasztott munkák, plusz amit egy válasz behoz (lánc után olajcsere).
+const selJobs = () => activeJobs(st.jobs, st.sel, answered());
+const hasOil = () => needsOil(selJobs());
 function renderJobs() {
     $('jobs').innerHTML = st.jobs.map((j) => `<button class="chip${st.sel.includes(j.key) ? ' on' : ''}" type="button" data-job="${esc(j.key)}" aria-pressed="${st.sel.includes(j.key)}">
         <span class="ct">${esc(j.label)}</span><span class="m">${esc(j.parts.map((p) => p.label).join(', ') || 'munkadíj')}</span></button>`).join('');
@@ -247,15 +249,7 @@ $('jobs').addEventListener('click', (ev) => {
 //  A munkához tartozó, könnyen kifelejthető tételek (kopásjelző, féknyereg,
 //  fékfolyadék, levegőszűrő, olajfolyás…). Amíg nincs megválaszolva, az
 //  ajánlat jelzi, hogy nem teljes. Az üzemanyagot a motor nevéből tudjuk.
-function checkList() {
-    const seen = new Set(), out = [];
-    for (const j of selJobs()) for (const c of j.checks || []) {
-        if (seen.has(c.id)) continue;
-        seen.add(c.id);
-        out.push({ ...c, job: j.key });
-    }
-    return out;
-}
+const checkList = () => checksOf(activeJobs(st.jobs, st.sel));
 function fuelText() {
     const e = fold(`${val('oc-engine')} ${val('oc-model')}`);
     if (/dizel|diesel|tdi|cdti|hdi|dci|crdi|cdi|jtd|multijet|d4d|bluehdi|tdci|sdi/.test(e)) return 'diesel';
@@ -270,7 +264,7 @@ function autoAnswer(c) {
     return null;
 }
 const answerOf = (c) => st.answers[c.id] ?? autoAnswer(c);
-const answered = () => checkList().map((c) => ({ c, i: answerOf(c) })).filter((x) => x.i != null).map((x) => ({ ...x, o: x.c.options[x.i] }));
+const answered = () => answeredOf(checkList(), answerOf);
 function renderChecks() {
     const list = st.eng ? checkList() : [];
     $('card-checks').hidden = !list.length;
@@ -299,29 +293,17 @@ $('checks').addEventListener('click', (ev) => {
 const AXLES = { 'első': ['első'], 'hátsó': ['hátsó'], 'mindkettő': ['első', 'hátsó'] };
 const axles = () => AXLES[st.axle] || AXLES['első'];
 function partList() {
-    const seen = new Set(), out = [];
-    const ans = answered();
-    const without = new Set(ans.flatMap((x) => x.o.without || []));
-    const sources = [...selJobs().map((j) => ({ job: j.key, parts: j.parts })), ...ans.map((x) => ({ job: x.c.job, parts: x.o.parts || [] }))];
-    const tdOilFilter = hasOil() && st.eng?.filter?.kind === 'none' && !st.localFilter && st.td.byName['Oil Filter'];
-    for (const { job, parts } of sources) for (const p of parts) {
-        if ((p.name === 'Oil Filter' && !tdOilFilter) || without.has(p.name)) continue;
-        const j = { key: job };
-        const variants = j.key === 'brake' ? axles().map((a) => ({ name: `${p.name}|${a}`, label: `${p.label} (${a})`, axle: a })) : [{ name: p.name, label: p.label }];
-        for (const v of variants) {
-            if (seen.has(v.name)) continue;
-            seen.add(v.name);
-            out.push({ ...v, base: p.name, job: j.key });
-        }
-    }
-    return out;
+    const tdOilFilter = hasOil() && st.eng?.filter?.kind === 'none' && !st.localFilter && !!st.td.byName['Oil Filter'];
+    return planParts(selJobs(), answered(), axles(), { oilFilter: tdOilFilter });
 }
 const partData = (name) => st.partEdits[name] ?? st.eng?.parts?.[name] ?? {};
 function partFor(p) {
     const d = partData(p.name);
-    if (d.brand || d.cikkszam) return d;
+    // Darabszám: amit beírtak, különben a munka szerinti (féktárcsa 2, hidrotőke 16).
+    const qty = d.qty ?? p.qty ?? 1;
+    if (d.brand || d.cikkszam) return { ...d, qty };
     const a = tdArticles(p)[0];
-    return a ? { brand: a.brand, cikkszam: a.articleNo, qty: d.qty ?? p.qty ?? 1, td: true } : d;
+    return a ? { brand: a.brand, cikkszam: a.articleNo, qty, td: true } : { ...d, qty };
 }
 function renderParts() {
     const list = partList();
@@ -557,12 +539,7 @@ function renderOil() {
 }
 
 // ---------- Apró tételek ----------
-const extrasList = () => {
-    const seen = new Set(), out = [];
-    const fromAnswers = Object.assign({}, ...answered().map((x) => x.o.extras || {}));
-    for (const j of st.sel) for (const x of st.shop?.jobExtras?.[j] || []) if (!seen.has(x.key)) { seen.add(x.key); out.push({ ...x, on: st.extraOn[x.key] ?? fromAnswers[x.key] ?? x.on }); }
-    return out;
-};
+const extrasList = () => planExtras(st.shop, selJobs(), answered(), st.extraOn);
 function renderExtras() {
     $('card-extras').hidden = !st.eng || !extrasList().length;
     $('extras').innerHTML = extrasList().map((x) => `<label class="oil"><input type="checkbox" data-x="${esc(x.key)}" ${x.on ? 'checked' : ''}>
@@ -586,8 +563,8 @@ function lines() {
         const learned = eng.prices?.[k];
         const listed = (sh.oils || []).find((o) => o.name === st.oil);
         out.push({ key: 'oil', label: st.oil, cikkszam: '', qty: st.liters ?? 0, unit: 'l', auto: learned ?? listed?.unitNet ?? null,
-            source: learned != null ? 'legutóbbi ár' : listed ? (sh.ownOils ? 'a műhely olajlistája' : null) : null,
-            live: learned == null && listed && !sh.ownOils ? 'minta ár · írd át egyszer, megjegyzi' : null,
+            source: learned != null ? 'legutóbbi ár' : listed?.own ? 'a műhely olajlistája' : null,
+            live: learned == null && listed && !listed.own ? 'minta ár · írd át egyszer, megjegyzi' : null,
             priceKey: { brand: OIL, articleNo: st.oil }, missingQty: !(st.liters > 0) });
     }
     const ch = oilJob ? filterChoice() : null;
@@ -615,16 +592,9 @@ function lines() {
     for (const x of extrasList()) if (x.on) out.push({ key: 'x-' + x.key, label: x.label, cikkszam: '', qty: x.qty, unit: x.unit, auto: x.unitNet,
         source: x.own ? 'műhely' : null, live: x.own ? null : 'minta · élesben a műhely saját ára' });
     // Munkadíj: a műhely fix díjas munkái külön sorban; a többi normaidő x óradíj.
-    const fixed = sh.jobLabour || {};
-    let hours = 0;
-    for (const j of selJobs()) {
-        if (j.key === 'oil') out.push({ key: 'lab-oil', label: sh.labour.label, cikkszam: '', qty: 1, unit: 'db', auto: sh.labour.net,
-            source: sh.ownLabour ? 'műhely munkadíja' : null, live: sh.ownLabour ? null : 'minta · élesben a műhely saját díja' });
-        else if (fixed[j.key]) fixed[j.key].forEach((f, i) => out.push({ key: `lab-${j.key}-${i}`, label: f.label, cikkszam: '', qty: 1, unit: 'db', auto: f.net, source: 'műhely munkadíja' }));
-        else hours += (j.hours || 0) * (j.key === 'brake' ? axles().length : 1);
-    }
-    for (const x of answered()) hours += (x.o.hours || 0) * (x.c.job === 'brake' ? axles().length : 1);
-    hours = Math.max(0, Math.round(hours * 100) / 100);
+    const { fixed, hours } = labourOf(sh, selJobs(), answered(), axles().length);
+    for (const f of fixed) out.push({ key: f.key, label: f.label, cikkszam: '', qty: 1, unit: 'db', auto: f.net,
+        source: f.own ? 'műhely munkadíja' : null, live: f.own ? null : 'minta · élesben a műhely saját díja' });
     const remembered = eng.labour?.[labourKey()];
     if (hours > 0 || st.hours != null || remembered != null) {
         const anyFixed = out.some((l) => l.key.startsWith('lab-'));

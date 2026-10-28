@@ -6,7 +6,8 @@ import { normalizeRecommendation } from './lib/olyslager.js';
 import { vinMake, vinYear, vinLooksValid, vinConflicts } from './public/vin.js';
 import { engineCodes, dateRange, parseMonth, pickByDate, filterOptions, priceKey } from './lib/store.js';
 import { analyze } from './public/pick.js';
-import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs, detailsFrom, JOBS, checkOption } from './lib/tecdoc.js';
+import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs, detailsFrom, JOBS, jobsForClient, checkOption } from './lib/tecdoc.js';
+import { activeJobs, checkList as planChecks, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf } from './public/plan.js';
 import { codeMatch, matchFuchs, sameOil } from './lib/match.js';
 import { SHOP, shopFor } from './lib/shop.js';
 
@@ -289,7 +290,61 @@ t('Mobilstar-profil: saját olajcsere-munkadíj, saját és minta apró tételek
     assert.equal(x.washer.unitNet, 1050);
     assert.equal(x.washer.own, true);
     assert.equal(x.waste.own, false);
+    assert.equal(x.waste.on, false); // a műhely ajánlatain nincs fáradtolaj-sor
     assert.equal(shopFor('').ownLabour, false);
+    assert.equal(s.oils.find((o) => o.name.includes('GT1 FLEX 5 0W-20')).own, true);
+    assert.ok(!shopFor('').oils.some((o) => o.own));
+});
+
+console.log('\nAz ajánlat váza (public/plan.js, a böngésző és a visszamérés közös)');
+const CJOBS = jobsForClient();
+const S = shopFor('mobilstar');
+const answers = (jobsSel, picked) => answeredOf(planChecks(activeJobs(CJOBS, jobsSel)), (c) => {
+    const i = c.options.findIndex((o) => o.label === picked[c.id]);
+    return i < 0 ? null : i;
+});
+t('lánc + "Olajcsere is? Igen": az olajcsere munkadíja, olaja és szűrője is bekerül', () => {
+    const ans = answers(['chain'], { oil: 'Igen' });
+    const jobs = activeJobs(CJOBS, ['chain'], ans);
+    assert.deepEqual(jobs.map((j) => j.key), ['chain', 'oil']);
+    assert.equal(needsOil(jobs), true);
+    assert.equal(labourOf(S, jobs, ans).fixed[0].net, 9843);
+    // a behozott olajcsere kérdéseit nem kérdezzük
+    assert.ok(!planChecks(activeJobs(CJOBS, ['chain'])).some((c) => c.job === 'oil'));
+    // kis szerviz mellé nem hozza be még egyszer
+    assert.deepEqual(activeJobs(CJOBS, ['chain', 'service'], ans).map((j) => j.key), ['chain', 'service']);
+});
+t('a darabszám eljut a böngészőbe: féktárcsa tengelyenként 2, hidrotőke 16', () => {
+    const disc = planParts(activeJobs(CJOBS, ['brake']), [], ['első', 'hátsó']).filter((p) => p.base === 'Brake Disc');
+    assert.deepEqual(disc.map((p) => [p.name, p.qty]), [['Brake Disc|első', 2], ['Brake Disc|hátsó', 2]]);
+    const ans = answers(['chain'], { tappet: 'Igen' });
+    assert.equal(planParts(activeJobs(CJOBS, ['chain'], ans), ans, ['első']).find((p) => p.base === 'Tappet').qty, 16);
+});
+t('klíma: több alkatrész egyszerre, munkaidő összeadva; töltet és nyomáspróba apró tétel', () => {
+    const ans = answers(['ac'], { comp: 'Igen', cond: 'Igen', valve: 'Igen', flush: 'Nem' });
+    const jobs = activeJobs(CJOBS, ['ac'], ans);
+    assert.equal(planParts(jobs, ans, ['első']).length, 3);
+    assert.equal(labourOf(S, jobs, ans).hours, 5.75);
+    const on = planExtras(S, jobs, ans).filter((x) => x.on).map((x) => x.key).sort();
+    assert.deepEqual(on, ['acgas', 'acrefill', 'cleaner', 'nitro']);
+});
+t('lánc, útban a klímakompresszor: leszívás, töltet, nyomáspróba és +2 óra', () => {
+    const ans = answers(['chain'], { ac: 'Igen' });
+    const jobs = activeJobs(CJOBS, ['chain'], ans);
+    const on = planExtras(S, jobs, ans).filter((x) => x.on).map((x) => x.key);
+    for (const k of ['acrefill', 'acgas', 'nitro']) assert.ok(on.includes(k), k);
+    assert.equal(labourOf(S, jobs, ans).hours, 8);
+});
+t('féktisztító: munkánként a műhely mennyisége (szerviz 0,1, ATF 0,5)', () => {
+    const q = (k) => planExtras(S, activeJobs(CJOBS, [k]), []).find((x) => x.key === 'cleaner');
+    assert.equal(q('service').qty, 0.1);
+    assert.equal(q('atf').qty, 0.5);
+    assert.equal(q('atf').unitNet, 2760);
+});
+t('fékfolyadékcsere mint külön munka: fix munkadíj + fékpad, a folyadék alapból benne', () => {
+    const jobs = activeJobs(CJOBS, ['brake', 'fluid']);
+    assert.deepEqual(labourOf(S, jobs, []).fixed.map((f) => f.net), [19685, 3281]);
+    assert.equal(planExtras(S, jobs, []).find((x) => x.key === 'fluid').on, true);
 });
 t('ár- és olajkulcs: ugyanaz írásjelektől függetlenül', () => {
     assert.equal(priceKey('Bosch', 'F 026 407 079'), priceKey('BOSCH', 'F026407079'));
