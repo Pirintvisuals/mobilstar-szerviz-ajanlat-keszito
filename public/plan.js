@@ -35,6 +35,18 @@ export const answeredOf = (checks, answerOf) => checks.map((c) => ({ c, i: answe
 
 export const needsOil = (jobs) => jobs.some((j) => j.oil);
 
+// Inter Cars ár egy sorhoz. A kézzel beírt ár ezt is felülírja (lines() az app.js-ben).
+// Ha az IC-nél nincs készleten, és van megjegyzett ár, az marad: máshonnan veszik.
+// field: 'list' (listaár, a műhely ebből ad kedvezményt) vagy 'customer' (a műhely saját ára).
+export function icLine(ic, { field = 'list', remembered = false } = {}) {
+    const net = ic ? (field === 'customer' ? ic.customerNet : ic.listNet) : null;
+    if (net == null) return null;
+    const stock = ic.available == null ? '' : ic.available > 0 ? ` · készlet: ${ic.available} db` : ' · nincs készleten';
+    if (ic.available === 0 && remembered) return { keep: true, note: `Inter Cars${stock}` };
+    return { auto: Math.round(net), source: `Inter Cars${field === 'list' ? ' listaár' : ' saját ár'}${stock}`,
+        buyNet: ic.customerNet == null ? null : Math.round(ic.customerNet) };
+}
+
 // Alkatrész-sorok. Féknél tengelyenként külön sor. Az olajszűrőt a szűrő-kártya
 // intézi, ezért csak akkor jön ide, ha oilFilter igaz (nincs szűrőtábla-adat).
 export function partList(jobs, ans, axles, { oilFilter = false } = {}) {

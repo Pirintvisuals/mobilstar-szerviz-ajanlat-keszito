@@ -15,9 +15,11 @@
 //    POST {action:'td-learn', vehicleId, part, answers, brand, articleNo}
 //    POST {action:'td-price', brand, articleNo, net}  -> kézzel megadott ár megjegyzése
 //    POST {action:'quote-no'}                -> következő ajánlatszám
+//    POST {action:'ic-prices', items:[{brand, articleNo}]} -> Inter Cars ár, készlet
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
+import { icConfigured, icPrices } from '../lib/intercars.js';
 import { JOBS, jobsForClient, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, jobAvailability, oemLookup } from '../lib/tecdoc.js';
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
@@ -117,7 +119,7 @@ export default async function handler(req, res) {
             // Alvázszám -> autó az Új ajánlat fülön: most a TecDoc-tesztből (RAPIDAPI_KEY).
             // Fizető ügyfél előtt licencelt forrásra kell cserélni; VIN_LOOKUP=off kikapcsolja.
             const vinLookup = tecdocStatus().configured && process.env.VIN_LOOKUP !== 'off';
-            return send(200, { shop: shopFor(q.m), live: olyslagerConfigured(), demoVehicle: DEMO_VEHICLE, jobs, vinLookup });
+            return send(200, { shop: shopFor(q.m), live: olyslagerConfigured(), demoVehicle: DEMO_VEHICLE, jobs, vinLookup, interCars: icConfigured() });
         }
         if (action === 'search') {
             return send(200, { results: await searchVehicles(q.q) });
@@ -166,6 +168,11 @@ export default async function handler(req, res) {
         }
         if (action === 'price') {
             return send(200, { net: learnedPrice(String(q.key || '')) });
+        }
+        if (action === 'ic-prices' && req.method === 'POST') {
+            if (!icConfigured()) return send(200, { prices: {} });
+            const items = (Array.isArray(body.items) ? body.items : []).slice(0, 60);
+            return send(200, { prices: await icPrices(items, priceKey) });
         }
         if (action === 'td-status') {
             return send(200, { ...tecdocStatus(), jobs: JOBS.map(({ key, label, hours, oil, parts, checks }) => ({ key, label, hours, oil: !!oil, parts: parts.map((p) => p.label), partNames: parts.map((p) => p.name),

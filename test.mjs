@@ -1,13 +1,17 @@
 // node test.mjs - a számolás, a Fuchs-válasz feldolgozása és az alvázszám
 // ellenőrzése. Hálózat nélkül fut.
 import assert from 'assert/strict';
+import fs from 'fs';
+import os from 'os';
+import path from 'path';
+import { csvFields, skuTable, icKey, tidyPrices, tidyStock, icPrices, resetSkuTable, resetToken } from './lib/intercars.js';
 import { chargedLiters, pickOil, buildQuote, quoteText } from './public/quote.js';
 import { normalizeRecommendation } from './lib/olyslager.js';
 import { vinMake, vinYear, vinLooksValid, vinConflicts } from './public/vin.js';
 import { engineCodes, dateRange, parseMonth, pickByDate, filterOptions, priceKey } from './lib/store.js';
 import { analyze } from './public/pick.js';
 import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs, detailsFrom, JOBS, jobsForClient, checkOption } from './lib/tecdoc.js';
-import { activeJobs, checkList as planChecks, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf } from './public/plan.js';
+import { activeJobs, checkList as planChecks, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf, icLine } from './public/plan.js';
 import { codeMatch, matchFuchs, sameOil } from './lib/match.js';
 import { SHOP, shopFor } from './lib/shop.js';
 
@@ -350,5 +354,76 @@ t('ár- és olajkulcs: ugyanaz írásjelektől függetlenül', () => {
     assert.equal(priceKey('Bosch', 'F 026 407 079'), priceKey('BOSCH', 'F026407079'));
     assert.equal(priceKey('OIL', 'FUCHS TITAN GT1 PRO C-3 5W-30'), 'OIL|FUCHSTITANGT1PROC35W30');
 });
+
+console.log('Inter Cars');
+t('CSV-sor: pontosvessző, idézőjel, idézőjelben pontosvessző', () => {
+    assert.deepEqual(csvFields('A1;"BOSCH; Kft";"mondta ""ez"""; x '), ['A1', 'BOSCH; Kft', 'mondta "ez"', 'x']);
+});
+t('SKU-tábla: márkanév és írásjel nem számít, a kétértelmű kimarad', () => {
+    const tb = skuTable();
+    tb.add('TOW_KOD;IC_INDEX;ARTICLE_NUMBER;MANUFACTURER');
+    tb.add('AAA1;x;W 712/75;MANN-FILTER');
+    tb.add('BBB2;x;DF 4823;TRW');
+    tb.add('CCC3;x;DF4823;TRW');
+    const { skus, ambiguous } = tb.result();
+    assert.equal(skus[icKey('MANN', 'W712/75')], 'AAA1');
+    assert.equal(skus[icKey('TRW', 'DF4823')], undefined);
+    assert.equal(ambiguous, 1);
+    assert.throws(() => skuTable().add('MAS;FEJLEC'));
+});
+t('válasz: csak forint kerül be, a készlet raktáranként összeadódik', () => {
+    const p = tidyPrices({ lines: [
+        { sku: 'A', price: { currencyCode: 'HUF', listPriceNet: 1000, customerPriceNet: 700 } },
+        { sku: 'B', price: { currencyCode: 'PLN', listPriceNet: 50 } }] });
+    assert.deepEqual(p, { A: { listNet: 1000, customerNet: 700 } });
+    assert.deepEqual(tidyStock([{ sku: 'A', availability: 2 }, { sku: 'A', availability: 3 }]), { A: 5 });
+});
+t('sor ára: listaár vagy saját ár; nincs készlet + megjegyzett ár -> a megjegyzett marad', () => {
+    const ic = { listNet: 1000.4, customerNet: 700, available: 3 };
+    assert.equal(icLine(ic).auto, 1000);
+    assert.equal(icLine(ic).buyNet, 700);
+    assert.equal(icLine(ic, { field: 'customer' }).auto, 700);
+    assert.equal(icLine({ ...ic, available: 0 }, { remembered: true }).keep, true);
+    assert.equal(icLine({ ...ic, available: 0 }).auto, 1000);
+    assert.equal(icLine(null), null);
+    assert.equal(icLine({ listNet: null, customerNet: 5 }), null);
+});
+// Hálózat nélkül: a kamu fetch az IC helyett válaszol.
+{
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'ic-'));
+    process.env.IC_SKU_PATH = path.join(dir, 'sku.json');
+    process.env.IC_CLIENT_ID = 'id'; process.env.IC_CLIENT_SECRET = 'secret'; process.env.IC_TOKEN_URL = 'https://token.test/t';
+    const n = 45;
+    const skus = { [icKey('MANN', 'W71275')]: 'AAA1' };
+    for (let i = 0; i < n; i++) skus[icKey('TRW', `X${i}`)] = `S${i}`;
+    fs.writeFileSync(process.env.IC_SKU_PATH, JSON.stringify(skus));
+    resetSkuTable(); resetToken();
+    const calls = [];
+    const fake = async (url, opt) => {
+        calls.push({ url, body: opt.body });
+        const b = url.endsWith('/t') ? null : JSON.parse(opt.body);
+        const json = !b ? { access_token: 'tok', expires_in: 3600 }
+            : url.endsWith('/quote') ? { lines: b.lines.map((l) => ({ sku: l.sku, price: { currencyCode: 'HUF', listPriceNet: 1000, customerPriceNet: 700 } })) }
+                : b.sku.split(',').map((sku) => ({ sku, availability: 4 }));
+        return { ok: true, status: 200, json: async () => json };
+    };
+    const items = [{ brand: 'MANN-FILTER', articleNo: 'W 712/75' }, { brand: 'Ismeretlen', articleNo: 'Z1' },
+        ...Array.from({ length: n }, (_, i) => ({ brand: 'TRW', articleNo: `X${i}` }))];
+    const r = await icPrices(items, priceKey, fake);
+    assert.deepEqual(r[priceKey('MANN-FILTER', 'W 712/75')], { sku: 'AAA1', listNet: 1000, customerNet: 700, available: 4 });
+    assert.equal(r[priceKey('Ismeretlen', 'Z1')], undefined);
+    assert.equal(Object.keys(r).length, n + 1);
+    assert.equal(calls.filter((c) => c.url.endsWith('/t')).length, 1, 'a token újrahasznosul');
+    assert.equal(calls.filter((c) => c.url.endsWith('/quote')).length, 3, '46 SKU, 20-asával');
+    assert.equal(JSON.parse(calls.find((c) => c.url.endsWith('/quote')).body).lines[0].quantity, 1);
+    let bad = false;
+    resetToken();
+    await icPrices(items, priceKey, async () => ({ ok: false, status: 401 })).catch(() => { bad = true; });
+    assert.ok(bad, 'hibás belépés hibát dob');
+    fs.rmSync(dir, { recursive: true, force: true });
+    delete process.env.IC_SKU_PATH; delete process.env.IC_CLIENT_ID; delete process.env.IC_CLIENT_SECRET; delete process.env.IC_TOKEN_URL;
+    resetSkuTable(); resetToken();
+    passed++; console.log('  ✓ ár + készlet lekérdezés: SKU-tábla, 20-as csomagok, egy token, hiba esetén hiba');
+}
 
 console.log(`\n${passed} teszt rendben.`);

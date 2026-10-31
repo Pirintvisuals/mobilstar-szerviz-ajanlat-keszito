@@ -15,7 +15,7 @@ import { huf } from './quote.js';
 import { cleanVin, vinLooksValid, vinMake, vinYear } from './vin.js';
 import { letterParts, letterText, printQuoteHtml, fmtQty } from './print.js';
 import { visibleSpecs, specText } from './pick.js';
-import { activeJobs, checkList as checksOf, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf } from './plan.js';
+import { activeJobs, checkList as checksOf, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf, icLine } from './plan.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -41,16 +41,17 @@ const OIL = 'OIL';
 const fresh = () => ({ eng: null, engKey: null, filterSel: null, useOwn: true, oil: '', liters: null, oilTouched: false,
     sel: [], partEdits: {}, manual: [], hours: null, axle: 'első', answers: {},
     tdVehicleId: null, td: { jobs: {}, checks: {}, byName: {} },
-    extraOn: {}, prices: {}, qty: {}, disc: {}, quoteNo: null, t0: null, doneIn: null, localFilter: null });
+    extraOn: {}, prices: {}, qty: {}, disc: {}, quoteNo: null, t0: null, doneIn: null, localFilter: null, ic: {} });
 const st = { shop: null, cars: [], jobs: [], ...fresh() };
 
 // ---------- Indulás ----------
 Promise.all([
     api({ action: 'config', m: M }),
     fetch('/cars.json').then((r) => r.json()).catch(() => ({ makes: [] })),
-]).then(([{ shop, jobs, vinLookup }, cars]) => {
+]).then(([{ shop, jobs, vinLookup, interCars }, cars]) => {
     st.shop = shop;
     st.vinLookup = !!vinLookup;
+    st.interCars = !!interCars;
     st.jobs = jobs || [];
     st.cars = cars.makes || [];
     $('shop-name').textContent = `${shop.name} · árajánlat`;
@@ -602,11 +603,33 @@ function lines() {
             source: st.hours == null && remembered != null ? 'erre a motorra megjegyezve' : null,
             live: st.hours == null && remembered == null ? `becsült normaidő · ${huf(sh.hourlyRate)}/óra${sh.sampleRate ? ' (minta)' : ''} · írd át, megjegyzi` : null });
     }
-    return out.map((l) => {
+    return out.map((l0) => {
+        const l = withInterCars(l0);
         const qty = st.qty[l.key] ?? l.qty;
         const unitNet = st.prices[l.key] ?? l.auto ?? null;
         const disc = st.disc[l.key] || 0; // kedvezmény %, soronként (mint a műhely ajánlatain)
         return { ...l, qty, unitNet, disc, typed: st.prices[l.key] != null, net: Math.round(qty * (unitNet || 0) * (1 - disc / 100)), priceMissing: unitNet == null };
+    });
+}
+// Élő Inter Cars ár a sorra, ha ismerjük a márkát és a cikkszámot. Ha nincs, marad, ami volt.
+function withInterCars(l) {
+    const ic = l.priceKey ? st.ic[priceKey(l.priceKey.brand, l.priceKey.articleNo)] : null;
+    const got = ic && icLine(ic, { field: st.shop.icPrice || 'list', remembered: l.source === 'legutóbbi ár' });
+    if (!got) return l;
+    if (got.keep) return { ...l, source: `${l.source} · ${got.note}` };
+    return { ...l, auto: got.auto, source: got.source, live: null, buyNet: got.buyNet };
+}
+// Cikkszámonként egyszer kérdezünk ajánlatonként: az IC korlátozza a sűrű lekérdezést.
+function fetchInterCars(ls) {
+    if (!st.interCars) return;
+    const items = ls.map((l) => l.priceKey).filter((k) => k?.brand && k.articleNo && k.brand !== OIL && !(priceKey(k.brand, k.articleNo) in st.ic));
+    if (!items.length) return;
+    const ic = st.ic; // új ajánlatnál a régi válasz már nem ide tartozik
+    for (const k of items) ic[priceKey(k.brand, k.articleNo)] = null;
+    post({ action: 'ic-prices', items }).then((r) => {
+        if (!r?.prices || !Object.keys(r.prices).length) return;
+        Object.assign(ic, r.prices);
+        if (ic === st.ic) render();
     });
 }
 const totals = (ls) => {
@@ -622,6 +645,7 @@ const letter = () => letterParts(st.shop, { name: customer().name, jobKeys: st.s
 function render() {
     if (!st.shop) return;
     const ls = lines();
+    fetchInterCars(ls);
     $('quote-empty').hidden = ls.length > 0;
     $('quote').hidden = ls.length === 0;
     $('oc-no').textContent = st.quoteNo ? `№ ${st.quoteNo}` : '';
@@ -633,7 +657,7 @@ function render() {
                 : l.live ? `<span class="live">● ${esc(l.live)}</span>`
                     : l.priceMissing ? '<span class="miss">ár hiányzik - írd be, megjegyzi</span>' : esc(l.source || '');
         return `<tr><td><div class="lab">${esc(l.label)}</div>
-            <div class="sub">${l.cikkszam ? `<span class="cik">${esc(l.cikkszam)}</span> · ` : ''}${src}${l.missingQty ? ' · <span class="miss">mennyiség?</span>' : ''}</div></td>
+            <div class="sub">${l.cikkszam ? `<span class="cik">${esc(l.cikkszam)}</span> · ` : ''}${src}${l.buyNet != null && !l.typed ? ` · beszerzés: ${esc(huf(l.buyNet))}` : ''}${l.missingQty ? ' · <span class="miss">mennyiség?</span>' : ''}</div></td>
           <td class="r"><input class="cell" data-k="${l.key}" data-f="qty" value="${esc(fmtQty(l.qty))}" aria-label="${esc(l.label)} mennyiség"> ${esc(l.unit)}</td>
           <td class="r"><input class="cell${l.priceMissing || l.typed ? ' edited' : ''}${l.live && !l.typed ? ' live' : ''}" data-k="${l.key}" data-f="price" value="${l.unitNet ?? ''}" placeholder="ár" aria-label="${esc(l.label)} egységár"></td>
           <td class="r"><input class="cell disc" data-k="${l.key}" data-f="disc" value="${l.disc || ''}" placeholder="0" aria-label="${esc(l.label)} kedvezmény %">%</td>
