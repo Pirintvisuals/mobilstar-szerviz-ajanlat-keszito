@@ -16,10 +16,13 @@
 //    POST {action:'td-price', brand, articleNo, net}  -> kézzel megadott ár megjegyzése
 //    POST {action:'quote-no'}                -> következő ajánlatszám
 //    POST {action:'ic-prices', items:[{brand, articleNo}]} -> Inter Cars ár, készlet
+//    GET  ?action=td-codes&make=..&model=..&when=.. -> a típus motorjai, motorkódjai
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
 import { icConfigured, icPrices } from '../lib/intercars.js';
+import { seriesForModel, engineRowsForSeries } from '../lib/tecdoc.js';
+import { carCodeMemo, saveCarCodes, parseMonth } from '../lib/store.js';
 import { JOBS, jobsForClient, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, jobAvailability, oemLookup } from '../lib/tecdoc.js';
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
@@ -95,6 +98,23 @@ async function runProofCase(c) {
         { what: 'Végösszeg', expected: e.gross, got: quote.gross, ok: Math.abs((e.gross ?? -1e9) - quote.gross) <= 1 },
     ];
     return { id: c.id, vehicle: v.vehicle, checks, ok: checks.every((k) => k.ok), ms: Date.now() - started };
+}
+
+// Motorkód-javaslat: a típus sorozatai és motorjai, egyszer lekérve, utána megjegyezve.
+// Évszám nélkül csak a legújabb sorozatokat nézzük: egy Golf több tucat lenne, a keret kicsi.
+const MAX_SERIES = 8;
+async function carCodes(make, model, when) {
+    const memo = carCodeMemo();
+    const key = `${String(make).toUpperCase()}|${String(model).toUpperCase()}`;
+    const series = memo.series[key] ||= await seriesForModel(make, model);
+    const d = parseMonth(when);
+    const year = d ? (d.yearOnly ? d.year : Math.floor(d.m / 12)) : null;
+    const fits = series.filter((s) => !year || ((s.from == null || s.from <= year) && (s.to == null || s.to >= year)));
+    const pick = [...fits].sort((a, b) => (b.from || 0) - (a.from || 0)).slice(0, MAX_SERIES);
+    const rows = [];
+    for (const s of pick) rows.push(...(memo.rows[s.id] ||= await engineRowsForSeries(s.id)));
+    saveCarCodes();
+    return { rows, partial: fits.length > pick.length };
 }
 
 export default async function handler(req, res) {
@@ -185,6 +205,9 @@ export default async function handler(req, res) {
         }
         if (action === 'td-car') {
             return send(200, { details: await vehicleDetails(q.vehicleId).catch(() => null), status: tecdocStatus() });
+        }
+        if (action === 'td-codes') {
+            return send(200, await carCodes(q.make, q.model, q.when));
         }
         if (action === 'td-avail') {
             return send(200, { jobs: await jobAvailability(q.vehicleId).catch(() => null), status: tecdocStatus() });

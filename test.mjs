@@ -11,7 +11,8 @@ import { vinMake, vinYear, vinLooksValid, vinConflicts } from './public/vin.js';
 import { engineCodes, dateRange, parseMonth, pickByDate, filterOptions, priceKey } from './lib/store.js';
 import { analyze } from './public/pick.js';
 import { vehiclesFromVin, flattenCategories, findCategory, tidyArticles, tidyOem, attachSpecs, detailsFrom, JOBS, jobsForClient, checkOption } from './lib/tecdoc.js';
-import { activeJobs, checkList as planChecks, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf, icLine } from './public/plan.js';
+import { activeJobs, checkList as planChecks, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf, icLine, codeOptions } from './public/plan.js';
+import { seriesMatches, tidyEngineRows } from './lib/tecdoc.js';
 import { codeMatch, matchFuchs, sameOil } from './lib/match.js';
 import { SHOP, shopFor } from './lib/shop.js';
 
@@ -353,6 +354,37 @@ t('fékfolyadékcsere mint külön munka: fix munkadíj + fékpad, a folyadék a
 t('ár- és olajkulcs: ugyanaz írásjelektől függetlenül', () => {
     assert.equal(priceKey('Bosch', 'F 026 407 079'), priceKey('BOSCH', 'F026407079'));
     assert.equal(priceKey('OIL', 'FUCHS TITAN GT1 PRO C-3 5W-30'), 'OIL|FUCHSTITANGT1PROC35W30');
+});
+
+console.log('Motorkód-javaslat');
+t('magyar típusnév -> TecDoc-sorozat', () => {
+    assert.ok(seriesMatches('GOLF IV (1J1)', 'Golf'));
+    assert.ok(seriesMatches('3 (E46)', '3-as'));
+    assert.ok(!seriesMatches('30 (E46)', '3-as'));
+    assert.ok(seriesMatches('A-CLASS (W176)', 'A-osztály'));
+    assert.ok(seriesMatches('GLE (W166)', 'ML / GLE'));
+    assert.ok(seriesMatches('M-CLASS (W164)', 'ML / GLE'));
+    assert.ok(seriesMatches('OCTAVIA III (5E3)', 'Octavia'));
+    assert.ok(!seriesMatches('GOLFSTREAM', 'Golf'));
+});
+const eRow = (n, o) => ({ typeEngineName: n, capacityLt: '2.0000', fuelType: 'Diesel', powerKw: '103.0000', constructionIntervalStart: '2008-06-01', constructionIntervalEnd: null, ...o });
+const engRows = tidyEngineRows({ modelTypes: [
+    eRow('2.0 CRD', { engineCodes: 'ECE' }), eRow('2.0 CRD', { engineCodes: 'BWD' }), eRow('2.0 CRD', { engineCodes: 'ECE' }),
+    eRow('2.4', { engineCodes: 'ED3, ED5', capacityLt: '2.4000', fuelType: 'Petrol', powerKw: '125.0000' }),
+    eRow('2.0 TDI', { engineCodes: 'OLD', constructionIntervalEnd: '2010-01-01' }),
+] });
+t('TecDoc-motorok: kódonként egy sor, ismétlés nélkül', () => {
+    assert.deepEqual(engRows.map((r) => r.code), ['ECE', 'BWD', 'ED3', 'ED5', 'OLD']);
+});
+t('javaslat: a motor szűr, több kód mind megjelenik, üzemanyag és év számít', () => {
+    const codes = (e, w) => codeOptions(engRows, e, w).map((o) => o.code);
+    assert.deepEqual(codes('2.0 CRD dízel'), ['ECE', 'BWD']);
+    assert.deepEqual(codes('2.4 benzin'), ['ED3', 'ED5']);
+    assert.deepEqual(codes('2.4 dízel'), []);
+    assert.deepEqual(codes('2.0 dízel', '2015-03'), ['ECE', 'BWD']);
+    assert.deepEqual(codes('2.0 TDI dízel', '2009'), ['OLD']);
+    assert.deepEqual(codes(''), []);
+    assert.equal(codeOptions(engRows, '2.0 CRD dízel')[0].label, '2.0 CRD · 103 kW · 2008-');
 });
 
 console.log('Inter Cars');

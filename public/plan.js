@@ -90,3 +90,29 @@ export function labourOf(shop, jobs, ans, axleCount = 1) {
     for (const x of ans) hours += (x.o.hours || 0) * perAxle(x.c.job);
     return { fixed, hours: Math.max(0, Math.round(hours * 100) / 100) };
 }
+
+// Motorkód-javaslat. rows: a TecDoc motorjai a típushoz ({ code, name, fuel, litres, kw, from, to }).
+// engine: "2.0 CRD dízel" a Motor mezőből. Ha több kód illik, mind megjelenik: a munkafelvevő választ.
+export function codeOptions(rows, engine, when) {
+    const text = String(engine || '').trim();
+    if (!text || !rows?.length) return [];
+    const lit = text.match(/\d\.\d/)?.[0];
+    const f = text.toLowerCase();
+    const fuel = /d[ií]zel/.test(f) ? /diesel/i : /hibrid/.test(f) ? /electr|hybrid/i : /benzin/.test(f) ? /petrol/i : /elektrom/.test(f) ? /electr/i : null;
+    const year = Number(String(when || '').match(/(?:19|20)\d\d/)?.[0]) || null;
+    const words = text.toUpperCase().split(/\s+/).filter((w) => !/^\d\.\d$/.test(w) && !/^(D[IÍ]ZEL|BENZIN|HIBRID|ELEKTROMOS)$/.test(w));
+    let hit = rows.filter((r) => (!lit || (r.litres != null ? r.litres.toFixed(1) === lit : r.name.includes(lit))) && (!fuel || fuel.test(r.fuel))
+        && (!year || ((r.from == null || r.from <= year) && (r.to == null || r.to >= year))));
+    // "1.6 TDI": a nevében is benne van. Ha így semmi, ne dobjuk el a többit.
+    const named = hit.filter((r) => words.every((w) => r.name.toUpperCase().includes(w)));
+    if (named.length) hit = named;
+    const byCode = new Map();
+    for (const r of hit) {
+        const e = byCode.get(r.code) || { code: r.code, name: r.name, kw: new Set(), from: r.from, to: r.to };
+        if (r.kw) e.kw.add(r.kw);
+        if (r.from != null && (e.from == null || r.from < e.from)) e.from = r.from;
+        e.to = e.to == null || r.to == null ? null : Math.max(e.to, r.to);
+        byCode.set(r.code, e);
+    }
+    return [...byCode.values()].map((e) => ({ code: e.code, label: [e.name, e.kw.size ? `${[...e.kw].sort((a, b) => a - b).join('/')} kW` : '', e.from ? `${e.from}-${e.to ?? ''}` : ''].filter(Boolean).join(' · ') }));
+}

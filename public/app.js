@@ -15,7 +15,7 @@ import { huf } from './quote.js';
 import { cleanVin, vinLooksValid, vinMake, vinYear } from './vin.js';
 import { letterParts, letterText, printQuoteHtml, fmtQty } from './print.js';
 import { visibleSpecs, specText } from './pick.js';
-import { activeJobs, checkList as checksOf, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf, icLine } from './plan.js';
+import { activeJobs, checkList as checksOf, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf, icLine, codeOptions } from './plan.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -77,6 +77,37 @@ function fillLists() {
     $('dl-models').innerHTML = (findMake()?.models || []).map((m) => `<option value="${esc(m.name)}">`).join('');
     $('dl-engines').innerHTML = (findModel()?.engines || []).map((e) => `<option value="${esc(e)}">`).join('');
 }
+
+// Motorkód-javaslat a márka, típus és motor alapján. Csak a listából választott
+// típusnál kérdezünk, hogy a félig beírt név ne fogyassza a TecDoc-keretet.
+// Nem töltjük ki magától: a kód dönti el a szűrőt és az alkatrészeket, ezért a munkafelvevő választ.
+const codeCache = new Map();
+let codeSeq = 0;
+function renderCodes(data) {
+    const box = $('code-opts');
+    const opts = !val('oc-code') && data ? codeOptions(data.rows, val('oc-engine'), val('oc-when')).slice(0, 12) : [];
+    box.hidden = !opts.length;
+    box.innerHTML = opts.length ? `Lehetséges motorkód (TecDoc, ellenőrizd a forgalmiban vagy a motoron)${data.partial ? (/(?:19|20)\d\d/.test(val('oc-when')) ? '. A lista nem teljes' : '. A lista nem teljes, add meg a gyártás évét') : ''}:
+        <div class="list">${opts.map((o) => `<button class="code-opt" type="button" data-code="${esc(o.code)}"><b>${esc(o.code)}</b><span>${esc(o.label)}</span></button>`).join('')}</div>` : '';
+}
+async function suggestCodes() {
+    const seq = ++codeSeq;
+    if (!st.vinLookup || val('oc-code') || !findModel() || !val('oc-engine')) return renderCodes(null);
+    const year = val('oc-when').match(/(?:19|20)\d\d/)?.[0] || '';
+    const key = `${findMake().make}|${findModel().name}|${year}`;
+    if (!codeCache.has(key)) {
+        const d = await api({ action: 'td-codes', make: findMake().make, model: findModel().name, when: year }).catch(() => null);
+        if (d) codeCache.set(key, d);
+        if (seq !== codeSeq) return;
+    }
+    renderCodes(codeCache.get(key));
+}
+$('code-opts').addEventListener('click', (ev) => {
+    const b = ev.target.closest('[data-code]');
+    if (!b) return;
+    $('oc-code').value = b.dataset.code;
+    $('oc-code').dispatchEvent(new Event('input', { bubbles: true }));
+});
 
 let loadTimer = null;
 ['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when'].forEach((id) => $(id).addEventListener('input', () => {
@@ -141,6 +172,7 @@ $('vin-cars').addEventListener('click', (ev) => {
 
 let seq = 0;
 async function load() {
+    suggestCodes();
     const code = val('oc-code'), car = carName();
     if (!code && !(val('oc-make') && val('oc-model'))) { st.eng = null; renderAll(); return; }
     const my = ++seq;
@@ -785,6 +817,7 @@ $('reset').addEventListener('click', () => {
     Object.assign(st, fresh());
     ['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when', 'vin', 'oc-oil', 'liters', 'cust-name', 'cust-plate', 'cust-phone', 'cust-km'].forEach((id) => { $(id).value = ''; });
     $('vin-hint').textContent = ''; $('vin-cars').innerHTML = ''; lastVin = ''; st.tdVehicleId = null;
+    renderCodes(null);
     renderJobs();
     renderAll();
     window.scrollTo({ top: 0, behavior: 'smooth' });
