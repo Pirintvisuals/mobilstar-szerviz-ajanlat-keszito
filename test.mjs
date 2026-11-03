@@ -200,6 +200,16 @@ t('"nem tudom" után nem kérdez újra, de jelzi a bizonytalanságot', () => {
     assert.equal(r.unsure, true);
     assert.notEqual(r.question?.label, 'Külső átmérő');
 });
+t('vezérműszíjnál a fogszámra, kuplungnál az átmérőre kérdez', () => {
+    const kit = (no, spec, v) => ({ brand: 'GATES', articleNo: no, name: 'Kit', preferred: true, rank: 0, specs: [{ name: spec, value: String(v) }] });
+    const belt = analyze([kit('K1', 'Number of Teeth', 136), kit('K2', 'Number of Teeth', 141), kit('K3', 'Number of Teeth', 136)], { main: 'Kit' });
+    assert.equal(belt.question.label, 'Fogszám');
+    assert.deepEqual(belt.question.options.map((o) => o.value).sort((a, b) => a - b), [136, 141]);
+    const clutch = analyze([kit('C1', 'Diameter [mm]', 228), kit('C2', 'Diameter [mm]', 240)], { main: 'Kit', answers: {} });
+    assert.equal(clutch.question.label, 'Átmérő');
+    const picked = analyze([kit('C1', 'Diameter [mm]', 228), kit('C2', 'Diameter [mm]', 240)], { main: 'Kit', answers: { 'Átmérő': 240 } });
+    assert.deepEqual(picked.candidates, [1]);
+});
 t('Teves és ATE ugyanaz a fék', () => {
     const pad = (no, sys) => ({ brand: 'BOSCH', articleNo: no, name: 'Pad', preferred: true, rank: 0, specs: [{ name: 'Brake System', value: sys }] });
     const r = analyze([pad('1', 'Teves'), pad('2', 'ATE'), pad('3', 'Brembo')], { main: 'Pad' });
