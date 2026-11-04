@@ -17,8 +17,8 @@
 //    POST {action:'quote-no'}                -> következő ajánlatszám
 //    POST {action:'ic-prices', items:[{brand, articleNo}]} -> Inter Cars ár, készlet
 //    GET  ?action=td-codes&make=..&model=..&when=.. -> a típus motorjai, motorkódjai
-//  Bemutató-link (?m=demo&d=<kulcs>, x-demo fejléc): jelszó nélkül, saját tanult
-//  adattal, korlátozott számú alvázszámmal - lásd demoFor lent.
+//  Bemutató-link (?d=<kulcs>, x-demo fejléc): ugyanaz az app jelszó nélkül,
+//  korlátozott számú alvázszámmal - lásd demoFor lent.
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
@@ -29,7 +29,7 @@ import { JOBS, jobsForClient, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDeta
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush,
-    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine, listQuotes, saveQuote, labourForEngine, rememberLabourForEngine, inScope, demoUsage, saveDemoUsage } from '../lib/store.js';
+    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine, listQuotes, saveQuote, labourForEngine, rememberLabourForEngine, demoUsage, saveDemoUsage } from '../lib/store.js';
 import { SHOP, brandsFor, brandsForShop, shopFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
@@ -120,10 +120,11 @@ async function carCodes(make, model, when) {
 }
 
 // Bemutató-linkek: DEMO_KEYS="mario:hosszú-véletlen-kulcs,peter:másik" a Vercel
-// beállításai közt. Mindegyik név külön tanult adatot és külön keretet kap, a
-// műhelyét (Mobilstar) nem látja és nem írja. A keret: ennyi különböző
-// alvázszám, és biztonsági plafonként ennyi valódi TecDoc-hívás (egy fékcsere
-// alvázszámmal 5-10 hívás is lehet, a havi keret pedig kicsi).
+// beállításai közt. Ugyanaz az app, mint a jelszavas link; csak a keret más:
+// ennyi különböző alvázszám, és biztonsági plafonként ennyi valódi TecDoc-hívás
+// (egy fékcsere alvázszámmal 5-10 hívás is lehet, a havi keret pedig kicsi).
+// Egy kivétel: a Korábbi ajánlatok fülön csak a saját ajánlatait látja, a
+// műhely ügyfeleinek nevét, rendszámát nem.
 const DEMO_VINS = Number(process.env.DEMO_VIN_LIMIT) || 10;
 const DEMO_CALLS = Number(process.env.DEMO_CALL_LIMIT) || 80;
 const TD_ACTIONS = new Set(['td-vin', 'td-car', 'td-codes', 'td-avail', 'td-oil', 'td-job', 'td-check', 'td-oem']);
@@ -156,16 +157,18 @@ export default async function handler(req, res) {
     if (!demo && password && req.headers?.['x-pass'] !== password) {
         return res.status(401).json({ error: 'Jelszó kell' });
     }
-    // A bemutató mindig a semleges minta-műhely, akármit ír a linkbe.
-    if (demo) { q.m = 'demo'; body = { ...body, m: 'demo' }; }
-    return inScope(demo ? `demo-${demo}` : '', () => serve(req, res, q, body, action, demo));
+    // Bemutató: a korábbi ajánlatai külön listán (a műhely ügyféladatai nem látszanak).
+    if (demo && (action === 'quotes' || action === 'quote-save')) {
+        if (action === 'quotes') q.m = `demo-${demo}`; else body = { ...body, m: `demo-${demo}` };
+    }
+    return serve(req, res, q, body, action, demo);
 }
 
 async function serve(req, res, q, body, action, demo) {
     let callsBefore = null, newVin = null;
     const send = async (code, payload) => {
         if (demo) {
-            const d = demoUsage();
+            const d = demoUsage(demo);
             // Ha a lekérdezés a TecDoc oldalán hibázott, az alvázszám nem fogy el.
             if (newVin && code >= 500) { d.vins = d.vins.filter((x) => x !== newVin); saveDemoUsage(); }
             if (callsBefore != null) { d.calls += tecdocStatus().calls - callsBefore; saveDemoUsage(); }
@@ -178,7 +181,7 @@ async function serve(req, res, q, body, action, demo) {
     try {
         await hydrate();
         if (demo && TD_ACTIONS.has(action)) {
-            const d = demoUsage();
+            const d = demoUsage(demo);
             if (d.calls >= DEMO_CALLS) return send(429, { error: DEMO_OUT });
             if (action === 'td-vin') {
                 const v = String(q.vin || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
