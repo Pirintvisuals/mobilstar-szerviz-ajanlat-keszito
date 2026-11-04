@@ -123,10 +123,13 @@ async function carCodes(make, model, when) {
 // beállításai közt. Ugyanaz az app, mint a jelszavas link; csak a keret más:
 // ennyi különböző alvázszám, és biztonsági plafonként ennyi valódi TecDoc-hívás
 // (egy fékcsere alvázszámmal 5-10 hívás is lehet, a havi keret pedig kicsi).
-// Egy kivétel: a Korábbi ajánlatok fülön csak a saját ajánlatait látja, a
-// műhely ügyfeleinek nevét, rendszámát nem.
+// Két kivétel: nem tanít (LEARN_ACTIONS), és a Korábbi ajánlatok fülön csak a
+// saját ajánlatait látja, a műhely ügyfeleinek nevét, rendszámát nem.
 const DEMO_VINS = Number(process.env.DEMO_VIN_LIMIT) || 10;
 const DEMO_CALLS = Number(process.env.DEMO_CALL_LIMIT) || 80;
+// A bemutató nem tanít: amit átír vagy választ, az nem jegyződik meg (a műhely
+// adata tiszta marad). A saját ajánlatai és a keret számlálója igen.
+const LEARN_ACTIONS = new Set(['filter', 'oc-learn', 'oc-part', 'oc-labour', 'oc-xref', 'td-learn', 'td-price']);
 const TD_ACTIONS = new Set(['td-vin', 'td-car', 'td-codes', 'td-avail', 'td-oil', 'td-job', 'td-check', 'td-oem']);
 function demoFor(key) {
     if (!key) return null;
@@ -180,6 +183,7 @@ async function serve(req, res, q, body, action, demo) {
 
     try {
         await hydrate();
+        if (demo && LEARN_ACTIONS.has(action)) return send(200, { persisted: false });
         if (demo && TD_ACTIONS.has(action)) {
             const d = demoUsage(demo);
             if (d.calls >= DEMO_CALLS) return send(429, { error: DEMO_OUT });

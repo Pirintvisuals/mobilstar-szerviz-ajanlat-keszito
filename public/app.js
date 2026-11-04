@@ -31,6 +31,7 @@ const api = async (params, body) => {
 };
 // Bemutató-link: a fejlécben, hány alvázszám van még.
 function showDemo(d) {
+    st.demo = true; // a bemutató nem tanít: a beírt szűrő csak ebben az ajánlatban él
     const el = $('demo-badge');
     el.hidden = false;
     el.textContent = d.out || !d.vinsLeft ? 'Bemutató · a keret elfogyott'
@@ -547,9 +548,10 @@ function showOwnForm(ch, brands) {
         ev.preventDefault();
         const to = { brand: $('own-brand').value, cikkszam: $('own-code').value.trim() };
         if (!to.cikkszam) return;
-        await post({ action: 'oc-xref', from: { brand: ch.base.brand, cikkszam: ch.base.cikkszam }, to });
         st.useOwn = true;
         delete st.prices.filter;
+        if (st.demo) { (st.eng.xrefs ||= {})[priceKey(ch.base.brand, ch.base.cikkszam)] = to; return renderAll(); }
+        await post({ action: 'oc-xref', from: { brand: ch.base.brand, cikkszam: ch.base.cikkszam }, to });
         await load();
     };
 }
@@ -571,7 +573,7 @@ $('filter-form').addEventListener('submit', async (ev) => {
     const entry = { cikkszam: $('f-code').value.trim(), brand: $('f-brand').value.trim() };
     if (!entry.cikkszam) return;
     const code = val('oc-code');
-    if (code) {
+    if (code && !st.demo) {
         await post({ action: 'filter', engineCode: code, ...entry, source: 'szerelő adta meg' });
         await load();
     } else {
