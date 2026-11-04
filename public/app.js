@@ -25,9 +25,17 @@ const api = async (params, body) => {
         ? await apiFetch('/api/olajcsere', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
         : await apiFetch('/api/olajcsere?' + new URLSearchParams(params));
     const json = await res.json().catch(() => ({}));
+    if (json.demo) showDemo(json.demo);
     if (!res.ok) throw new Error(json.error || 'HTTP ' + res.status);
     return json;
 };
+// Bemutató-link: a fejlécben, hány alvázszám van még.
+function showDemo(d) {
+    const el = $('demo-badge');
+    el.hidden = false;
+    el.textContent = d.out || !d.vinsLeft ? 'Bemutató · a keret elfogyott'
+        : `Bemutató · még ${d.vinsLeft} alvázszám (${d.vinLimit}-ből)`;
+}
 const post = (body) => api(null, body).catch(() => null); // tanulás: ha nem sikerül, az ajánlat attól még megy
 const parseNum = (s) => {
     const n = parseFloat(String(s).replace(/\s/g, '').replace(',', '.'));

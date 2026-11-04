@@ -17,6 +17,8 @@
 //    POST {action:'quote-no'}                -> következő ajánlatszám
 //    POST {action:'ic-prices', items:[{brand, articleNo}]} -> Inter Cars ár, készlet
 //    GET  ?action=td-codes&make=..&model=..&when=.. -> a típus motorjai, motorkódjai
+//  Bemutató-link (?m=demo&d=<kulcs>, x-demo fejléc): jelszó nélkül, saját tanult
+//  adattal, korlátozott számú alvázszámmal - lásd demoFor lent.
 // ---------------------------------------------------------------------------
 
 import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olyslager.js';
@@ -27,7 +29,7 @@ import { JOBS, jobsForClient, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDeta
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush,
-    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine, listQuotes, saveQuote, labourForEngine, rememberLabourForEngine } from '../lib/store.js';
+    filterOptions, xrefFor, rememberXref, oilForEngine, rememberOilForEngine, partsForEngine, rememberPartForEngine, listQuotes, saveQuote, labourForEngine, rememberLabourForEngine, inScope, demoUsage, saveDemoUsage } from '../lib/store.js';
 import { SHOP, brandsFor, brandsForShop, shopFor } from '../lib/shop.js';
 import { buildQuote, chargedLiters, pickOil } from '../public/quote.js';
 
@@ -117,23 +119,78 @@ async function carCodes(make, model, when) {
     return { rows, partial: fits.length > pick.length };
 }
 
+// Bemutató-linkek: DEMO_KEYS="mario:hosszú-véletlen-kulcs,peter:másik" a Vercel
+// beállításai közt. Mindegyik név külön tanult adatot és külön keretet kap, a
+// műhelyét (Mobilstar) nem látja és nem írja. A keret: ennyi különböző
+// alvázszám, és biztonsági plafonként ennyi valódi TecDoc-hívás (egy fékcsere
+// alvázszámmal 5-10 hívás is lehet, a havi keret pedig kicsi).
+const DEMO_VINS = Number(process.env.DEMO_VIN_LIMIT) || 10;
+const DEMO_CALLS = Number(process.env.DEMO_CALL_LIMIT) || 80;
+const TD_ACTIONS = new Set(['td-vin', 'td-car', 'td-codes', 'td-avail', 'td-oil', 'td-job', 'td-check', 'td-oem']);
+function demoFor(key) {
+    if (!key) return null;
+    for (const pair of String(process.env.DEMO_KEYS || '').split(',')) {
+        const [name, k] = pair.split(':').map((s) => s.trim());
+        if (name && k && k === key) return name.toLowerCase().replace(/[^a-z0-9-]/g, '') || null;
+    }
+    return null;
+}
+const demoInfo = (d) => ({ vinsLeft: Math.max(0, DEMO_VINS - d.vins.length), vinLimit: DEMO_VINS, out: d.calls >= DEMO_CALLS });
+const DEMO_OUT = 'A bemutató kerete elfogyott. Írj Milánnak, és kapsz újat.';
+
 export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store');
-    const q = req.query || {};
+    const q = { ...(req.query || {}) };
     let body = req.body || {};
     if (typeof body === 'string') { try { body = JSON.parse(body); } catch { body = {}; } }
     const action = req.method === 'POST' ? body.action : q.action;
 
+    // Bemutató-link: jelszó helyett a kulcs. Rossz kulcsra 403 (nem 401), hogy a
+    // böngésző ne kérjen jelszót - az a műhelyé.
+    const demoKey = req.headers?.['x-demo'];
+    const demo = demoFor(demoKey);
+    if (demoKey && !demo) return res.status(403).json({ error: 'Ez a bemutató-link már nem él. Írj Milánnak.' });
     // Egyszerű jelszó (APP_PASSWORD a Vercel beállításai közt). Ha nincs
     // beállítva - helyi gépen -, nincs jelszó.
     const password = process.env.APP_PASSWORD;
-    if (password && req.headers?.['x-pass'] !== password) {
+    if (!demo && password && req.headers?.['x-pass'] !== password) {
         return res.status(401).json({ error: 'Jelszó kell' });
     }
-    const send = async (code, payload) => { await flush(); return res.status(code).json(payload); };
+    // A bemutató mindig a semleges minta-műhely, akármit ír a linkbe.
+    if (demo) { q.m = 'demo'; body = { ...body, m: 'demo' }; }
+    return inScope(demo ? `demo-${demo}` : '', () => serve(req, res, q, body, action, demo));
+}
+
+async function serve(req, res, q, body, action, demo) {
+    let callsBefore = null, newVin = null;
+    const send = async (code, payload) => {
+        if (demo) {
+            const d = demoUsage();
+            // Ha a lekérdezés a TecDoc oldalán hibázott, az alvázszám nem fogy el.
+            if (newVin && code >= 500) { d.vins = d.vins.filter((x) => x !== newVin); saveDemoUsage(); }
+            if (callsBefore != null) { d.calls += tecdocStatus().calls - callsBefore; saveDemoUsage(); }
+            payload = { ...payload, demo: demoInfo(d) };
+        }
+        await flush();
+        return res.status(code).json(payload);
+    };
 
     try {
         await hydrate();
+        if (demo && TD_ACTIONS.has(action)) {
+            const d = demoUsage();
+            if (d.calls >= DEMO_CALLS) return send(429, { error: DEMO_OUT });
+            if (action === 'td-vin') {
+                const v = String(q.vin || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+                if (v.length === 17 && !d.vins.includes(v)) {
+                    if (d.vins.length >= DEMO_VINS) return send(429, { error: DEMO_OUT });
+                    d.vins.push(v);
+                    newVin = v;
+                    saveDemoUsage();
+                }
+            }
+            callsBefore = tecdocStatus().calls;
+        }
         if (action === 'config') {
             const jobs = jobsForClient();
             // Alvázszám -> autó az Új ajánlat fülön: most a TecDoc-tesztből (RAPIDAPI_KEY).

@@ -2,9 +2,10 @@
 //  Egyszerű jelszó: egyszer kérjük, a böngésző megjegyzi. Ha a szerver 401-et
 //  ad (rossz vagy hiányzó jelszó), újra megkérdezzük. Betöltéskor több kérés
 //  indul egyszerre: csak egyszer kérdezünk, a többi az így megadott jelszóval
-//  próbálja újra.
+//  próbálja újra. Bemutató-linknél (?d=<kulcs>) jelszó helyett a kulcs megy.
 // ---------------------------------------------------------------------------
 const KEY = 'olajcsere-pass';
+const DEMO = new URLSearchParams(location.search).get('d') || '';
 const stored = () => { try { return localStorage.getItem(KEY) || ''; } catch { return ''; } };
 const remember = (p) => { try { localStorage.setItem(KEY, p); } catch {} };
 
@@ -25,7 +26,8 @@ export async function apiFetch(url, opts = {}) {
     let res;
     for (let attempt = 0; attempt < 4; attempt++) {
         const sent = stored();
-        res = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), 'x-pass': sent } });
+        res = await fetch(url, { ...opts, headers: { ...(opts.headers || {}), 'x-pass': sent, ...(DEMO && { 'x-demo': DEMO }) } });
+        if (DEMO) return res; // bemutató: nincs jelszókérés
         if (res.status !== 401) return res;
         if (stored() !== sent) continue; // közben egy másik kérés már megkapta a jelszót
         if (await askOnce() == null) return res;

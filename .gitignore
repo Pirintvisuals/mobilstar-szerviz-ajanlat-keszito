@@ -8,3 +8,4 @@ data/learned.json
 # A műhelyek valódi ajánlatai a visszaméréshez (backtest.mjs): árak, nem publikus.
 private/
 .DS_Store
+data/*.demo-*.json
