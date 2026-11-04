@@ -64,7 +64,8 @@ Promise.all([
     st.jobs = jobs || [];
     st.cars = cars.makes || [];
     $('shop-name').textContent = `${shop.name} · árajánlat`;
-    $('dl-makes').innerHTML = st.cars.map((m) => `<option value="${esc(m.make)}">`).join('');
+    // Ékezet nélkül a listában: a böngésző az "s"-re nem hozza fel a "Škoda"-t.
+    $('dl-makes').innerHTML = st.cars.map((m) => `<option value="${esc(m.make.normalize('NFD').replace(/[̀-ͯ]/g, ''))}">`).join('');
     $('dl-oils').innerHTML = (shop.oils || []).map((o) => `<option value="${esc(o.name)}">`).join('');
     $('dl-fbrands').innerHTML = (shop.brandsByPart?.['Oil Filter'] || []).map((b) => `<option value="${esc(b)}">`).join('');
     renderJobs();
@@ -82,6 +83,8 @@ const carName = () => [val('oc-make'), val('oc-model'), val('oc-engine')].filter
 const fold = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim();
 const findMake = () => st.cars.find((m) => fold(m.make) === fold(val('oc-make')));
 const findModel = () => findMake()?.models.find((m) => fold(m.name) === fold(val('oc-model')));
+// A kiválasztott márka a hivatalos írásmóddal ("Skoda" -> "Škoda"), hogy a tanult adat kulcsa ugyanaz maradjon.
+$('oc-make').addEventListener('change', () => { const mk = findMake(); if (mk && $('oc-make').value !== mk.make) $('oc-make').value = mk.make; });
 function fillLists() {
     $('dl-models').innerHTML = (findMake()?.models || []).map((m) => `<option value="${esc(m.name)}">`).join('');
     $('dl-engines').innerHTML = (findModel()?.engines || []).map((e) => `<option value="${esc(e)}">`).join('');
