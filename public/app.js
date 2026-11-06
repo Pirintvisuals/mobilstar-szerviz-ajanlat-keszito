@@ -49,7 +49,7 @@ const OIL = 'OIL';
 
 const fresh = () => ({ eng: null, engKey: null, filterSel: null, useOwn: true, oil: '', liters: null, oilTouched: false,
     sel: [], partEdits: {}, partAns: {}, manual: [], hours: null, axle: 'első', answers: {},
-    tdVehicleId: null, td: { jobs: {}, checks: {}, byName: {} },
+    tdVehicleId: null, td: { jobs: {}, checks: {}, byName: {}, err: '' },
     extraOn: {}, prices: {}, qty: {}, disc: {}, quoteNo: null, t0: null, doneIn: null, localFilter: null, ic: {} });
 const st = { shop: null, cars: [], jobs: [], ...fresh() };
 
@@ -134,7 +134,7 @@ $('vin').addEventListener('input', () => {
     startClock();
     const v = cleanVin($('vin').value);
     const hint = $('vin-hint');
-    if (!v) { hint.textContent = ''; $('vin-cars').innerHTML = ''; lastVin = ''; st.tdVehicleId = null; st.td = { jobs: {}, checks: {}, byName: {} }; renderParts(); render(); return; }
+    if (!v) { hint.textContent = ''; $('vin-cars').innerHTML = ''; lastVin = ''; st.tdVehicleId = null; st.td = { jobs: {}, checks: {}, byName: {}, err: '' }; renderParts(); render(); return; }
     if (!vinLooksValid(v)) { hint.textContent = `${v.length}/17 karakter`; $('vin-cars').innerHTML = ''; return; }
     const make = vinMake(v), year = vinYear(v);
     hint.innerHTML = [make && `<b>${esc(make)}</b>`, year && `${year}-es évjárat`].filter(Boolean).join(' · ') || 'Érvényes alvázszám';
@@ -151,7 +151,7 @@ async function vinCars(v) {
     const my = ++vinSeq;
     $('vin-cars').innerHTML = '<div class="note">Keresés az alvázszám alapján…</div>';
     let r;
-    try { r = await api({ action: 'td-vin', vin: v }); } catch (e) { if (my === vinSeq) $('vin-cars').innerHTML = `<div class="note">${esc(e.message)}</div>`; return; }
+    try { r = await api({ action: 'td-vin', vin: v }); } catch (e) { if (my === vinSeq) { st.td.err = e.message; $('vin-cars').innerHTML = `<div class="note miss">${esc(e.message)}</div>`; renderParts(); render(); } return; }
     if (my !== vinSeq) return;
     const cars = r.vehicles || [];
     if (!cars.length) { $('vin-cars').innerHTML = '<div class="note">Ehhez az alvázszámhoz nincs találat - add meg kézzel.</div>'; return; }
@@ -163,7 +163,7 @@ async function vinCars(v) {
 const FUEL = (f) => { const x = fold(f); return /diesel/.test(x) ? (/electro|hybrid/.test(x) ? 'dízel hibrid' : 'dízel') : /petrol|benzin|gasoline/.test(x) ? (/electro|hybrid/.test(x) ? 'benzin hibrid' : 'benzin') : /electr/.test(x) ? 'elektromos' : ''; };
 async function pickVinCar(vehicleId) {
     $('vin-cars').querySelectorAll('.res').forEach((b) => b.setAttribute('aria-pressed', b.dataset.vid === String(vehicleId)));
-    if (String(st.tdVehicleId) !== String(vehicleId)) { st.tdVehicleId = vehicleId; st.td = { jobs: {}, checks: {}, byName: {} }; }
+    if (String(st.tdVehicleId) !== String(vehicleId)) { st.tdVehicleId = vehicleId; st.td = { jobs: {}, checks: {}, byName: {}, err: '' }; }
     loadTd();
     let d;
     try { d = (await api({ action: 'td-car', vehicleId })).details; } catch { d = null; }
@@ -230,9 +230,9 @@ async function loadTd() {
     if (!jobs.length && !checks.length) return;
     const keep = (r) => { if (String(vid) !== String(st.tdVehicleId)) return; for (const g of r?.parts || []) if (g.articles?.length) st.td.byName[g.name] = g; };
     await Promise.all([
-        ...jobs.map(async (k) => { st.td.jobs[k] = 'loading'; try { keep(await api({ action: 'td-job', vehicleId: vid, job: k, m: M })); st.td.jobs[k] = true; } catch { st.td.jobs[k] = false; } }),
+        ...jobs.map(async (k) => { st.td.jobs[k] = 'loading'; try { keep(await api({ action: 'td-job', vehicleId: vid, job: k, m: M })); st.td.jobs[k] = true; } catch (e) { st.td.jobs[k] = false; st.td.err = e.message; } }),
         ...checks.map(async (x) => { const key = `${x.c.job}.${x.c.id}.${x.i}`; st.td.checks[key] = 'loading';
-            try { keep(await api({ action: 'td-check', vehicleId: vid, job: x.c.job, check: x.c.id, opt: x.i, m: M })); st.td.checks[key] = true; } catch { st.td.checks[key] = false; } }),
+            try { keep(await api({ action: 'td-check', vehicleId: vid, job: x.c.job, check: x.c.id, opt: x.i, m: M })); st.td.checks[key] = true; } catch (e) { st.td.checks[key] = false; st.td.err = e.message; } }),
     ]);
     renderParts(); render();
 }
@@ -351,6 +351,13 @@ $('checks').addEventListener('click', (ev) => {
 // Féknél tengelyenként külön sor (első / hátsó / mindkettő), külön megjegyezve.
 const AXLES = { 'első': ['első'], 'hátsó': ['hátsó'], 'mindkettő': ['első', 'hátsó'] };
 const axles = () => AXLES[st.axle] || AXLES['első'];
+// Miért nincs TecDoc-lista egy sorhoz - pirossal kiírjuk, hogy látszódjon, mi nem elérhető most.
+function tdMissing(p) {
+    if (!st.vinLookup) return '';
+    if (!st.tdVehicleId) return st.td.err ? `Nem elérhető most: ${st.td.err}` : 'Nincs alkatrészlista - add meg az alvázszámot, és az összes illő cikk megjelenik';
+    if (st.td.err && !st.td.byName[p.base]) return `Nem elérhető most: ${st.td.err}`;
+    return 'Ehhez az autóhoz nincs ilyen alkatrész a TecDoc-tesztben (demó) - írd be kézzel';
+}
 function partList() {
     const tdOilFilter = hasOil() && st.eng?.filter?.kind === 'none' && !st.localFilter && !!st.td.byName['Oil Filter'];
     return planParts(selJobs(), answered(), axles(), { oilFilter: tdOilFilter });
@@ -389,7 +396,8 @@ function renderParts() {
                 ${idx.slice(0, 80).map((k) => { const a = arts[k]; return `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(`${a.brand} ${a.articleNo}${a.preferred ? ' ★' : ''} · ${visibleSpecs(a.specs, 3).map(specText).join(', ')}`)}</option>`; }).join('')}
                 <option value="-1" ${cur < 0 ? 'selected' : ''}>Más / kézzel beírva</option></select>
               <div class="hint">${shown.length}${shown.length < arts.length ? ` / ${arts.length}` : ''} illő cikk a TecDoc-tesztből${!r && tdVariants(shown) ? ` · <span class="miss">eltérnek: ${esc(tdVariants(shown))} - ellenőrizd</span>` : ''}</div>`
-            : loading ? '<div class="hint">Alkatrészek betöltése az alvázszám alapján…</div>' : '';
+            : loading ? '<div class="hint">Alkatrészek betöltése az alvázszám alapján…</div>'
+            : tdMissing(p) ? `<div class="hint"><span class="miss">● ${esc(tdMissing(p))}</span></div>` : '';
         return `<div class="prow" data-part="${esc(p.name)}">
             <div class="lab">${esc(p.label)}${st.eng?.parts?.[p.name] && !st.partEdits[p.name] ? ' <span class="badge">megjegyezve</span>' : d.td ? ' <span class="badge">javaslat</span>' : ''}</div>
             ${pick}

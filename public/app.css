@@ -132,7 +132,7 @@ aside.col { position: sticky; top: 12px; }
 .lines .sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
 .lines .sub a { color: var(--accent-ink); }
 .lines .cik { font-family: ui-monospace, Consolas, monospace; color: var(--ink); font-weight: 600; }
-.lines .miss { color: var(--bad); font-weight: 600; }
+.lines .miss, .prow .miss, .note.miss { color: var(--bad); font-weight: 600; }
 .cell { width: 76px; border: 1px solid transparent; background: none; text-align: right; padding: 3px 5px; border-radius: 6px; }
 .cell:hover { border-color: var(--border); }
 .cell:focus { border-color: var(--accent-strong); background: var(--soft); outline: none; }
