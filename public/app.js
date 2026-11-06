@@ -60,6 +60,7 @@ Promise.all([
 ]).then(([{ shop, jobs, vinLookup, interCars }, cars]) => {
     st.shop = shop;
     st.vinLookup = !!vinLookup;
+    $('vin-examples').hidden = !st.vinLookup;
     st.interCars = !!interCars;
     st.jobs = jobs || [];
     st.cars = cars.makes || [];
@@ -158,8 +159,28 @@ async function vinCars(v) {
     $('vin-cars').innerHTML = (cars.length > 1 ? `<div class="note">${cars.length} változat illik erre az alvázszámra - melyik?</div>` : '')
         + cars.map((c) => `<button class="res" type="button" data-vid="${c.vehicleId}"><span class="t">${esc(c.name)}</span></button>`).join('')
         + '<div class="hint">Teszt-adatforrás. Éles használat előtt licencelt alvázszám-szolgáltatásra cseréljük.</div>';
-    if (cars.length === 1) pickVinCar(cars[0].vehicleId);
+    const pref = cars.find((c) => String(c.vehicleId) === String(prefVid));
+    prefVid = null;
+    if (pref || cars.length === 1) pickVinCar((pref || cars[0]).vehicleId);
 }
+// Példaautók a bemutatóhoz: a válaszaik a repóban vannak (data/tecdoc-demo), nem fogy keret.
+// A Volvónál két változat jön (AWD / nem AWD); az AWD van elmentve, azt választjuk.
+const EXAMPLES = {
+    volvo: { vin: 'YV1UZK5VCN1025286', vehicleId: 136378 },
+    merc: { vehicleId: 9433, name: 'MERCEDES-BENZ SL (R129) 500 (129.068)' },
+};
+let prefVid = null;
+$('vin-examples').addEventListener('click', (ev) => {
+    const ex = EXAMPLES[ev.target.closest('[data-ex]')?.dataset.ex];
+    if (!ex) return;
+    for (const id of ['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when']) $(id).value = '';
+    $('vin').value = ex.vin || '';
+    if (ex.vin) { prefVid = ex.vehicleId; $('vin').dispatchEvent(new Event('input', { bubbles: true })); return; }
+    $('vin').dispatchEvent(new Event('input', { bubbles: true }));
+    $('vin-hint').textContent = 'Mintaautó alvázszám nélkül. Élesben ide az alvázszám kerül.';
+    $('vin-cars').innerHTML = `<button class="res" type="button" data-vid="${ex.vehicleId}"><span class="t">${esc(ex.name)}</span></button>`;
+    pickVinCar(ex.vehicleId);
+});
 const FUEL = (f) => { const x = fold(f); return /diesel/.test(x) ? (/electro|hybrid/.test(x) ? 'dízel hibrid' : 'dízel') : /petrol|benzin|gasoline/.test(x) ? (/electro|hybrid/.test(x) ? 'benzin hibrid' : 'benzin') : /electr/.test(x) ? 'elektromos' : ''; };
 async function pickVinCar(vehicleId) {
     $('vin-cars').querySelectorAll('.res').forEach((b) => b.setAttribute('aria-pressed', b.dataset.vid === String(vehicleId)));
