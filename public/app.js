@@ -14,7 +14,7 @@ import { apiFetch } from './auth.js';
 import { huf } from './quote.js';
 import { cleanVin, vinLooksValid, vinMake, vinYear } from './vin.js';
 import { letterParts, letterText, printQuoteHtml, fmtQty } from './print.js';
-import { visibleSpecs, specText, analyze, answerText, isMmLabel } from './pick.js';
+import { visibleSpecs, specText, specLabel, specRank, huValue, isMm, analyze, answerText, isMmLabel } from './pick.js';
 import { activeJobs, checkList as checksOf, answeredOf, needsOil, partList as planParts, extrasList as planExtras, labourOf, icLine, codeOptions } from './plan.js';
 
 const $ = (id) => document.getElementById(id);
@@ -413,10 +413,7 @@ function renderParts() {
                 <div class="opts">${q.options.map((o) => `<button type="button" class="btn opt" data-pans="${esc(q.label)}" data-val="${esc(o.value)}"${typeof o.value === 'number' ? ' data-num="1"' : ''}>${esc(answerText(q.label, o.value, q.mm))}<span class="m">${o.count} cikk</span></button>`).join('')}
                 <button type="button" class="btn opt" data-pans="${esc(q.label)}" data-val="">nem tudom<span class="m">mindet mutatja</span></button></div></div>` : '';
         const answers = asked.length ? `<div class="answers">${asked.map(([l, v]) => `<button type="button" class="ans" data-pundo="${esc(l)}" title="Válasz törlése">${esc(l)}: <b>${esc(answerText(l, v, isMmLabel(l)))}</b> ✕</button>`).join('')}</div>` : '';
-        const pick = arts.length ? `${ask}${answers}<select class="inp tdpick" data-f="td" aria-label="${esc(p.label)} választás">
-                ${idx.slice(0, 80).map((k) => { const a = arts[k]; return `<option value="${k}" ${k === cur ? 'selected' : ''}>${esc(`${a.brand} ${a.articleNo}${a.preferred ? ' ★' : ''} · ${visibleSpecs(a.specs, 3).map(specText).join(', ')}`)}</option>`; }).join('')}
-                <option value="-1" ${cur < 0 ? 'selected' : ''}>Más / kézzel beírva</option></select>
-              <div class="hint">${shown.length}${shown.length < arts.length ? ` / ${arts.length}` : ''} illő cikk a TecDoc-tesztből${!r && tdVariants(shown) ? ` · <span class="miss">eltérnek: ${esc(tdVariants(shown))} - ellenőrizd</span>` : ''}</div>`
+        const pick = arts.length ? tdPicker(p, arts, idx, cur, r, ask, answers, shown)
             : loading ? '<div class="hint">Alkatrészek betöltése az alvázszám alapján…</div>'
             : tdMissing(p) ? `<div class="hint"><span class="miss">● ${esc(tdMissing(p))}</span></div>` : '';
         return `<div class="prow" data-part="${esc(p.name)}">
@@ -439,8 +436,72 @@ function renderParts() {
     $('parts').innerHTML = axleRow + rows.join('') + manual.join('')
         || '<p class="hint">Ehhez a munkához nincs külön alkatrész. Ha kell, add hozzá lent.</p>';
 }
+// ---------- TecDoc-választó: képpel, műszaki adattal, részletekkel ----------
+//  Kiválasztott cikk esetén egy sorrá csukódik; kinyitva a kiválasztott, az
+//  ajánlott és a műhely márkái elöl, képpel; alul az összes illő cikk.
+//  "Részletek" = nagy kép + minden műszaki adat.
+const partOpen = {};          // alkatrész neve -> kinyitva?
+const detailOpen = new Set(); // "alkatrész:index"
+const allOpen = new Set();    // melyik "Összes illő cikk" van kinyitva
+function artDetail(a) {
+    const rows = (a.specs || []).filter((x) => x.value !== '' && x.value != null)
+        .map((x) => `<tr><td>${esc(specLabel(x.name) || x.name.replace(/\s*\[.*\]/, ''))}</td><td>${esc(huValue(x.value))}${isMm(x.name) ? ' mm' : ''}</td></tr>`).join('');
+    return `<div class="detail">
+        ${a.img ? `<img class="big" src="${esc(a.img)}" alt="">` : ''}
+        <div class="dbody"><table><tr><td>Gyártó</td><td><b>${esc(a.brand)}</b></td></tr>
+        <tr><td>Cikkszám</td><td class="mono">${esc(a.articleNo)}</td></tr>
+        <tr><td>Megnevezés</td><td>${esc(a.name)}</td></tr>${rows}</table>
+        ${rows ? '' : '<div class="hint">Ehhez a cikkhez nincs több műszaki adat.</div>'}</div></div>`;
+}
+const keySpecs = (a, n) => visibleSpecs(a.specs, 12).filter((x) => specLabel(x.name)).slice(0, n);
+function artOption(name, a, k, on, pic, rec, label) {
+    const key = `${name}:${k}`, open = detailOpen.has(key);
+    const specs = keySpecs(a, 4).map((x) => `<span class="spec${specRank(x) < 3 ? ' key' : ''}">${esc(specText(x))}</span>`).join('');
+    return `<label class="oil part${pic ? '' : ' nopic'}${on ? ' in-quote' : ''}"><input type="radio" name="tp-${esc(name)}${pic ? '' : '-all'}" data-tdsel="${k}" ${on ? 'checked' : ''}>
+        ${!pic ? '' : a.img ? `<img class="thumb" src="${esc(a.img)}" alt="" loading="lazy">` : '<span class="thumb"></span>'}
+        <span class="info"><span class="t">${esc(a.brand)} <span class="mono">${esc(a.articleNo)}</span>${rec ? '<span class="badge rec-b">ajánlott</span>' : ''}${a.preferred ? '<span class="badge">a műhely márkája</span>' : ''}</span>
+        ${on ? '<span class="inq">✓ Az ajánlatban</span>' : '<span class="pick-cta">Ezt kérem</span>'}
+        <span class="m">${esc(label)}${a.price != null ? ` · legutóbbi ár: ${esc(huf(a.price))}` : ''}</span>${specs ? `<span class="specs">${specs}</span>` : ''}
+        <button type="button" class="linkbtn more" data-more="${esc(key)}" aria-expanded="${open}">${open ? 'Részletek elrejtése ▴' : 'Részletek ▾'}</button></span>${open ? artDetail(a) : ''}</label>`;
+}
+function tdPicker(p, arts, idx, cur, r, ask, answers, shown) {
+    const name = p.name, chosen = cur >= 0 ? arts[cur] : null;
+    const count = `${shown.length}${shown.length < arts.length ? ` / ${arts.length}` : ''} illő cikk a TecDoc-tesztből`;
+    if (chosen && !r?.question && !partOpen[name]) {
+        const specs = keySpecs(chosen, 3).map((x) => `<span class="spec">${esc(specText(x))}</span>`).join('');
+        return `${answers}<button type="button" class="pc-sum" data-popen="${esc(name)}" title="Másik alkatrész választása">
+              ${chosen.img ? `<img class="thumb" src="${esc(chosen.img)}" alt="" loading="lazy">` : '<span class="thumb"></span>'}
+              <span class="info"><span class="t">${esc(chosen.brand)} <span class="mono">${esc(chosen.articleNo)}</span></span>
+              <span class="m">${esc(p.label)}</span>${specs ? `<span class="specs">${specs}</span>` : ''}</span>
+              <span class="chg">Másik ▾<span class="m">${shown.length} illik</span></span></button>`;
+    }
+    const top = [...new Set([cur, r?.recommended, ...idx.filter((k) => arts[k].preferred)].filter((k) => k != null && k >= 0))].slice(0, 5);
+    return `${answers}${ask}
+        <div class="oils">${top.map((k) => artOption(name, arts[k], k, k === cur, true, k === r?.recommended, p.label)).join('')}</div>
+        <details class="plain" data-all="${esc(name)}"${allOpen.has(name) ? ' open' : ''}><summary>Összes illő cikk (${idx.length})</summary>
+          <div class="oils all">${idx.map((k) => artOption(name, arts[k], k, k === cur, false, false, p.label)).join('')}</div></details>
+        <div class="hint">${count}${!r && tdVariants(shown) ? ` · <span class="miss">eltérnek: ${esc(tdVariants(shown))} - ellenőrizd</span>` : ''}</div>
+        ${chosen && !r?.question ? `<button type="button" class="btn ghost done-btn" data-pclose="${esc(name)}">Kész, összecsuk ▴</button>` : ''}`;
+}
+function pickTd(name, k) {
+    const p = partList().find((x) => x.name === name);
+    const a = p && tdArticles(p)[k];
+    if (!a) return;
+    const d = { brand: a.brand, cikkszam: a.articleNo, qty: partFor(p).qty ?? 1 };
+    st.partEdits[name] = d;
+    delete st.prices['p-' + name];
+    partOpen[name] = false;
+    post({ action: 'oc-part', engineCode: val('oc-code'), car: carName(), part: name, ...d });
+    renderParts(); render();
+}
+$('parts').addEventListener('toggle', (ev) => {
+    const n = ev.target.dataset?.all;
+    if (n) { if (ev.target.open) allOpen.add(n); else allOpen.delete(n); }
+}, true);
+
 let partTimer = {};
 $('parts').addEventListener('change', (ev) => {
+    if (ev.target.dataset.tdsel != null) { pickTd(ev.target.closest('.prow').dataset.part, Number(ev.target.dataset.tdsel)); return; }
     if (ev.target.dataset.f === 'td') {
         const name = ev.target.closest('.prow').dataset.part;
         const p = partList().find((x) => x.name === name);
@@ -481,6 +542,16 @@ $('parts').addEventListener('input', (ev) => {
     }, 700);
 });
 $('parts').addEventListener('click', (ev) => {
+    const more = ev.target.closest('[data-more]');
+    if (more) {
+        ev.preventDefault();
+        const key = more.dataset.more;
+        if (detailOpen.has(key)) detailOpen.delete(key); else detailOpen.add(key);
+        renderParts();
+        return;
+    }
+    const po = ev.target.closest('[data-popen]'), pc = ev.target.closest('[data-pclose]');
+    if (po || pc) { partOpen[po ? po.dataset.popen : pc.dataset.pclose] = !!po; renderParts(); return; }
     const qa = ev.target.closest('[data-pans]'), qu = ev.target.closest('[data-pundo]');
     if (qa || qu) {
         const name = ev.target.closest('.prow').dataset.part;
