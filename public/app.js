@@ -34,7 +34,7 @@ function showDemo(d) {
     st.demo = true; // a bemutató nem tanít: a beírt szűrő csak ebben az ajánlatban él
     const el = $('demo-badge');
     el.hidden = false;
-    el.textContent = d.out || !d.vinsLeft ? 'Bemutató · a keret elfogyott'
+    el.textContent = d.out || !d.vinsLeft ? 'Bemutató · a példaautókkal próbáld'
         : `Bemutató · még ${d.vinsLeft} alvázszám (${d.vinLimit}-ből)`;
 }
 const post = (body) => api(null, body).catch(() => null); // tanulás: ha nem sikerül, az ajánlat attól még megy
@@ -61,6 +61,13 @@ Promise.all([
     st.shop = shop;
     st.vinLookup = !!vinLookup;
     $('vin-examples').hidden = !st.vinLookup;
+    // Bemutató-linken a példaautók az 1. lépés tetején, kiemelve: ezekkel
+    // kezdjen, ezek sosem fogynak el.
+    if (st.demo) {
+        const ex = $('vin-examples');
+        ex.classList.add('hero');
+        ex.closest('.card').querySelector('h2').after(ex);
+    }
     st.interCars = !!interCars;
     st.jobs = jobs || [];
     st.cars = cars.makes || [];
@@ -171,8 +178,10 @@ const EXAMPLES = {
 };
 let prefVid = null;
 $('vin-examples').addEventListener('click', (ev) => {
-    const ex = EXAMPLES[ev.target.closest('[data-ex]')?.dataset.ex];
+    const key = ev.target.closest('[data-ex]')?.dataset.ex;
+    const ex = EXAMPLES[key];
     if (!ex) return;
+    $('vin-examples').querySelectorAll('[data-ex]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.ex === key));
     for (const id of ['oc-make', 'oc-model', 'oc-engine', 'oc-code', 'oc-when']) $(id).value = '';
     $('vin').value = ex.vin || '';
     if (ex.vin) { prefVid = ex.vehicleId; $('vin').dispatchEvent(new Event('input', { bubbles: true })); return; }

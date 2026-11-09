@@ -25,7 +25,7 @@ import { searchVehicles, engineOilFor, olyslagerConfigured } from '../lib/olysla
 import { icConfigured, icPrices } from '../lib/intercars.js';
 import { seriesForModel, engineRowsForSeries } from '../lib/tecdoc.js';
 import { carCodeMemo, saveCarCodes, parseMonth } from '../lib/store.js';
-import { JOBS, jobsForClient, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, jobAvailability, oemLookup } from '../lib/tecdoc.js';
+import { JOBS, jobsForClient, DEMO_VEHICLE, tecdocStatus, vinLookup, vehicleDetails, partsForJob, partsForCheck, jobAvailability, oemLookup, tecdocScope, setCacheOnly } from '../lib/tecdoc.js';
 import { matchFuchs, sameOil } from '../lib/match.js';
 import { oilPrice, filterFor, rememberFilter, proofCases, normCode,
     learnedPicks, rememberPick, priceKey, learnedPrice, rememberPrice, nextQuoteNumber, hydrate, flush,
@@ -125,8 +125,13 @@ async function carCodes(make, model, when) {
 // (egy fékcsere alvázszámmal 5-10 hívás is lehet, a havi keret pedig kicsi).
 // Két kivétel: nem tanít (LEARN_ACTIONS), és a Korábbi ajánlatok fülön csak a
 // saját ajánlatait látja, a műhely ügyfeleinek nevét, rendszámát nem.
-const DEMO_VINS = Number(process.env.DEMO_VIN_LIMIT) || 10;
-const DEMO_CALLS = Number(process.env.DEMO_CALL_LIMIT) || 80;
+// Egy link több embernél is lehet (a keret közös), ezért bőven van; a valódi
+// plafon úgyis a RapidAPI havi kerete. A keret fölött a link nem áll le: a
+// példaautók és a már lekérdezett autók mennek tovább (csak elmentett válasz).
+const DEMO_VINS = Number(process.env.DEMO_VIN_LIMIT) || 100;
+const DEMO_CALLS = Number(process.env.DEMO_CALL_LIMIT) || 1000;
+// A példaautók alvázszáma nem fogy a keretből (a válaszuk a repóban van).
+const EXAMPLE_VINS = new Set(['YV1UZK5VCN1025286']);
 // A bemutató nem tanít: amit átír vagy választ, az nem jegyződik meg (a műhely
 // adata tiszta marad). A saját ajánlatai és a keret számlálója igen.
 const LEARN_ACTIONS = new Set(['filter', 'oc-learn', 'oc-part', 'oc-labour', 'oc-xref', 'td-learn', 'td-price']);
@@ -140,7 +145,7 @@ function demoFor(key) {
     return null;
 }
 const demoInfo = (d) => ({ vinsLeft: Math.max(0, DEMO_VINS - d.vins.length), vinLimit: DEMO_VINS, out: d.calls >= DEMO_CALLS });
-const DEMO_OUT = 'A bemutató kerete elfogyott. Írj Milánnak, és kapsz újat.';
+const DEMO_OUT = 'Új alvázszámra most nincs keret, de a fenti két példaautóval minden kipróbálható. Írj Milánnak, és kapsz újat.';
 
 export default async function handler(req, res) {
     res.setHeader('Cache-Control', 'no-store');
@@ -164,7 +169,7 @@ export default async function handler(req, res) {
     if (demo && (action === 'quotes' || action === 'quote-save')) {
         if (action === 'quotes') q.m = `demo-${demo}`; else body = { ...body, m: `demo-${demo}` };
     }
-    return serve(req, res, q, body, action, demo);
+    return tecdocScope(() => serve(req, res, q, body, action, demo));
 }
 
 async function serve(req, res, q, body, action, demo) {
@@ -186,11 +191,12 @@ async function serve(req, res, q, body, action, demo) {
         if (demo && LEARN_ACTIONS.has(action)) return send(200, { persisted: false });
         if (demo && TD_ACTIONS.has(action)) {
             const d = demoUsage(demo);
-            if (d.calls >= DEMO_CALLS) return send(429, { error: DEMO_OUT });
+            const out = d.calls >= DEMO_CALLS;
+            if (out) setCacheOnly(DEMO_OUT);
             if (action === 'td-vin') {
                 const v = String(q.vin || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
-                if (v.length === 17 && !d.vins.includes(v)) {
-                    if (d.vins.length >= DEMO_VINS) return send(429, { error: DEMO_OUT });
+                if (v.length === 17 && !d.vins.includes(v) && !EXAMPLE_VINS.has(v)) {
+                    if (out || d.vins.length >= DEMO_VINS) return send(429, { error: DEMO_OUT });
                     d.vins.push(v);
                     newVin = v;
                     saveDemoUsage();
