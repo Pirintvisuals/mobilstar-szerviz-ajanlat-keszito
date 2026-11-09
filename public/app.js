@@ -34,8 +34,16 @@ function showDemo(d) {
     st.demo = true; // a bemutató nem tanít: a beírt szűrő csak ebben az ajánlatban él
     const el = $('demo-badge');
     el.hidden = false;
-    el.textContent = d.out || !d.vinsLeft ? 'Bemutató · a példaautókkal próbáld'
+    const out = d.out || !d.vinsLeft;
+    el.textContent = out ? 'Bemutató · a példaautókkal próbáld'
         : `Bemutató · még ${d.vinsLeft} alvázszám (${d.vinLimit}-ből)`;
+    // A példaautós dobozban is: hány saját alvázszámos keresés maradt.
+    const c = $('ex-count');
+    c.hidden = false;
+    c.classList.toggle('out', out);
+    c.innerHTML = out
+        ? 'Saját alvázszámra elfogyott a keret. A két példaautó továbbra is működik.'
+        : `Saját alvázszámmal még <b>${d.vinsLeft}</b> keresés van (${d.vinLimit}-ből). A példaautók nem számítanak bele.`;
 }
 const post = (body) => api(null, body).catch(() => null); // tanulás: ha nem sikerül, az ajánlat attól még megy
 const parseNum = (s) => {

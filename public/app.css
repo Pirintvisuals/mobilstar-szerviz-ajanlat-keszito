@@ -345,3 +345,7 @@ aside.col { position: sticky; top: 12px; }
 .examples.hero .ex-t { font-weight: 700; }
 .examples.hero .ex-d { display: block; font-size: 12px; color: var(--muted); }
 .examples.hero .ex-car[aria-pressed="true"] .ex-d { color: var(--dark); }
+.examples .ex-count { display: none; }
+.examples.hero .ex-count { display: block; width: 100%; font-size: 13px; color: var(--ink); padding: 8px 10px; border-radius: 8px; background: var(--card); border: 1px dashed var(--accent); }
+.examples.hero .ex-count b { font-size: 16px; color: var(--accent-ink); }
+.examples.hero .ex-count.out { border-color: var(--bad); color: var(--bad); }

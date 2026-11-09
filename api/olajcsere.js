@@ -128,7 +128,7 @@ async function carCodes(make, model, when) {
 // Egy link több embernél is lehet (a keret közös), ezért bőven van; a valódi
 // plafon úgyis a RapidAPI havi kerete. A keret fölött a link nem áll le: a
 // példaautók és a már lekérdezett autók mennek tovább (csak elmentett válasz).
-const DEMO_VINS = Number(process.env.DEMO_VIN_LIMIT) || 100;
+const DEMO_VINS = Number(process.env.DEMO_VIN_LIMIT) || 50;
 const DEMO_CALLS = Number(process.env.DEMO_CALL_LIMIT) || 1000;
 // A példaautók alvázszáma nem fogy a keretből (a válaszuk a repóban van).
 const EXAMPLE_VINS = new Set(['YV1UZK5VCN1025286']);
